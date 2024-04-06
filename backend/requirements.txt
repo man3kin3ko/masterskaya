@@ -3,3 +3,5 @@ SQLAlchemy~=2.0.29
 python-telegram-bot
 fastapi
 uvicorn[standard]
+flask_login
+flask_sqlalchemy
