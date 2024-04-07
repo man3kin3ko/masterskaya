@@ -4,9 +4,16 @@ from typing import Union
 from fastapi import FastAPI
 import csv
 from pydantic import BaseModel
-
+from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class OrderFormRequestSchema(BaseModel):
