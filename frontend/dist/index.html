@@ -18,49 +18,86 @@
 
 <body>
     <div id="content">
+        <header class="bg-body-tertiary d-flex flex-wrap mb-4 border-bottom align-items-center justify-content-between">
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
+                <div class="navbar-nav">
+                  <div class="dropdown">
+                    <a class="nav-link active" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="true">Запчасти</a>
+                    <ul class="dropdown-menu pl-2 pr-3 show" aria-labelledby="dropdownMenuLink" data-popper-placement="bottom-end" style="position: absolute;">
+                        <li><h5 class="dropdown-header">⚡ Электроника</h5></li>
+                        <li><a class="dropdown-item" href="/store/spares/electrical/stubs/">Шлейфа</a></li>
+                        <li><a class="dropdown-item" href="/store/spares/electrical/matrices/">Матрицы</a></li>
+                        <li><a class="dropdown-item" href="/store/spares/electrical/circuits/">Платы</a></li>
+                        <li><h5 class="dropdown-header">⚙️ Механика</h5></li>
+                        <li><a class="dropdown-item" href="/store/spares/mecha/shutter/">Затворы</a></li>
+                      </ul>
+                  </div>
+                  <a class="nav-link" href="/store/cameras/">Фотоаппараты</a>
+                  <a class="nav-link" href="#repair_order">Заказать ремонт</a>
+                  <a class="nav-link" href="https://t.me/masterskaya35ru">Блог</a>
+                </div>
+              </div>
+            </div>
+            
+          </nav>
+          <a href="/" class="navbar-brand"><img class="d-inline-block align-text-top" height="32" width="32" alt="Logo" src="logo.svg" style="margin-right:2rem"></a>
+        </header>
         <section class="section mt-2">
-            <div class="container">
-                <div class="d-grid gap-2 d-flex justify-content-sm-between justify-content-center">
-                    <h3 class="logo primary pt-5 text-black text-nowrap">Мастерская <span class="text-danger">35</span></h3>
-                    <div class="flex d-flex justify-content-end align-items-end">
-                        <div class="d-grid gap-2 d-flex justify-content-around">
-                            <span class="mt-5 pb-1 fw-light text-sm-end d-none d-sm-block">Санкт-Петербург, м. Московская</span>
+                <div class="p-4 pt-2 container-fluid">
+                    <div class="flex flex-row row justify-content-center">
+                    <div class="frame col col-lg-8 mx-1">
+                        <div class="px-4 py-5 text-center">
+                            <img src="leica.png">                        
+                            <h1 class="display-5 fw-bold">Мы чиним фотоаппараты</h1>
+
+                            <div class="col-lg-12 mx-auto">
+                                <h3>Всех брендов пленочных камер. <span id="typewriter" class="Typewriter__wrapper">Зен</span></h3>
+                            </div>
+                            <div class="row pb-lg-4">
+                                <div class="col-lg-6 col-md-8 mx-auto">
+                                <p class="fs-4 text-body-secondary">Привет, нас зовут Андрей и Юрий и мы уже много лет занимаемся ремонтом.</p>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <a href="#repair_order" class="btn btn-primary mt-3 p-3 rounded-pill">Уже хочу записаться</a>
+                                    <a href="tel://" class="btn btn-outline-secondary mt-3 p-3 rounded-pill">Хочу позвонить</a>
+                                </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="p-4 pt-2 container-fluid">
-                <div class="frame">
-                    <div class="px-4 py-5 text-center">
-                        <h1 class="emoji">📷❤️</h1>
-                        <h1 class="display-5 fw-bold">Мы чиним фотоаппараты</h1>
-                        <div class="col-lg-6 mx-auto">
-                            <h3 class="mb-1">Всех брендов пленочных механических камер.</h3>
-                            <h3 id="typewriter"><span class="Typewriter__wrapper">Зен</span><span
-                                    class="Typewriter__cursor">|</span></h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <section class="section">
+            <section class="section text-center">
                 <div class="container-fluid grey-color my-5 py-5">
+                    <div class="container my-5 mt-2">
+                        <h1 class="fw-bold">В чем наши преимущества?</h1>
+                    </div>
                 <div class="d-flex justify-content-center row justify-content-center">
-                    <div class="col-lg-2 text-center">
+                    <div class="col-sm-5 col-md-4 my-3 col-lg-3 col-xxl-1 col-xl-2">
                       <h1 class="emoji">🧩</h1>
-                      <h5 class="small-text">Работаем с редкими камерами и сложными кейсами</h5>
+                      <h5 class="small-text">Найдем подход к каждой проблеме</h5>
     
                     </div>
-                    <div class="col-lg-2 text-center">
-                      <h1 class="emoji">🩺</h1>
-                      <h5 class="small-text">Индивидуальный подход к каждой проблеме</h5>
+                    <div class="col-sm-5 my-3 col-md-4 col-lg-3 col-xl-2 col-xxl-1">
+                      <h1 class="emoji">⚖️</h1>
+                      <h5 class="small-text">Работаем с механикой и электроникой</h5>
     
                     </div>
-                    <div class="col-lg-2 text-center">
+                    <div class="col-sm-5 my-3 col-md-4 col-lg-3 col-xl-2 col-xxl-1">
                       <h1 class="emoji">📝</h1>
-                      <h5 class="small-text">Отчетность по состоянию техники в процессе</h5>
+                      <h5 class="small-text">Отчитаемся по состоянию техники в процессе</h5>
                       
                     </div>
                   </div>
+                </div>
+                <div class="row py-lg-5">
+                    <div class="col-lg-6 col-md-8 mx-auto">
+                        <p class="fs-4 text-body-secondary">Кроме того, мы продаем <a href="/store/spares/">запчасти</a> и <a href="/store/cameras/">отреставрированные камеры</a></p>
+                    </div>
                 </div>
             </section>
         <section class="section">
@@ -93,17 +130,20 @@
             </div>
         </section>
         <section>
-            <div class="grey-color text-center mt-5 pt-5">   
+            <div class="grey-color text-center mt-5 pt-5">
+                <div class="container text-center my-5 mt-2">
+                    <h1 class="fw-bold">Отзывы клиентов</h1>
+                </div>  
                 <div class="sw-app" data-app="5f35cd3be2497e62166a626768d62f50"></div>
             </div>
         </section>
     </section>
-        <section class="section">
+        <section class="section" id="repair_order">
             <div class="container-fluid cam-pattern py-5">
                 <div class="flex d-flex justify-content-center">
-                    <div class="card text-center shadow" style="width: 50em;">
+                    <div class="card text-center shadow" style="width: 50em; border-radius: 1.3em">
                         <div class="card-body py-4">
-                            <h2 class="display-6 fw-bold mt-2">Напишите нам</h2>
+                            <h2 class="display-6 fw-bold mt-2">Оставьте заявку на ремонт</h2>
                             <p class="text-secondary">Мы ответим как только сможем.<br>Если не удобно здесь, можно <a
                                     href="https://www.avito.ru/user/6ada76c84699006e3625aa61fe397814/profile?id=2668605970">перейти
                                     на Авито</a></p>
@@ -116,7 +156,7 @@
                                             <option value="telegram">Telegram</option>
                                             <option value="vk">VK</option>
                                     </select>
-                                    <input type="contact" class="form-control my-1 p-2" placeholder="Контакт для связи"
+                                    <input type="contact" class="form-control my-1 p-2" placeholder="Номер или никнейм для связи"
                                         id="contact" name="contact">
                                     <input class="form-control my-1 p-2" type="text" name="model" placeholder="Модель камеры">
                                     <textarea class="form-control my-1 p-2" rows="3" name="problem"
@@ -124,7 +164,7 @@
                                     </form>
                                 </div>
                                     <span class="input-group-btn">
-                                        <button class="btn btn-lg btn-primary btn-block mt-3 mx-5"
+                                        <button class="btn btn-lg btn-primary btn-block mt-3 mx-5 rounded-pill"
                                             type="button" id="formButton">Отправить</button>
                                     </span>
 
@@ -138,17 +178,8 @@
     </div>
     <div class="container-fluid">
         <footer class="row p-4 pb-0 bg-secondary">
-            <div class="col">
-                <a href="/" class="text-decoration-none text-grey">
-                    <h5 class="logo mb-0">Мастерская 35</h5>
-                </a>
-                <ul class="list-inline">
-                    <li class="list-inline-item mb-2 fw-light"><a href="#"
-                            class="text-grey noline p-0">Пользовательское соглашение</a></li>
-                    <li class="list-inline-item mb-2 fw-light"><a href="#"
-                            class="text-grey noline p-0">Прайс-лист</a></li>
-                </ul>
-                <!-- Публичная оферта?-->
+            <div class="col mb-5">
+                <!-- Work in progress :^) -->
             </div>
 
         </footer>
