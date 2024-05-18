@@ -1,6 +1,6 @@
 from telegram import Chat, ChatMember, ChatMemberUpdated, Update
 from telegram.ext import Application
-
+import os
 
 class Singleton(type):
     _instances = {}
@@ -21,3 +21,5 @@ class TelegramBridge(metaclass=Singleton):
 
     def send(self, msg):
         pass
+
+bot = TelegramBridge(os.environ["TOKEN"])

@@ -4,7 +4,7 @@ import datetime
 import sqlalchemy
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, registry
 
 
 class Status(enum.Enum):
@@ -23,11 +23,7 @@ class SocialMediaType(enum.Enum):
 
 
 class Base(DeclarativeBase):
-    type_annotation_map = {
-        Status: sqlalchemy.Enum(Status, length=50, native_enum=False, default=Status.ORDERED),
-        SocialMediaType: sqlalchemy.Enum(SocialMediaType, length=6, native_enum=False)
-    }
-
+    pass
 
 db = SQLAlchemy(model_class=Base)
 
@@ -43,16 +39,11 @@ class RepairOrder(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     uniq_link = db.Column(db.String(36), nullable=False, unique=True)
     contact: Mapped[str] = mapped_column()
-    social_media_type: SocialMediaType = mapped_column()
-    status: Status = mapped_column(default=Status.ORDERED)
+    social_media_type: Mapped[SocialMediaType] = mapped_column()
+    status: Mapped[Status] = mapped_column(default=Status.ORDERED)
     problem: Mapped[str] = mapped_column()
     model = db.Column(db.String(50), nullable=False)
     creation_time = db.Column(sqlalchemy.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.now)
-
-    def __init__(self, **kwargs):
-        if 'uniq_link' not in kwargs:
-            kwargs['uniq_link'] = uuid4()
-        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"New order `{self.uniq_link}` from {self.contact} with {self.model}:\n {self.problem}"
