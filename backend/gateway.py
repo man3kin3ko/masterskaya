@@ -46,8 +46,9 @@ def read_root():
 #         output['user_id'] = user_id
 #         writer.writerow(output)
 
-def save_data_db(order_form):
+def save_data_db(order_form, order_uuid):
     new_order = RepairOrder(
+        uniq_link=order_uuid,
         contact=order_form.contact,
         model=order_form.model,
         problem=order_form.problem,
@@ -60,9 +61,8 @@ def save_data_db(order_form):
 
 @app.post("/form")
 def read_item(order_form: OrderFormRequestSchema):
-    user_id = str(uuid.uuid4())
     try:
-        save_data_db(order_form)
+        save_data_db(order_form,str(uuid.uuid4()))
         return {}, 200
     except Exception as e:
         return {e.__repr__()}, 500

@@ -1,11 +1,21 @@
 import Typewriter from 'typewriter-effect/dist/core';
 import './style.css';
 import Master from './master_nocolor.png';
+import Leadpic from './leadpic.png';
 
-const Pic = new Image();
-Pic.src = Master;
-var pic = document.getElementById('master').appendChild(Pic);
-pic.classList.add("img-fluid", "multiply");
+function addPic(divId, Img, style=null) {
+  const Pic = new Image();
+  Pic.src = Img;
+  var parent = document.getElementById(divId);
+  var pic = parent.insertBefore(Pic, parent.firstChild);
+  pic.classList.add("img-fluid", "multiply");
+  if (style != null) {
+    pic.style.width = style;
+  }
+}
+
+addPic("master", Master);
+addPic("leadpic", Leadpic, "25%");
 
 var app = document.getElementById('typewriter');
 var typewriter = new Typewriter(app, {
