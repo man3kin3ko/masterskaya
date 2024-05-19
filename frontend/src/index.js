@@ -90,12 +90,16 @@ document.getElementById("formButton").addEventListener('click', async () => {
 
   let answer = new FormData(document.getElementById("form"));
   answer.append("soc_type", selectedOption);
-  await fetch("/submitform", {
+  await fetch("http://localhost:8000/form", {
         method: 'POST',
-        body: answer
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(Object.fromEntries(answer))
     })
     .then(res => {
-      if (res.status==200) { 
+      if (res.status == 200) { 
         alert("Спасибо за обращение");
         form.reset();
       }
