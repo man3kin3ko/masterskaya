@@ -37,15 +37,6 @@ def read_root():
         }
     }
 
-
-# def save_data_csv(order_from):
-#     with open("db.csv", 'a', newline='') as csv_output:
-#         fieldnames = ['user_id', 'contact', 'model', 'problem']
-#         writer = csv.DictWriter(csv_output, fieldnames=fieldnames)
-#         output = order_from.dict()
-#         output['user_id'] = user_id
-#         writer.writerow(output)
-
 def save_data_db(order_form, order_uuid):
     new_order = RepairOrder(
         uniq_link=order_uuid,
@@ -54,9 +45,9 @@ def save_data_db(order_form, order_uuid):
         problem=order_form.problem,
         social_media_type=order_form.soc_type
     )
-    print(new_order)  # print, чтобы посмотреть, что до работы с дб ошибок нет (repr милый)
-    # db.session.add(new_order)
-    # db.session.commit()
+
+    db.session.add(new_order)
+    db.session.commit()
 
 
 @app.post("/form")
