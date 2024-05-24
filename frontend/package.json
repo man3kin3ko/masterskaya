@@ -1,7 +1,7 @@
 {
-  "name": "minolta-labs",
+  "name": "masterskaya-35",
   "version": "0.0.0",
-  "description": "Minolta Labs App",
+  "description": "Masterskaya 35 App",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
