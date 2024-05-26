@@ -3,12 +3,6 @@ import './style.css';
 import Master from './master_nocolor.png';
 import Leadpic from './leadpic.png';
 
-let hoverArea = document.getElementById("dropdownMenuLink");
-hoverArea.onclick = (e) => {
-    let dropdownMenu = e.target.nextElementSibling;
-    dropdownMenu.hidden = !dropdownMenu.hidden;
-}
-
 function addPic(divId, Img, style=null) {
   const Pic = new Image();
   Pic.src = Img;

@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600&display=swap" rel="stylesheet">
@@ -17,18 +18,17 @@
 </head>
 
 <body>
-    <div id="content">
         <header class="bg-body-tertiary d-flex flex-wrap mb-4 border-bottom align-items-center justify-content-between">
-        <nav class="navbar navbar-expand-sm">
-            <div class="container-fluid">
-              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-              <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
-                <div class="navbar-nav">
-                    <div class="dropdown" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="true">
-                        <a class="nav-link active" href="#" role="button">Запчасти</a>
-                        <ul hidden="false" class="dropdown-menu pl-2 pr-3 show" aria-labelledby="dropdownMenuLink" data-popper-placement="bottom-end" style="position: absolute;">
+            <nav class="navbar navbar-expand-sm">
+                <div class="container-fluid">
+                  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false">
+                    <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
+                    <div class="navbar-nav">
+                      <div class="dropdown" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Запчасти</a>
+                        <ul class="dropdown-menu pl-2 pr-3" aria-labelledby="navbarDropdown" data-popper-placement="bottom-end" style="position: absolute;">
                             <li><h5 class="dropdown-header">⚡ Электроника</h5></li>
                             <li><a class="dropdown-item" href="/store/spares/electrical/stubs/">Шлейфа</a></li>
                             <li><a class="dropdown-item" href="/store/spares/electrical/matrices/">Матрицы</a></li>
@@ -37,14 +37,14 @@
                             <li><a class="dropdown-item" href="/store/spares/mecha/shutter/">Затворы</a></li>
                           </ul>
                       </div>
-                  <a class="nav-link" href="/store/cameras/">Фотоаппараты</a>
-                  <a class="nav-link" href="#repair_order">Заказать ремонт</a>
-                  <a class="nav-link" href="https://t.me/masterskaya35ru">Блог</a>
+                      <a class="nav-link" href="/store/cameras/">Фотоаппараты</a>
+                      <a class="nav-link" href="#repair_order">Заказать ремонт</a>
+                      <a class="nav-link" href="https://t.me/masterskaya35ru">Блог</a>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            
-          </nav>
+                
+              </nav>
           <a href="/" class="navbar-brand"><img class="d-inline-block align-text-top" height="32" width="32" alt="Logo" src="logo.svg" style="margin-right:2rem"></a>
         </header>
         <section class="section mt-2">
@@ -71,35 +71,34 @@
                 </div>
                 </div>
             </div>
+        </section>
 
 
             <section class="section text-center">
-                <div class="container-fluid grey-color my-5 py-5">
-                    <div class="container my-5 mt-2">
+                <div class="grey-color my-5 py-5">
+                    <div class="my-5 mt-2">
                         <h1 class="fw-bold">В чем наши преимущества?</h1>
                     </div>
-                <div class="d-flex justify-content-center row justify-content-center">
-                    <div class="col-sm-5 col-md-4 my-3 col-lg-3 col-xxl-1 col-xl-2">
+                <div class="row d-flex mx-0 justify-content-center justify-content-center">
+                    <div class="col-sm-5 col-md-4 my-3 col-lg-3 col-xxl-1 col-xl-2 mr-0">
                       <h1 class="emoji">🧩</h1>
                       <h5 class="small-text">Найдем подход к каждой проблеме</h5>
     
                     </div>
-                    <div class="col-sm-5 my-3 col-md-4 col-lg-3 col-xl-2 col-xxl-1">
+                    <div class="col-sm-5 my-3 col-md-4 col-lg-3 col-xl-2 col-xxl-1 mr-0">
                       <h1 class="emoji">⚖️</h1>
                       <h5 class="small-text">Работаем и с механикой, и с электроникой</h5>
     
                     </div>
-                    <div class="col-sm-5 my-3 col-md-4 col-lg-3 col-xl-2 col-xxl-1">
+                    <div class="col-sm-5 my-3 col-md-4 col-lg-3 col-xl-2 col-xxl-1 mr-0">
                       <h1 class="emoji">📝</h1>
                       <h5 class="small-text">Отчитаемся по состоянию техники в процессе</h5>
                       
                     </div>
                   </div>
                 </div>
-                <div class="row py-lg-5">
-                    <div class="col-lg-6 col-md-8 mx-auto">
-                        <p class="fs-4 text-body-secondary">Кроме того, мы продаем <a href="/store/spares/">запчасти</a> и <a href="/store/cameras/">отреставрированные камеры</a></p>
-                    </div>
+                <div class="py-lg-5 text-center">
+                        <p class="fs-4 text-body-secondary">Кроме того, мы продаем запчасти и отреставрированные камеры в нашем <a href="/frontend/dist/store.html">магазине</a></p>
                 </div>
             </section>
         <section class="section">
@@ -178,15 +177,10 @@
             </div>
             <script defer src='main.js'></script>
         </section>
-    </div>
-    <div class="container-fluid">
-        <footer class="row p-4 pb-0 bg-secondary">
-            <div class="col mb-5">
+        <footer>
                 <!-- Work in progress :^) -->
-            </div>
 
         </footer>
-    </div>
 
 </body>
 

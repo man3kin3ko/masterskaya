@@ -2,33 +2,13 @@
     background-clip: content-box;
     box-shadow: inset 0 0 0 10px #ff6f00;
   }
+
 .emoji {
     font-size: xxx-large;
-}
-.second {
-    color:rgb(228, 165, 113);
-    text-decoration: none;
 }
 .primary {
     color: #ff6f00;
     text-decoration: none;
-}
-.noline:hover{
-    text-decoration: underline;
-}
-.noline{
-    text-decoration: none;
-}
-.line {
-    border-bottom: 10px solid #ff6f00;
-}
-.logo {
-    font-family: 'Lora', serif;
-    font-size: xx-large;
-}
-.img-icon {
-    max-height:40px;
-    max-width:40px;
 }
 .multiply {
     mix-blend-mode: multiply;
@@ -45,14 +25,27 @@
 .primary-dark {
     background-color: rgb(211, 84, 26);
 }
-.circle {
-    border-radius: 50%
-}
-.text-grey {
-    color: #363839 !important;
-}
 .small-text {
     max-width: 90%; 
     text-align: center; 
     margin:0 auto;
+}
+
+@media (min-width: 770px) {
+.desktop-image {
+    background-repeat: no-repeat;
+    z-index: 10;
+}}
+
+@media (max-width: 770px) {
+    .desktop-image {
+    background-repeat: no-repeat;
+    z-index: 10;
+    background-image: none !important;
+}}
+
+.shop-camera-img {
+    background-image: url('ready-camera.jpg');  
+    background-position: right; 
+    background-size: 20.2em;
 }
