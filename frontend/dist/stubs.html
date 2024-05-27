@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600&display=swap" rel="stylesheet">
+    <title>Мастерская 35</title>
+    <link rel="icon" href="logo.svg" type="image/png" sizes="192x192"/>
+    <script defer src='main.js'></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+ <!-- Smart Widgets нужен только на главной -->
+</head>
+
+<body>
+    <div id="content">
+        <header class="bg-body-tertiary d-flex flex-wrap mb-4 border-bottom align-items-center justify-content-between">
+        <nav class="navbar navbar-expand-sm">
+            <div class="container-fluid">
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
+                <div class="navbar-nav">
+                  <div class="dropdown" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link active" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Запчасти</a>
+                    <ul class="dropdown-menu pl-2 pr-3" aria-labelledby="navbarDropdown" data-popper-placement="bottom-end" style="position: absolute;">
+                        <li><h5 class="dropdown-header">⚡ Электроника</h5></li>
+                        <li><a class="dropdown-item" href="/store/spares/electrical/stubs/">Шлейфа</a></li>
+                        <li><a class="dropdown-item" href="/store/spares/electrical/matrices/">Матрицы</a></li>
+                        <li><a class="dropdown-item" href="/store/spares/electrical/circuits/">Платы</a></li>
+                        <li><h5 class="dropdown-header">⚙️ Механика</h5></li>
+                        <li><a class="dropdown-item" href="/store/spares/mecha/shutter/">Затворы</a></li>
+                      </ul>
+                  </div>
+                  <a class="nav-link" href="/store/cameras/">Фотоаппараты</a>
+                  <a class="nav-link" href="#repair_order">Заказать ремонт</a>
+                  <a class="nav-link" href="https://t.me/masterskaya35ru">Блог</a>
+                </div>
+              </div>
+            </div>
+            
+          </nav>
+          <a href="/" class="navbar-brand"><img class="d-inline-block align-text-top" height="32" width="32" alt="Logo" src="logo.svg" style="margin-right:2rem"></a>
+        </header>
+    <section>
+        <div class="row flex-row m-3 fw-bold">
+            <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/</span>
+            <h1 class="fw-bold my-2">Запчасти</h1>
+        </div>
+    </section>
+    <section>
+        <div class="container-fluid px-5 bg-light">
+            <div class="row d-flex">
+                <h2 class="fw-bold text-secondary my-5 text-center">Электроника</h2>
+                <div class="col-4 d-flex align-items-stretch">
+                    <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce">
+                        <div class="col-12 d-flex justify-content-center">
+                        <img src="zatvor.jpg" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        </div>
+                        <div class="card-body">
+                          <h4 class="fw-bold">Шлейфы</h4>
+                          <p class="card-text mb-auto">Раз раз я пидарас</p>
+                        </div>
+                        <a href="/store/spares/electrical/stubs/" class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</a>
+                      </div>
+                </div>
+                <div class="col-4 d-flex align-items-stretch">
+                    <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce">
+                        <div class="col-12 d-flex justify-content-center">
+                        <img src="zatvor.jpg" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        </div>
+                        <div class="card-body">
+                          <h4 class="fw-bold">Матрицы</h4>
+                          <p class="card-text mb-auto">Раз раз я пидарас</p>
+                        </div>
+                        <a href="/store/spares/electrical/matrices/" class="btn btn-primary p-3 btn-block" style="height: 3.5em;">Перейти в каталог</a>
+                      </div>
+                </div>
+                <div class="col-4 d-flex align-items-stretch">
+                    <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce">
+                        <div class="col-12 d-flex justify-content-center">
+                        <img src="zatvor.jpg" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        </div>
+                        <div class="card-body">
+                          <h4 class="fw-bold">Платы</h4>
+                          <p class="card-text mb-auto">В основном от Киева. Лежит 6 штук. Заберите их пожалуйста от меня</p>
+                        </div>
+                        <a class="btn btn-primary p-3" style="height: 3.5em;" type="button" href="/store/spares/electrical/circuits/">Перейти в каталог</a>
+                      </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="container-fluid px-5">
+            <div class="row">
+                <h2 class="fw-bold my-5 text-center">Механика</h2>
+                <div class="col-4 d-flex align-items-stretch">
+                    <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce">
+                        <div class="col-12 d-flex justify-content-center">
+                        <img src="zatvor.jpg" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        </div>
+                        <div class="card-body">
+                          <h4 class="fw-bold">Затворы</h4>
+                          <p class="card-text mb-auto">В основном от Киева. Лежит 6 штук. Заберите их пожалуйста от меня</p>
+                        </div>
+                        <a href="/store/spares/mecha/shutter/" class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</a>
+                      </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="grey-color p-4">
+        <div class="row mx-0">
+            <a href="/" class="navbar-brand mb-2">
+                <img class="d-inline-block align-text-top" height="32" width="32" alt="Logo" src="logo.svg" style="margin-right:2rem">
+            </a>
+        </div>
+        <div class="row flex-row text-muted mx-0">
+            <div class="col">
+                <h5 class="fw-bold">Контакты</h5>
+                <ul class="list-unstyled text-small">
+                <li>г. Санкт-Петербург, ул. Пушкина, дом Колотушкина, строение 69, въезд со двора</li>
+                <li>Наш телефон: <a href="tel://">8 (800) 555-35-35</a></li>
+                <li><a href="mailto://">ololoev@mail.ru</a></li>
+            </ul>
+            </div>
+            <div class="col">
+                <h5 class="fw-bold">Услуги</h5>
+                <ul class="list-unstyled text-small">
+                <li>Доставка</li>
+                <li>Условия возврата и гарантийного ремонта</li>
+                <li>Статус ремонта</li>
+            </ul>
+            </div>
+            <div class="col">
+                <h5 class="fw-bold">Кто мы</h5>
+                <ul class="list-unstyled text-small">
+                <li>О нас</li>
+                <li>Блог</li>
+                <li class="mt-2">
+                  <a class="no-link-underscoring" href="https://telegram.org/">
+                    <img class="opacity-50" height="32" width="32" alt="tg" src="telegram.svg">
+                </a>
+                <a class="no-link-underscoring" href="https://vk.com/">
+                    <img class="opacity-50" height="32" width="32" alt="vk" src="vk.svg">
+                </a>
+                <a class="no-link-underscoring" href="https://avito.ru/">
+                    <img style="border-radius: 100%; background-color: white; filter: invert(1);" class="opacity-50" height="32" width="32" alt="avito" src="avito.svg">
+                </a>
+                </li>
+            </ul>
+            </div>
+            <div class="col">
+                <p>Вся информация, размещенная на сайте, носит исключительно информационный характер и не является рекламой и публичной офертой.</p>
+            </div>
+        </div>
+        <div class="row mx-0 pt-3 text-muted">
+            <p>Site built and designed by <a href="https://github.com/man3kin3ko/">@man3kin3ko</a></p>
+        </div>
+    </footer>
+  </body>
+
+  </html>    
