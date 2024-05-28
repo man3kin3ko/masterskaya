@@ -1,10 +1,10 @@
 import enum
-from uuid import uuid4
 import datetime
 import sqlalchemy
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, registry
+from sqlalchemy import Integer, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Status(enum.Enum):
@@ -25,6 +25,7 @@ class SocialMediaType(enum.Enum):
 class Base(DeclarativeBase):
     pass
 
+
 db = SQLAlchemy(model_class=Base)
 
 
@@ -43,7 +44,25 @@ class RepairOrder(db.Model):
     status: Mapped[Status] = mapped_column(default=Status.ORDERED)
     problem: Mapped[str] = mapped_column()
     model = db.Column(db.String(50), nullable=False)
-    creation_time = db.Column(sqlalchemy.DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.now)
+    creation_time = db.Column(
+        sqlalchemy.DateTime,
+        default=datetime.datetime.utcnow,
+        onupdate=datetime.datetime.now,
+    )
 
     def __repr__(self):
         return f"New order `{self.uniq_link}` from {self.contact} with {self.model}:\n {self.problem}"
+
+
+class Brand(db.Model):
+    __tablename__ = "brand"
+    id = mapped_column(Integer, primary_key=True)
+    name = db.Column(db.String(256), nullable=False)
+    country = db.Column(db.String(2))
+
+
+class Spare(db.Model):
+    __tablename__ = "spares"
+    id = mapped_column(Integer, primary_key=True)
+    brand_id = mapped_column(Integer, ForeignKey("brand.id"))
+    brand = relationship("Brand")

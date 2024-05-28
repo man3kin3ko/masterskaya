@@ -1,6 +1,9 @@
 frontend/node_modules/
+frontend/dist/
+backend/app/dist/
 backend/venv/
 backend/.idea/
 backend/db.csv
 backend/app/__pycache__/
+backend/instance/
 backend/__pycache__/

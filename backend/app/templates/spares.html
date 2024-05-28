@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <section>
+        <div class="row flex-row m-3 fw-bold">
+            <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/</span>
+            <h1 class="fw-bold my-2">Запчасти</h1>
+        </div>
+    </section>
+    <section>
+        <div class="container-fluid px-5 bg-light" id="electrical">
+            <div class="row d-flex">
+                <h2 class="fw-bold text-secondary my-5 text-center">Электроника</h2>
+                <div class="col-sm-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                    <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
+                        <div class="col-12 d-flex justify-content-center">
+                        <img src="{{ url_for('static', filename='zatvor.jpg') }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        </div>
+                        <div class="card-body">
+                          <h4 class="fw-bold">Шлейфы</h4>
+                          <p class="card-text mb-auto">Раз раз я пидарас</p>
+                        </div>
+                        <a href="/store/spares/electrical/stubs/" class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</a>
+                      </div>
+                </div>
+                <div class="col-sm-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                    <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
+                        <div class="col-12 d-flex justify-content-center">
+                        <img src="{{ url_for('static', filename='zatvor.jpg') }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        </div>
+                        <div class="card-body">
+                          <h4 class="fw-bold">Матрицы</h4>
+                          <p class="card-text mb-auto">Раз раз я пидарас</p>
+                        </div>
+                        <a href="/store/spares/electrical/matrices/" class="btn btn-primary p-3 btn-block" style="height: 3.5em;">Перейти в каталог</a>
+                      </div>
+                </div>
+                <div class="col-sm-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                    <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
+                        <div class="col-12 d-flex justify-content-center">
+                        <img src="{{ url_for('static', filename='zatvor.jpg') }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        </div>
+                        <div class="card-body">
+                          <h4 class="fw-bold">Платы</h4>
+                          <p class="card-text mb-auto">В основном от Киева. Лежит 6 штук. Заберите их пожалуйста от меня</p>
+                        </div>
+                        <a class="btn btn-primary p-3" style="height: 3.5em;" type="button" href="/store/spares/electrical/circuits/">Перейти в каталог</a>
+                      </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section>
+        <div class="container-fluid px-5" id="mecha">
+            <div class="row">
+                <h2 class="fw-bold my-5 text-center">Механика</h2>
+                <div class="col-sm-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                    <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
+                        <div class="col-12 d-flex justify-content-center">
+                        <img src="{{ url_for('static', filename='zatvor.jpg') }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        </div>
+                        <div class="card-body">
+                          <h4 class="fw-bold">Затворы</h4>
+                          <p class="card-text mb-auto">В основном от Киева. Лежит 6 штук. Заберите их пожалуйста от меня</p>
+                        </div>
+                        <a href="/store/spares/mecha/shutter/" class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</a>
+                      </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

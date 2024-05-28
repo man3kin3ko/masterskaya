@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="section mt-2">
+    <div class="p-4 pt-2 container-fluid">
+        <div class="flex flex-row row justify-content-center">
+        <div class="frame col col-lg-8 mx-1">
+            <div class="px-4 py-5 text-center" id="leadpic">                  
+                <h1 class="display-5 fw-bold">Мы чиним фотоаппараты</h1>
+
+                <div class="col-lg-12 mx-auto">
+                    <h3>Всех брендов пленочных камер: <span id="typewriter" class="Typewriter__wrapper">Зенит</span></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid text-center pb-lg-4 my-5">
+    <div class="col-lg-6 col-md-8 mx-auto">
+    <p class="fs-4 text-body-secondary">Привет, нас зовут Андрей и Юрий и мы уже несколько лет занимаемся ремонтом камер.</p>
+    <div class="d-flex gap-2 justify-content-center">
+        <a href="#repair_order" class="btn btn-primary mt-3 p-3 rounded-pill">Уже хочу записаться</a>
+        <a href="tel://{{ config.PHONE }}" class="btn btn-outline-secondary mt-3 p-3 rounded-pill">Хочу позвонить</a>
+    </div>
+    </div>
+</div>
+</section>
+
+
+<section class="section text-center">
+    <div class="grey-color my-5 py-5">
+        <div class="my-5 mt-2">
+            <h1 class="fw-bold">В чем наши преимущества?</h1>
+        </div>
+    <div class="row d-flex mx-0 justify-content-center justify-content-center">
+        <div class="col-sm-5 col-md-4 my-3 col-lg-3 col-xl-2 mr-0">
+          <h1 class="emoji">🧩</h1>
+          <h5 class="small-text">Найдем подход к каждой проблеме</h5>
+
+        </div>
+        <div class="col-sm-5 my-3 col-md-4 col-lg-3 col-xl-2 mr-0">
+          <h1 class="emoji">⚖️</h1>
+          <h5 class="small-text">Работаем и с&nbsp;механикой, и с&nbsp;электроникой</h5>
+
+        </div>
+        <div class="col-sm-5 my-3 col-md-4 col-lg-3 col-xl-2 mr-0">
+          <h1 class="emoji">📝</h1>
+          <h5 class="small-text">Отчитаемся по&nbsp;состоянию техники в процессе</h5>
+          
+        </div>
+      </div>
+    </div>
+    <div class="py-lg-5 text-center">
+            <p class="fs-4 text-body-secondary">Кроме того, мы продаем запчасти и отреставрированные камеры в нашем <a href="/store">магазине</a></p>
+    </div>
+</section>
+<section class="section">
+<div class="container text-center mt-5">
+    <h1 class="fw-bold">Как проходит обслуживание</h1>
+</div>
+
+<div class="container">
+    <div class="row flex-row">
+        <div id="master"
+            class="col-xs-12 col-sm-6 col-xl-4 d-flex flex-column justify-content-start align-self-center">
+
+        </div>
+        <div
+            class="col-xs-12 col-sm-6 col-xl-8 pb-4 pt-5 3d-flex flex-column justify-content-center align-self-start">
+            <div class="container-fluid">
+                <h2 class="primary fw-bold">Диагностика</h2>
+                <p>Мастер определит причину поломки и свяжется с вами для подтверждения ремонта. Отдать
+                    камеру можно лично или по почте, а также сервисами BoxBerry и СДЭК</p>
+                <h2 class="primary fw-bold">Ремонт</h2>
+                <p>После подтверждения мастер устранит все неисправности и даст рекомендации по уходу</p>
+                <h2 class="primary fw-bold">Настройка</h2>
+                <p>По вашему желанию сделаем полный CLA: проведем ультразвуковую очистку, отрегулиуем
+                    выдержку и дальномер, поменяем масло</p>
+                <h2 class="primary fw-bold">Дополнительно</h2>
+                <p>Выполним юстировку или допечатаем недостающие детали на 3D-принтере</p>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+<section>
+<div class="grey-color text-center mt-5 pt-5">
+    <div class="container text-center my-5 mt-2">
+        <h1 class="fw-bold">Отзывы клиентов</h1>
+    </div>  
+    <div class="sw-app" data-app="5f35cd3be2497e62166a626768d62f50"></div>
+</div>
+</section>
+</section>
+<section class="section" id="repair_order">
+<div class="container-fluid cam-pattern py-5">
+    <div class="flex d-flex justify-content-center">
+        <div class="card text-center shadow" style="width: 50em; border-radius: 1.3em">
+            <div class="card-body py-4">
+                <h2 class="display-6 fw-bold mt-2">Оставьте заявку на ремонт</h2>
+                <p class="text-secondary">Мы ответим как только сможем.<br>Если не удобно здесь, можно <a
+                        href="{{ config.AVITO_LINK }}">перейти
+                        на Авито</a></p>
+                <div class="flex d-flex row justify-content-center">
+                    <div class="flex col-sm-8">
+                        <form id="form">
+                        <select class="form-select" id="socSelect"> 
+                                <option selected>Где с вами связаться?</option>
+                                <option value="email">Почта</option>
+                                <option value="tg">Telegram</option>
+                                <option value="vk">VK</option>
+                                <option value="phone">По телефону</option>
+                        </select>
+                        <input type="contact" class="form-control my-1 p-2" placeholder="Номер или никнейм для связи"
+                            id="contact" name="contact">
+                        <input class="form-control my-1 p-2" type="text" name="model" placeholder="Модель камеры">
+                        <textarea class="form-control my-1 p-2" rows="3" name="problem"
+                            placeholder="Коротко опишите проблему, с которой вы столкнулись"></textarea>
+                        </form>
+                    </div>
+                        <span class="input-group-btn">
+                            <button class="btn btn-lg btn-primary btn-block mt-3 mx-5 rounded-pill"
+                                type="button" id="formButton">Отправить</button>
+                        </span>
+
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+{% endblock %}

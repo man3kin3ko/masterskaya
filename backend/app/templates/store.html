@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section>
+    <div class="container my-5 mt-2">
+        <div class="p-5 mb-4 bg-light rounded-3">
+            <div class="container-fluid">
+                <div class="container desktop-image multiply py-5 shop-camera-img">
+                        <h1 class="fw-bold">Фотоаппараты</h1>
+                        <p class="col-md-8 fs-4">Отреставрированная механика с гарантией месяц на повторный ремонт или возврат</p>
+                        <a class="btn btn-lg btn-primary mt-3 p-3 rounded-pill" href="/store/cameras/" type="button">Перейти в каталог</a>
+                </div>
+            </div>
+          </div>
+    </div>
+</section>
+<section id="spares">
+    <div class="container-fluid my-5 mt-2 bg-light">
+        <div class="container text-center pt-5 mb-3">
+            <h1 class="fw-bold">Запчасти</h1>
+        </div>
+        <div id="carouselGoods" class="carousel slide" data-ride="carousel">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              
+                <div class="row px-5 m-2">
+                    
+                    <div class="col-xs-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                      <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
+                        <div class="col-12 d-flex justify-content-center">
+                        <img src="{{ url_for('static', filename='zatvor.jpg') }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        </div>
+                        <div class="card-body">
+                          <strong class="d-inline-block text-secondary">⚙️ Механика</strong>
+                          <h4 class="fw-bold">Затворы</h4>
+                          <p class="card-text mb-auto">В основном от Киева. Лежит 6 штук. Заберите их пожалуйста от меня</p>
+                        </div>
+                        <a href="/store/spares/mecha/shutter/" class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</a>
+                      </div>
+                    </div>
+
+                    <div class="col-xs-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                        <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
+                          <div class="col-12 d-flex justify-content-center">
+                          <img src="{{ url_for('static', filename='zatvor.jpg') }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                          </div>
+                          <div class="card-body">
+                            <strong class="d-inline-block text-secondary">⚡ Электроника</strong>
+                            <h4 class="fw-bold">Шлейфы</h4>
+                            <p class="card-text mb-auto">Раз раз я пидарас</p>
+                          </div>
+                          <a href="/store/spares/electrical/stubs/" class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</a>
+                        </div>
+                      </div>
+
+                      <div class="col-xs-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                        <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
+                          <div class="col-12 d-flex justify-content-center">
+                          <img src="{{ url_for('static', filename='zatvor.jpg') }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                          </div>
+                          <div class="card-body">
+                            <strong class="d-inline-block text-secondary">⚡ Электроника</strong>
+                            <h4 class="fw-bold">Матрицы</h4>
+                            <p class="card-text mb-auto">Раз раз я пидарас</p>
+                          </div>
+                          <a href="/store/spares/electrical/matrices/" class="btn btn-primary p-3 btn-block" style="height: 3.5em;">Перейти в каталог</a>
+                        </div>
+                      </div>
+                </div>
+          </div>
+          <div class="carousel-item">
+            <div class="row px-5 m-2">
+                <div class="col-xs-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                  <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
+                    <div class="col-12 d-flex justify-content-center">
+                    <img src="{{ url_for('static', filename='zatvor.jpg') }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                    </div>
+                    <div class="card-body">
+                      <strong class="d-inline-block text-secondary">Электроника</strong>
+                      <h4 class="fw-bold">Платы</h4>
+                      <p class="card-text mb-auto">В основном от Киева. Лежит 6 штук. Заберите их пожалуйста от меня</p>
+                    </div>
+                    <a class="btn btn-primary p-3" style="height: 3.5em;" type="button" href="/store/spares/electrical/circuits/">Перейти в каталог</a>
+                  </div>
+                </div>
+
+                <div class="col-xs-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                    <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
+                      <div class="col-12 d-flex justify-content-center">
+                      <img src="{{ url_for('static', filename='zatvor.jpg') }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                      </div>
+                      <div class="card-body">
+                        <strong class="d-inline-block text-secondary">CYCLE</strong>
+                        <h4 class="fw-bold">XXXX</h4>
+                        <p class="card-text mb-auto">Раз раз я пидарас</p>
+                      </div>
+                      <button class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</button>
+                    </div>
+                  </div>
+
+                  <div class="col-xs-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                    <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
+                      <div class="col-12 d-flex justify-content-center">
+                      <img src="{{ url_for('static', filename='zatvor.jpg') }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                      </div>
+                      <div class="card-body">
+                        <strong class="d-inline-block text-secondary">CYCLE</strong>
+                        <h4 class="fw-bold">XXXX</h4>
+                        <p class="card-text mb-auto">Раз раз я пидарас</p>
+                      </div>
+                      <button class="btn btn-primary p-3 btn-block" style="height: 3.5em;">Перейти в каталог</button>
+                    </div>
+                  </div>
+            </div>
+          </div>
+          </div>
+          <button class="carousel-control-prev m-3" style="justify-content: left;" type="button" data-bs-target="#carouselGoods" data-bs-slide="prev">
+            <span class="" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="grey" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
+                    <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+                  </svg>
+            </span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next m-3" style="justify-content: right;" type="button" data-bs-target="#carouselGoods" data-bs-slide="next">
+            <span class="" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="grey" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                    <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                  </svg>
+            </span>
+            <span class="visually-hidden">Next</span>
+          </button>  
+        </div>
+      </div>
+      
+</section>
+<!-- Информация об оформлении заказа и доставке -->
+<section>
+    <div class="container my-5 mt-2 px-5">
+        <h1 class="fw-bold">Как нас найти</h1>
+        <p>Оффлайн магазин находится по адресу {{ config.ADDRESS }}</p>
+        <div class="row justify-content-center">
+        <script type="text/javascript" charset="utf-8" async src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Ab53c8238e0b3896dabf0728b308126b70ef7e29ee84030660425cc97a71b65e1&amp;width=900&amp;height=400&amp;lang=ru_RU&amp;scroll=true"></script>
+        </div>           
+    </div>
+</section>
+{% endblock %}
