@@ -92,6 +92,10 @@ function removeValidationWarnig(element) {
 document.getElementById("formButton").addEventListener('click', async () => {
   let contact = document.getElementById("contact");
   let selectedOption = document.getElementById("socSelect").selectedOptions[0].value;
+  if (selectedOption == "not-selected") {
+    alert("Пожалуйста, выберите платформу для свзяи")
+    return;
+  }
   if (selectedOption == "email") {
     if (emailValidate(contact.value) == null) {
       addValidationWarning(contact);
