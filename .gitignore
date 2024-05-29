@@ -7,3 +7,4 @@ backend/db.csv
 backend/app/__pycache__/
 backend/instance/
 backend/__pycache__/
+backend/app/dist

@@ -2,6 +2,10 @@ import Typewriter from 'typewriter-effect/dist/core';
 import './style.css';
 import Master from './master_nocolor.png';
 import Leadpic from './leadpic.png';
+import Logo from './logo.svg';
+import AvitoLogo from './avito.svg';
+import VKLogo from './vk.svg';
+import TGLogo from './telegram.svg';
 
 function addPic(divId, Img, style=null) {
   const Pic = new Image();
