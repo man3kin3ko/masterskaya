@@ -1,7 +1,7 @@
-import flask
-from .config import Const
+from .utils import cycle_list
+from .config import Config
 from flask import Flask, request, redirect, render_template
-from .db_models import db
+from .db_models import db, test_categs
 
 app = Flask(__name__, static_folder="dist", static_url_path="")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///orders.db"
@@ -9,7 +9,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///orders.db"
 
 @app.route("/")
 def index():
-    return render_template("index.html", config=Const)
+    return render_template("index.html", config=Config)
 
 
 @app.errorhandler(404)
@@ -19,17 +19,17 @@ def page_not_found(e):
 
 @app.route("/store/")
 def store():
-    return render_template("store.html", config=Const)
+    return render_template("store.html", config=Config, categs=cycle_list(test_categs))
 
 
 @app.route("/store/cameras/")
 def cameras():
-    return render_template("base.html", config=Const)
+    return render_template("base.html", config=Config)
 
 
 @app.route("/store/spares/")
 def spares():
-    return render_template("spares.html", config=Const)
+    return render_template("spares.html", config=Config)
 
 
 @app.route("/store/spares/mecha")
@@ -41,10 +41,10 @@ def rest_spare_mecha_redirect():
 def rest_spare_electrical_redirect():
     return redirect("/store/spares#electrical", code=302)
 
-@app.route("/store/spares/mecha/<catalogue_section>/")
-@app.route("/store/spares/electrical/<catalogue_section>/")
-def electrical_details(catalogue_section):
-    return render_template("detail-catalogue-page.html", config=Const)
+@app.route("/store/spares/mecha/<spare_category>/")
+@app.route("/store/spares/electrical/<spare_category>/")
+def electrical_details(spare_category):
+    return render_template("detail-catalogue-page.html", config=Config)
 
 
 app.app_context().push()

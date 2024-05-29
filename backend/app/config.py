@@ -1,4 +1,4 @@
-class Const:
+class Config:
     ADDRESS = "ул. Пушкина, дом Колотушкина 69"
     PHONE = "88005553535"
     MAIL = "ololo@mail.ru"

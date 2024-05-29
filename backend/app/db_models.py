@@ -22,6 +22,11 @@ class SocialMediaType(enum.Enum):
     VK = "vk"
 
 
+class SpareType(enum.Enum):
+    MECHA = "mecha"
+    ELECTRIC = "electrical"
+
+
 class Base(DeclarativeBase):
     pass
 
@@ -66,3 +71,44 @@ class Spare(db.Model):
     id = mapped_column(Integer, primary_key=True)
     brand_id = mapped_column(Integer, ForeignKey("brand.id"))
     brand = relationship("Brand")
+
+
+class SpareCategory(db.Model):
+    id = mapped_column(Integer, primary_key=True)
+    type: Mapped[SpareType] = mapped_column()
+    name = db.Column(db.String(64), nullable=False)
+    description = db.Column(db.String(256))
+    image_name = db.Column(db.String(30))
+    prog_name = db.Column(db.String(30))
+
+
+test_categs = [
+    SpareCategory(
+        name="Затворы",
+        type="mecha",
+        description="хуйхуйхуйхуйхуй",
+        image_name="3b71160fc60290752cb7.jpg",
+        prog_name="shutter"
+    ),
+    SpareCategory(
+        name="Затворы",
+        type="electrical",
+        description="descdescdescdescdescdescdesc",
+        image_name="3b71160fc60290752cb7.jpg",
+        prog_name="shutter"
+    ),
+    SpareCategory(
+        name="Матрицы",
+        type="electrical",
+        description="descdescdescdescdescdescdesc",
+        image_name="3b71160fc60290752cb7.jpg",
+        prog_name="matrices"
+    ),
+    SpareCategory(
+        name="Шлейфы",
+        type="electrical",
+        description="descdescdescdescdescdescdesc",
+        image_name="3b71160fc60290752cb7.jpg",
+        prog_name="stubs"
+    ),
+]
