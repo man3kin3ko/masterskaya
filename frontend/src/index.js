@@ -18,44 +18,6 @@ function addPic(divId, Img, style=null) {
   }
 }
 
-addPic("master", Master);
-addPic("leadpic", Leadpic, "25%");
-
-var app = document.getElementById('typewriter');
-var typewriter = new Typewriter(app, {
-  loop: true,
-  delay: 75,
-  autoStart: true
-});
-
-typewriter
-  .typeString('Exacta')
-  .pauseFor(300)
-  .deleteAll()
-  .typeString('Minolta')
-  .pauseFor(300)
-  .deleteAll()
-  .typeString('Зоркий')
-  .pauseFor(300)
-  .deleteAll()
-  .typeString('ФЭД')
-  .pauseFor(300)
-  .deleteAll()
-  .typeString('Leica')
-  .pauseFor(300)
-  .deleteAll()
-  .typeString('Зенит')
-  .pauseFor(300)
-  .deleteAll()
-  .typeString('Rolleiflex')
-  .pauseFor(300)
-  .deleteAll()
-  .typeString('или даже Bentzin Primar')
-  .pauseFor(1500)
-  .deleteAll()
-  .start();
-
-
 const emailValidate = (email) => {
   return String(email)
     .toLowerCase()
@@ -81,54 +43,94 @@ function addValidationWarning(element) {
 }
 
 function removeValidationWarnig(element) {
-  element.classList.remove("is-invalid");
-  element.classList.add("is-valid");
   try {
-    document.getElementById("emailFeedback").remove();
+    element.classList.remove("is-invalid");
+    element.classList.add("is-valid");
   }
   catch (e) {};
 }
 
-document.getElementById("formButton").addEventListener('click', async () => {
-  let contact = document.getElementById("contact");
-  let selectedOption = document.getElementById("socSelect").selectedOptions[0].value;
-  if (selectedOption == "not-selected") {
-    alert("Пожалуйста, выберите платформу для свзяи")
-    return;
-  }
-  if (selectedOption == "email") {
-    if (emailValidate(contact.value) == null) {
-      addValidationWarning(contact);
-      return;
-    }
-    else {
-      removeValidationWarnig(contact);
-    }
+if (window.location.pathname == "/") {
+  addPic("master", Master);
+  addPic("leadpic", Leadpic, "25%");
+
+  var app = document.getElementById('typewriter');
+  var typewriter = new Typewriter(app, {
+    loop: true,
+    delay: 75,
+    autoStart: true
+  });
+
+  typewriter
+    .typeString('Exacta')
+    .pauseFor(300)
+    .deleteAll()
+    .typeString('Minolta')
+    .pauseFor(300)
+    .deleteAll()
+    .typeString('Зоркий')
+    .pauseFor(300)
+    .deleteAll()
+    .typeString('ФЭД')
+    .pauseFor(300)
+    .deleteAll()
+    .typeString('Leica')
+    .pauseFor(300)
+    .deleteAll()
+    .typeString('Зенит')
+    .pauseFor(300)
+    .deleteAll()
+    .typeString('Rolleiflex')
+    .pauseFor(300)
+    .deleteAll()
+    .typeString('или даже Bentzin Primar')
+    .pauseFor(1500)
+    .deleteAll()
+    .start();
   }
 
-  let answer = new FormData(document.getElementById("form"));
-  answer.append("soc_type", selectedOption);
-  await fetch("http://localhost:8000/form", {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(Object.fromEntries(answer))
-    })
-    .then(res => {
-      if (res.status == 200) { 
-        alert("Спасибо за обращение");
-        form.reset();
+if (window.location.href.includes("repair_order")) {
+  document.getElementById("formButton").addEventListener('click', async () => {
+    let contact = document.getElementById("contact");
+    let selectedOption = document.getElementById("socSelect").selectedOptions[0].value;
+    if (selectedOption == "not-selected") {
+      alert("Пожалуйста, выберите платформу для свзяи")
+      return;
+    }
+    if (selectedOption == "email") {
+      if (emailValidate(contact.value) == null) {
+        addValidationWarning(contact);
+        return;
       }
       else {
-        console.log(res);
-        alert("Что-то пошло не так");
+        removeValidationWarnig(contact);
       }
-    })
-    .catch(err => {
-      console.error(err);
-      alert("Что-то пошло не так. Попробуйте снова");
-    });
-    return false;
-}) 
+    }
+  
+    let answer = new FormData(document.getElementById("form"));
+    answer.append("soc_type", selectedOption);
+    await fetch("http://localhost:8000/form", {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(Object.fromEntries(answer))
+      })
+      .then(res => {
+        if (res.status == 200) { 
+          alert("Спасибо за обращение");
+          form.reset();
+        }
+        else {
+          console.log(res);
+          alert("Что-то пошло не так");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Что-то пошло не так. Попробуйте снова");
+      });
+      return false;
+  }) 
+}

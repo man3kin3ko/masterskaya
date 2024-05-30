@@ -1,21 +1,34 @@
 <header class="bg-body-tertiary d-flex flex-wrap mb-4 border-bottom align-items-center justify-content-between">
     <nav class="navbar navbar-expand-sm">
         <div class="container-fluid">
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false">
-            <span class="navbar-toggler-icon"></span>
-          </button>
+          <a style="border: none" class="navbar-toggler" onclick=toggleMobileNavbar() type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false">
+            <img class="d-inline-block align-text-top" height="32" width="32" alt="Logo" src="{{ url_for('static', filename='1715ed70ee0b4d229d39.svg') }}" style="margin-right:2rem">
+          </a>
           <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
-            <div class="navbar-nav">
+            <div class="navbar-nav navbar-mobile">
               <a class="nav-link active" href="/store/">Каталог</a>
               <div class="dropdown" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Запчасти</a>
+                <a class="nav-link" href="#" id="navbarDropdown" role="button" aria-haspopup="true" aria-expanded="false">Запчасти</a>
                 <ul class="dropdown-menu pl-2 pr-3" aria-labelledby="navbarDropdown" data-popper-placement="bottom-end" style="position: absolute;">
                     <li><h5 class="dropdown-header">⚡ Электроника</h5></li>
-                    <li><a class="dropdown-item" href="/store/spares/electrical/stubs/">Шлейфы</a></li>
-                    <li><a class="dropdown-item" href="/store/spares/electrical/matrices/">Матрицы</a></li>
-                    <li><a class="dropdown-item" href="/store/spares/electrical/circuits/">Платы</a></li>
+                    <li><a class="dropdown-item mobile-nav-link" href="#" onclick="redirect('/store/spares/electrical/stubs/')">Шлейфы</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="redirect('/store/spares/electrical/matrices/')">Матрицы</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="redirect('/store/spares/electrical/circuits/')">Платы</a></li>
                     <li><h5 class="dropdown-header">⚙️ Механика</h5></li>
-                    <li><a class="dropdown-item" href="/store/spares/mecha/shutter/">Затворы</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="redirect('/store/spares/mecha/shutter/')">Затворы</a></li>
+                    <script>
+                      function redirect(url) {
+                        window.location = url;
+                      }
+                      function toggleMobileNavbar() {
+                        let navbarContent = document.getElementById("navbarToggleExternalContent");
+                        if (navbarContent.classList.contains("collapse")) {
+                          navbarContent.classList.remove("collapse");
+                        } else {
+                          navbarContent.classList.add("collapse");
+                        }
+                      }
+                    </script>
                   </ul>
               </div>
               <a class="nav-link" href="/store/cameras/">Фотоаппараты</a>
@@ -25,5 +38,5 @@
           </div>
         </div>
     </nav>
-    <a href="{{ url_for('index') }}" class="navbar-brand"><img class="d-inline-block align-text-top" height="32" width="32" alt="Logo" src="{{ url_for('static', filename='1715ed70ee0b4d229d39.svg') }}" style="margin-right:2rem"></a>
+    <a href="{{ url_for('index') }}" class="navbar-brand d-none d-sm-block"><img class="d-inline-block align-text-top" height="32" width="32" alt="Logo" src="{{ url_for('static', filename='1715ed70ee0b4d229d39.svg') }}" style="margin-right:2rem"></a>
 </header>
