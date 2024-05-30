@@ -89,7 +89,7 @@ if (window.location.pathname == "/") {
     .start();
   }
 
-if (window.location.href.includes("repair_order")) {
+if (window.location.href.includes("repair_order") || window.location.pathname == "/") {
   document.getElementById("formButton").addEventListener('click', async () => {
     let contact = document.getElementById("contact");
     let selectedOption = document.getElementById("socSelect").selectedOptions[0].value;
