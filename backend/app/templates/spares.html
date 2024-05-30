@@ -9,12 +9,12 @@
     </section>
     <section>
         <div class="container-fluid px-5 bg-light" id="electrical">
-            <div class="row d-flex">
+            <div class="row d-flex justify-content-center">
                 <h2 class="fw-bold text-secondary my-5 text-center">Электроника</h2>
                 {% if categs %}
                 {% for i in categs %}
                   {% if i.type == "electrical" %}
-                    <div class="col-sm-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                    <div class="col-sm-12 col-md-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
                       <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
                         <div class="col-12 d-flex justify-content-center">
                         <img src="{{ url_for('static', filename=i.image_name) }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
@@ -34,12 +34,12 @@
     </section>
     <section>
         <div class="container-fluid px-5" id="mecha">
-            <div class="row">
+            <div class="row justify-content-center">
                 <h2 class="fw-bold my-5 text-center">Механика</h2>
                 {% if categs %}
                 {% for i in categs %}
                   {% if i.type == "mecha" %}
-                    <div class="col-sm-12 col-md-4 d-flex align-items-stretch justify-content-center">
+                    <div class="col-sm-12 col-md-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
                       <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
                         <div class="col-12 d-flex justify-content-center">
                         <img src="{{ url_for('static', filename=i.image_name) }}" style="max-width: 15em;" class="rounded m-3 img-fluid">

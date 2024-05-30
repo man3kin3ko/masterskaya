@@ -19,7 +19,7 @@ def page_not_found(e):
 
 @app.route("/store/")
 def store():
-    return render_template("store.html", config=Config, categs=cycle_list(test_categs))
+    return render_template("store.html", config=Config, categs=cycle_list(test_categs*3))
 
 
 @app.route("/store/cameras/")
@@ -29,7 +29,7 @@ def cameras():
 
 @app.route("/store/spares/")
 def spares():
-    return render_template("spares.html", config=Config, categs=test_categs)
+    return render_template("spares.html", config=Config, categs=test_categs*3)
 
 
 @app.route("/store/spares/mecha")
