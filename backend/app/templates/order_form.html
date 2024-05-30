@@ -1,0 +1,35 @@
+<div class="container-fluid cam-pattern py-5" id="repair_order">
+    <div class="flex d-flex justify-content-center">
+        <div class="card text-center shadow" style="width: 50em; border-radius: 1.3em">
+            <div class="card-body py-4">
+                <h2 class="display-6 fw-bold mt-2">Оставьте заявку на ремонт</h2>
+                <p class="text-secondary">Мы ответим как только сможем.<br>Если не удобно здесь, можно <a
+                        href="{{ config.AVITO_LINK }}">перейти
+                        на Авито</a></p>
+                <div class="flex d-flex row justify-content-center">
+                    <div class="flex col-sm-8">
+                        <form id="form">
+                        <select class="form-select" id="socSelect"> 
+                                <option value="not-selected" selected>Где с вами связаться?</option>
+                                <option value="email">Почта</option>
+                                <option value="tg">Telegram</option>
+                                <option value="vk">VK</option>
+                                <option value="phone">По телефону</option>
+                        </select>
+                        <input type="contact" class="form-control my-1 p-2" placeholder="Номер или никнейм для связи"
+                            id="contact" name="contact">
+                        <input class="form-control my-1 p-2" type="text" name="model" placeholder="Модель камеры">
+                        <textarea class="form-control my-1 p-2" rows="3" name="problem"
+                            placeholder="Коротко опишите проблему, с которой вы столкнулись"></textarea>
+                        </form>
+                    </div>
+                        <span class="input-group-btn">
+                            <button class="btn btn-lg btn-primary btn-block mt-3 mx-5 rounded-pill"
+                                type="button" id="formButton">Отправить</button>
+                        </span>
+
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
