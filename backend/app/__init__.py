@@ -1,7 +1,7 @@
 from .utils import cycle_list
 from .config import Config
 from flask import Flask, request, redirect, render_template
-from .db_models import db, test_categs
+from .db_models import db, test_categs, test_spares
 
 app = Flask(__name__, static_folder="dist", static_url_path="")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///orders.db"
@@ -29,7 +29,7 @@ def cameras():
 
 @app.route("/store/spares/")
 def spares():
-    return render_template("spares.html", config=Config)
+    return render_template("spares.html", config=Config, categs=test_categs)
 
 
 @app.route("/store/spares/mecha")
@@ -44,7 +44,7 @@ def rest_spare_electrical_redirect():
 @app.route("/store/spares/mecha/<spare_category>/")
 @app.route("/store/spares/electrical/<spare_category>/")
 def electrical_details(spare_category):
-    return render_template("detail-catalogue-page.html", config=Config)
+    return render_template("detail-catalogue-page.html", config=Config, spares=test_spares)
 
 
 app.app_context().push()

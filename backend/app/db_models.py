@@ -26,6 +26,10 @@ class SpareType(enum.Enum):
     MECHA = "mecha"
     ELECTRIC = "electrical"
 
+class SpareAviability(enum.Enum):
+    UNKNOWN = "Уточняйте"
+    AVAILABLE = "В наличии"
+    UNAVAILABLE = "Отсутствует"
 
 class Base(DeclarativeBase):
     pass
@@ -71,15 +75,40 @@ class Spare(db.Model):
     id = mapped_column(Integer, primary_key=True)
     brand_id = mapped_column(Integer, ForeignKey("brand.id"))
     brand = relationship("Brand")
+    categ_id = mapped_column(Integer, ForeignKey("spare_category.id"))
+    categ = relationship("SpareCategory")
+    name = db.Column(db.String(256), nullable=False)
+    availability: Mapped[SpareAviability] = mapped_column(default=SpareAviability.UNKNOWN)
+    price = db.Column(Integer)
+    quantity = db.Column(Integer, default=0)
 
 
 class SpareCategory(db.Model):
+    __tablename__ = "spare_category"
     id = mapped_column(Integer, primary_key=True)
     type: Mapped[SpareType] = mapped_column()
     name = db.Column(db.String(64), nullable=False)
     description = db.Column(db.String(256))
     image_name = db.Column(db.String(30))
     prog_name = db.Column(db.String(30))
+
+
+test_spares = [
+    Spare(brand_id=1,categ_id=1,name="Digital IXUS 132/IXUS 135",
+    availability="В наличии", price=600, quantity=3),
+        Spare(brand_id=1,categ_id=1,name="EOS 1D Mark III",
+    availability="Уточняйте", price=4900),
+        Spare(brand_id=1,categ_id=1,name="PowerShot A2300/A2400",
+    availability="Отсутствует", price=500)
+]
+
+
+test_brands = [
+    Brand(
+        name="Canon"
+    ),
+    Brand(name="Fujifilm")
+]
 
 
 test_categs = [

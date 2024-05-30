@@ -62,27 +62,17 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td>1,001</td>
-                        <td>Canon Digital IXUS 132/IXUS 135</td>
-                        <td class="text-success">В наличии</td>
-                        <td>3 шт</td>
-                        <td>600 руб</td>
-                      </tr>
-                      <tr>
-                        <td>1,002</td>
-                        <td>Canon EOS 1D Mark III</td>
-                        <td class="text-warning">Уточняйте</td>
-                        <td></td>
-                        <td>4900 руб</td>
-                      </tr>
-                      <tr>
-                        <td>1,003</td>
-                        <td>Canon PowerShot A2300/A2400</td>
-                        <td class="text-danger">Отсутствует</td>
-                        <td></td>
-                        <td>500 руб</td>
-                      </tr>
+                      {% if spares %}
+                        {% for i in spares %}
+                        <tr>
+                          <td>{{ i.id }}</td>
+                          <td>{{ i.name }}</td>
+                          <td class="{{ 'text-success' if i.availability == 'В наличии'}}{{ 'text-danger' if i.availability == 'Отсутствует'}}{{ 'text-warning' if i.availability == 'Уточняйте'}}">{{i.availability}}</td>
+                          <td>{{ i.quantity|string + ' шт' if i.quantity else ''}}</td>
+                          <td>{{ i.price|string+' руб' if i.price else ''}}</td>
+                        </tr>
+                        {% endfor %}
+                      {% endif %}
                     </tbody>
                   </table>
                 </div>
