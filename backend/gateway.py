@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 from app.db_models import db, RepairOrder, SocialMediaType
-
+from app.telegram_bridge import send_message_via_bot, TG_TOKEN
+from app.dungeon_masters import MastersChatId
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -37,6 +38,7 @@ def read_root():
         }
     }
 
+
 def save_data_db(order_form, order_uuid):
     new_order = RepairOrder(
         uniq_link=order_uuid,
@@ -53,7 +55,13 @@ def save_data_db(order_form, order_uuid):
 @app.post("/form")
 def read_item(order_form: OrderFormRequestSchema):
     try:
-        save_data_db(order_form,str(uuid.uuid4()))
+        save_data_db(order_form, str(uuid.uuid4()))
+        send_message_via_bot(TG_TOKEN, MastersChatId.Onjey, "Привет")
         return {}, 200
     except Exception as e:
         return {e.__repr__()}, 500
+
+
+@app.post("/super_sec_root_with_very_long_sec_name")
+def f():
+    pass

@@ -1,6 +1,9 @@
-from telegram import Chat, ChatMember, ChatMemberUpdated, Update
+from telegram import Chat, ChatMember, ChatMemberUpdated, Update, Bot
 from telegram.ext import Application
 import os
+
+TG_TOKEN = os.environ["TOKEN"]
+
 
 class Singleton(type):
     _instances = {}
@@ -22,4 +25,10 @@ class TelegramBridge(metaclass=Singleton):
     def send(self, msg):
         pass
 
-bot = TelegramBridge(os.environ["TOKEN"])
+
+bot = TelegramBridge(TG_TOKEN)
+
+
+def send_message_via_bot(bot_token, chat_id, message):
+    bot = Bot(token=bot_token)
+    bot.send_message(chat_id=chat_id, text=message)
