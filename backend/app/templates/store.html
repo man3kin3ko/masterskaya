@@ -32,14 +32,14 @@
                     <div class="col-sm-12 col-md-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
                       <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
                         <div class="col-12 d-flex justify-content-center">
-                        <img src="{{ url_for('static', filename=categs[i].image_name) }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        <img src="{{ url_for('static', filename=categs[i].SpareCategory.image_name) }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
                         </div>
                         <div class="card-body">
-                          <strong class="d-inline-block text-secondary">{{'⚙️ Механика' if categs[i].type == 'mecha' else '⚡ Электроника'}}</strong>
-                          <h4 class="fw-bold">{{categs[i].name}}</h4>
-                          <p class="card-text mb-auto">{{categs[i].description}}</p>
+                          <strong class="d-inline-block text-secondary">{{'⚙️ Механика' if categs[i].SpareCategory.type.name == 'MECHA' else '⚡ Электроника'}}</strong>
+                          <h4 class="fw-bold">{{categs[i].SpareCategory.name}}</h4>
+                          <p class="card-text mb-auto">{{categs[i].SpareCategory.description}}</p>
                         </div>
-                        <a href="/store/spares/{{categs[i].type}}/{{categs[i].prog_name}}/" class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</a>
+                        <a href="/store/spares/{{categs[i].SpareCategory.type}}/{{categs[i].SpareCategory.prog_name}}/" class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</a>
                       </div>
                     </div>
                   {% if (i + 1) is divisibleby 3 %}

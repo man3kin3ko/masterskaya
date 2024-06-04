@@ -3,7 +3,7 @@ from flask import Flask, request, redirect, render_template
 from app.config import Config
 from app.utils import cycle_list
 from sqlalchemy import insert
-from app.db_models import get_db, get_spares, get_brands, Brand, Spare, SpareCategory
+from app.db_models import get_db, get_spares, get_brands, get_categs, Brand, Spare, SpareCategory
 
 app = Flask(__name__, static_folder="dist", static_url_path="")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -26,7 +26,7 @@ def page_not_found(e):
 
 @app.route("/store/")
 def store():
-    return render_template("store.html", config=Config, categs=cycle_list())
+    return render_template("store.html", config=Config, categs=cycle_list(get_categs()))
 
 
 @app.route("/store/cameras/")
@@ -36,7 +36,7 @@ def cameras():
 
 @app.route("/store/spares/")
 def spares():
-    return render_template("spares.html", config=Config, categs=None)
+    return render_template("spares.html", config=Config, categs=get_categs())
 
 
 @app.route("/store/spares/mecha")
@@ -52,7 +52,7 @@ def rest_spare_electrical_redirect():
 @app.route("/store/spares/mecha/<spare_category>/")
 @app.route("/store/spares/electrical/<spare_category>/")
 def electrical_details(spare_category):
-    spare_type = request.path.split("/")[3]
+    spare_type = "MECHA" if request.path.split("/")[3] == 'mecha' else "ELECTRIC"
     return render_template(
         "detail-catalogue-page.html",
         config=Config,
@@ -90,28 +90,28 @@ def init_db_command():
             [
                 {
                     "name": "Затворы",
-                    "type": "mecha",
+                    "type": "MECHA",
                     "description": "хуйхуйхуйхуйхуй",
                     "image_name": "3b71160fc60290752cb7.jpg",
                     "prog_name": "shutter",
                 },
                 {
                     "name": "Затворы",
-                    "type": "electrical",
+                    "type": "ELECTRIC",
                     "description": "хуйхуйхуйхуйхуй",
                     "image_name": "3b71160fc60290752cb7.jpg",
                     "prog_name": "shutter",
                 },
                 {
                     "name": "Матрицы",
-                    "type": "electrical",
+                    "type": "ELECTRIC",
                     "description": "хуйхуйхуйхуйхуй",
                     "image_name": "3b71160fc60290752cb7.jpg",
                     "prog_name": "matrices",
                 },
                 {
                     "name": "Шлейфы",
-                    "type": "electrical",
+                    "type": "ELECTRIC",
                     "description": "хуйхуйхуйхуйхуй",
                     "image_name": "3b71160fc60290752cb7.jpg",
                     "prog_name": "stubs",

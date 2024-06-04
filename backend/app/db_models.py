@@ -26,6 +26,7 @@ def close_db(e=None):
         db.close()
 
 def get_spares(spare_type, spare_category):
+    
     return db.session.execute(
         select(Spare)
         .join(Spare.brand)
@@ -45,6 +46,11 @@ def get_brands(spare_type, spare_category):
         .order_by(Brand.id)
         .distinct()
         ).all()
+
+def get_categs():
+    return db.session.execute(
+        select(SpareCategory)
+    ).all()
 
 class Status(enum.Enum):
     ORDERED = "ordered"
