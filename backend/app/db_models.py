@@ -3,14 +3,48 @@ import datetime
 import sqlalchemy
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, ForeignKey
+from sqlalchemy import Integer, ForeignKey, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from flask import current_app, g
 
 
 class Base(DeclarativeBase):
     pass
 
 db = SQLAlchemy(model_class=Base)
+
+def get_db():
+    if 'db' not in g:
+        g.db = db
+    return g.db
+
+
+def close_db(e=None):
+    db = g.pop('db', None)
+
+    if db is not None:
+        db.close()
+
+def get_spares(spare_type, spare_category):
+    return db.session.execute(
+        select(Spare)
+        .join(Spare.brand)
+        .join(Spare.categ)
+        .where(SpareCategory.type == spare_type)
+        .where(SpareCategory.prog_name == spare_category)
+        .order_by(Brand.id)
+        ).all()
+
+def get_brands(spare_type, spare_category):
+    return db.session.execute(
+        select(Brand.name)
+        .join(Spare.brand)
+        .join(Spare.categ)
+        .where(SpareCategory.type == spare_type)
+        .where(SpareCategory.prog_name == spare_category)
+        .order_by(Brand.id)
+        .distinct()
+        ).all()
 
 class Status(enum.Enum):
     ORDERED = "ordered"
