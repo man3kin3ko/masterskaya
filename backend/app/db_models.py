@@ -7,6 +7,11 @@ from sqlalchemy import Integer, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
+class Base(DeclarativeBase):
+    pass
+
+db = SQLAlchemy(model_class=Base)
+
 class Status(enum.Enum):
     ORDERED = "ordered"
     ACCEPTED = "accepted"
@@ -31,16 +36,10 @@ class SpareAviability(enum.Enum):
     AVAILABLE = "В наличии"
     UNAVAILABLE = "Отсутствует"
 
-class Base(DeclarativeBase):
-    pass
-
-
-db = SQLAlchemy(model_class=Base)
-
-
 class Admin(UserMixin, db.Model):
     __tablename__ = "admins"
     id: Mapped[int] = mapped_column(primary_key=True)
+    username = db.Column(db.String(50), nullable=False)
 
 
 class RepairOrder(db.Model):
@@ -73,9 +72,9 @@ class Brand(db.Model):
 class Spare(db.Model):
     __tablename__ = "spares"
     id = mapped_column(Integer, primary_key=True)
-    brand_id = mapped_column(Integer, ForeignKey("brand.id"))
+    brand_id = mapped_column(Integer, ForeignKey("brand.id"), nullable=False)
     brand = relationship("Brand")
-    categ_id = mapped_column(Integer, ForeignKey("spare_category.id"))
+    categ_id = mapped_column(Integer, ForeignKey("spare_category.id"), nullable=False)
     categ = relationship("SpareCategory")
     name = db.Column(db.String(256), nullable=False)
     availability: Mapped[SpareAviability] = mapped_column(default=SpareAviability.UNKNOWN)
@@ -91,53 +90,3 @@ class SpareCategory(db.Model):
     description = db.Column(db.String(256))
     image_name = db.Column(db.String(30))
     prog_name = db.Column(db.String(30))
-
-
-test_spares = [
-    Spare(brand_id=1,categ_id=1,name="Digital IXUS 132/IXUS 135",
-    availability="В наличии", price=600, quantity=3),
-        Spare(brand_id=1,categ_id=1,name="EOS 1D Mark III",
-    availability="Уточняйте", price=4900),
-        Spare(brand_id=1,categ_id=1,name="PowerShot A2300/A2400",
-    availability="Отсутствует", price=500)
-]
-
-
-test_brands = [
-    Brand(
-        name="Canon"
-    ),
-    Brand(name="Fujifilm")
-]
-
-
-test_categs = [
-    SpareCategory(
-        name="Затворы",
-        type="mecha",
-        description="хуйхуйхуйхуйхуй",
-        image_name="3b71160fc60290752cb7.jpg",
-        prog_name="shutter"
-    ),
-    SpareCategory(
-        name="Затворы",
-        type="electrical",
-        description="descdescdescdescdescdescdesc",
-        image_name="3b71160fc60290752cb7.jpg",
-        prog_name="shutter"
-    ),
-    SpareCategory(
-        name="Матрицы",
-        type="electrical",
-        description="descdescdescdescdescdescdesc",
-        image_name="3b71160fc60290752cb7.jpg",
-        prog_name="matrices"
-    ),
-    SpareCategory(
-        name="Шлейфы",
-        type="electrical",
-        description="descdescdescdescdescdescdesc",
-        image_name="3b71160fc60290752cb7.jpg",
-        prog_name="stubs"
-    ),
-]
