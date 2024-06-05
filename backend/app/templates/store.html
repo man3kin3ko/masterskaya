@@ -39,7 +39,7 @@
                           <h4 class="fw-bold">{{categs[i].SpareCategory.name}}</h4>
                           <p class="card-text mb-auto">{{categs[i].SpareCategory.description}}</p>
                         </div>
-                        <a href="/store/spares/{{categs[i].SpareCategory.type}}/{{categs[i].SpareCategory.prog_name}}/" class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</a>
+                        <a href="/store/spares/{{categs[i].SpareCategory.type.value}}/{{categs[i].SpareCategory.prog_name}}/" class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</a>
                       </div>
                     </div>
                   {% if (i + 1) is divisibleby 3 %}

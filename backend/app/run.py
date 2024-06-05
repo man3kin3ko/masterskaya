@@ -67,13 +67,16 @@ def init_db_command():
         db.session.execute(
             insert(Brand),
             [
-                {"name": "Codak", "country": "US"},
+                {"name": "Kodak", "country": "US"},
                 {"name": "Canon", "country": "JP"},
                 {"name": "Fujifilm", "country": "JP"},
                 {"name": "Nikon", "country": "JP"},
                 {"name": "Sony", "country": "JP"},
+                {"name": "Sigma", "country": "JP"},
+                {"name": "Pentax", "country": "JP"},
                 {"name": "Olympus", "country": "JP"},
                 {"name": "Panasonic", "country": "JP"},
+                {"name": "Samsung", "country": "KR"},
                 {"name": "Arsenal", "country": "SU"},
                 {"name": "KMZ", "country": "SU"},
                 {"name": "Lomo", "country": "SU"},
