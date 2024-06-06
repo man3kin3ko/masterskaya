@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container text-center py-5 mb-5">
+    <h2 class="display-6 fw-bold">Статус ремонта</h2>
+
+    <div class="flex d-flex justify-content-center">
+            <div class="card-body">
+                <div class="flex d-flex row justify-content-center">
+                    <div class="flex col-sm-8">
+                        <form id="form">
+                            <p class="text-secondary">На этой странице вы можете узнать статус заказа по трек-номеру</p>
+                        <input class="form-control my-1 p-2" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXX"
+                            id="order-uuid" name="order-uuid">
+                        </form>
+                    </div>
+                    
+                        <span class="input-group-btn">
+                            <button class="btn btn-lg btn-primary btn-block mt-3 mx-5 rounded-pill"
+                                type="button" id="formButton">Найти</button>
+                        </span>
+
+                    </div>
+            </div>
+    </div>
+</div>
+{% endblock %}
