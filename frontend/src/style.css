@@ -19,10 +19,6 @@
 .emoji {
     font-size: xxx-large;
 }
-.primary {
-    color: #ff6f00;
-    text-decoration: none;
-}
 .multiply {
     mix-blend-mode: multiply;
     background-blend-mode: multiply;
@@ -31,17 +27,6 @@
     background: url('cam-pattern-3.png');
     background-repeat: repeat;
     background-size: 128px;
-}
-.grey-color {
-    background-color: #f0f0f0;
-}
-.primary-dark {
-    background-color: rgb(211, 84, 26);
-}
-.small-text {
-    max-width: 90%; 
-    text-align: center; 
-    margin:0 auto;
 }
 
 @media (min-width: 770px) {
@@ -61,4 +46,49 @@
     background-image: url('ready-camera.jpg');  
     background-position: right; 
     background-size: 20.2em;
+}
+
+:root {
+    --primary: #ff6f00;
+    --primary-dark: #c26d29;
+    --primary-bg: #f4b17d;
+    --primary-bg-light: #fadec7;
+    --primary-bg-dark: #f09b57;
+    --secondary: #62bce4;
+    --secondary-light: #89c8dd;
+    --secondary-dark: #3da1cc;
+    --tetriary: #3a847c;
+    --tetriary-dark: #203932;
+    --grey-light: #f0f0f0;
+    --grey: #949393;
+}
+
+.m-bg-grey {
+    background-color: var(--grey-light);
+}
+
+.m-text-primary {
+    color: var(--primary);
+}
+
+.m-text-secondary {
+    color: var(--secondary-dark);
+}
+
+.m-btn-primary {
+    background-color: var(--primary);
+}
+
+.m-btn-primary:hover {
+    background-color: var(--primary-dark) !important;
+}
+
+@font-face {
+font-family: "runde";
+src:
+    url("OpenRunde-Medium.woff") format("woff");
+}
+
+h1,h2,h3,h4,h5 {
+    font-family: 'runde';
 }

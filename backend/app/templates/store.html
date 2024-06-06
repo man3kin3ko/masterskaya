@@ -8,7 +8,7 @@
                 <div class="container desktop-image multiply py-5 shop-camera-img">
                         <h1 class="fw-bold">Фотоаппараты</h1>
                         <p class="col-md-8 fs-4">Отреставрированная механика с гарантией месяц на повторный ремонт или возврат</p>
-                        <a class="btn btn-lg btn-primary mt-3 p-3 rounded-pill" href="/store/cameras/" type="button">Перейти в каталог</a>
+                        <a class="btn btn-lg m-btn-primary text-white mt-3 p-3 rounded-pill" href="/store/cameras/" type="button">Перейти в каталог</a>
                 </div>
             </div>
           </div>
@@ -39,7 +39,7 @@
                           <h4 class="fw-bold">{{categs[i].SpareCategory.name}}</h4>
                           <p class="card-text mb-auto">{{categs[i].SpareCategory.description}}</p>
                         </div>
-                        <a href="/store/spares/{{categs[i].SpareCategory.type.value}}/{{categs[i].SpareCategory.prog_name}}/" class="btn btn-primary p-3" style="height: 3.5em;" type="button">Перейти в каталог</a>
+                        <a href="/store/spares/{{categs[i].SpareCategory.type.value}}/{{categs[i].SpareCategory.prog_name}}/" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button">Перейти в каталог</a>
                       </div>
                     </div>
                   {% if (i + 1) is divisibleby 3 %}
