@@ -3,8 +3,8 @@
 {% block content %}
     <section>
         <div class="row flex-row m-3 fw-bold">
-            <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/<a href="/store/spares/#electrical" class="no-link-underscoring">Электроника</a>/</span>
-            <h1 class="fw-bold my-2">Матрицы</h1>
+            <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/<a href="/store/spares/#{{ spare_type }}" class="no-link-underscoring">{{ human_spare_type }}</a>/</span>
+            <h1 class="fw-bold my-2">{{ human_spare_category }}</h1>
         </div>
     </section>
     <section>

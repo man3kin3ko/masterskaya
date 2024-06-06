@@ -3,7 +3,7 @@ from flask import Flask, request, redirect, render_template
 from app.config import Config
 from app.utils import cycle_list
 from sqlalchemy import insert
-from app.db_models import get_db, get_spares, get_brands, get_categs, Brand, Spare, SpareCategory
+from app.db_models import get_db, get_spares, get_brands, get_categs, get_human_name, Brand, Spare, SpareCategory
 
 app = Flask(__name__, static_folder="dist", static_url_path="")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -56,6 +56,9 @@ def electrical_details(spare_category):
     return render_template(
         "detail-catalogue-page.html",
         config=Config,
+        spare_type=request.path.split("/")[3],
+        human_spare_type="Механика" if request.path.split("/")[3] == 'mecha' else "Электроника",
+        human_spare_category=get_human_name(spare_category),
         spares=get_spares(spare_type, spare_category),
         brands=get_brands(spare_type, spare_category),
     )
@@ -114,6 +117,13 @@ def init_db_command():
                 },
                 {
                     "name": "Шлейфы",
+                    "type": "ELECTRIC",
+                    "description": "хуйхуйхуйхуйхуй",
+                    "image_name": "3b71160fc60290752cb7.jpg",
+                    "prog_name": "stubs",
+                },
+                                {
+                    "name": "Платы",
                     "type": "ELECTRIC",
                     "description": "хуйхуйхуйхуйхуй",
                     "image_name": "3b71160fc60290752cb7.jpg",

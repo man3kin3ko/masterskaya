@@ -26,7 +26,6 @@ def close_db(e=None):
         db.close()
 
 def get_spares(spare_type, spare_category):
-    
     return db.session.execute(
         select(Spare)
         .join(Spare.brand)
@@ -46,6 +45,11 @@ def get_brands(spare_type, spare_category):
         .order_by(Brand.id)
         .distinct()
         ).all()
+
+def get_human_name(spare_category):
+    return db.session.execute(
+        select(SpareCategory.name).where(SpareCategory.prog_name == spare_category)
+    ).first()[0]
 
 def get_categs():
     return db.session.execute(
