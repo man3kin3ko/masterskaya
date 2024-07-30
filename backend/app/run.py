@@ -21,7 +21,7 @@ def index():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return "404", 404
+    return render_template("404.html", config=Config)
 
 
 @app.route("/store/")
@@ -98,14 +98,14 @@ def init_db_command():
                     "name": "Затворы",
                     "type": "MECHA",
                     "description": "хуйхуйхуйхуйхуй",
-                    "image_name": "3b71160fc60290752cb7.jpg",
+                    "image_name": "test_categ1.png",
                     "prog_name": "shutter",
                 },
                 {
                     "name": "Затворы",
                     "type": "ELECTRIC",
                     "description": "хуйхуйхуйхуйхуй",
-                    "image_name": "3b71160fc60290752cb7.jpg",
+                    "image_name": "test_categ2.png",
                     "prog_name": "shutter",
                 },
                 {

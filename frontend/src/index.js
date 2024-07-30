@@ -96,7 +96,7 @@ class Validator {
 
 if (window.location.pathname == "/") {
   addPic("master", Master);
-  addPic("leadpic", Leadpic, "25%");
+  addPic("leadpic", Leadpic);
 
   var app = document.getElementById('typewriter');
   var typewriter = new Typewriter(app, {

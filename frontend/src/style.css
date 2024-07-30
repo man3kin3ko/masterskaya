@@ -17,16 +17,16 @@
 }
 
 .emoji {
-    font-size: xxx-large;
+    font-size: 80px;
 }
 .multiply {
     mix-blend-mode: multiply;
     background-blend-mode: multiply;
 }
 .cam-pattern {
-    background: url('cam-pattern-3.png');
+    background: url('pattern.png');
     background-repeat: repeat;
-    background-size: 128px;
+    background-size: 256px;
 }
 
 @media (min-width: 770px) {
@@ -91,4 +91,77 @@ src:
 
 h1,h2,h3,h4,h5 {
     font-family: 'runde';
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap');
+
+.noto-sans-jp-600 {
+    font-family: "Noto Sans JP", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+}
+
+.label {
+    background-color: #ff5858;
+    color: white;
+    font-size: 50px;
+    font-weight: bolder;
+}
+
+@media(min-width: 1450px){
+.left-label {
+    z-index: 100;
+    position: absolute;
+    transform: rotate(15deg);
+    max-width: 20rem;
+    left: -60rem;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    top: 7rem;
+}}
+
+@media(max-width: 1450px){
+.left-label {
+    display: none;
+}}
+
+@media(max-width: 650px){
+.right-label {
+    display: none;
+}}
+
+@media(min-width: 650px){
+.right-label {
+    z-index: 100;
+    position: absolute;
+    transform: rotate(-10deg);
+    max-width: 300px;
+    top: 41rem;
+    left: 0;
+    right: -40%;
+    margin-left: auto;
+    margin-right: auto;
+}}
+
+@media(min-width: 1450px){
+    .opaque-label{
+        transform: rotate(-8deg);
+        right: 50rem;
+        left: 0;
+        top: 13rem;
+        right: 46rem;
+        max-width: 333px;
+        z-index: 100;
+        position: absolute;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media(max-width: 1450px){
+    .opaque-label{
+        display: none;
+    }
 }
