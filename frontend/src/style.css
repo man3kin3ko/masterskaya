@@ -93,6 +93,11 @@ h1,h2,h3,h4,h5 {
     font-family: 'runde';
 }
 
+.m-button {
+    font-family: 'runde';
+    position: absolute;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap');
 
 .noto-sans-jp-600 {

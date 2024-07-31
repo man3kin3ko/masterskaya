@@ -3,7 +3,7 @@ import datetime
 import sqlalchemy
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, ForeignKey, select
+from sqlalchemy import Integer, ForeignKey, select, insert
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from flask import current_app, g
 
@@ -55,6 +55,111 @@ def get_categs():
     return db.session.execute(
         select(SpareCategory)
     ).all()
+
+def save_repair_order(order_form, order_uuid):
+    new_order = RepairOrder(
+        uniq_link=order_uuid,
+        contact=order_form.contact,
+        model=order_form.model,
+        problem=order_form.problem,
+        social_media_type=order_form.soc_type
+    )
+
+    db.session.add(new_order)
+    db.session.commit()
+
+def init_db():
+    db.session.execute(
+            insert(Brand),
+            [
+                {"name": "Kodak", "country": "US"},
+                {"name": "Canon", "country": "JP"},
+                {"name": "Fujifilm", "country": "JP"},
+                {"name": "Nikon", "country": "JP"},
+                {"name": "Sony", "country": "JP"},
+                {"name": "Sigma", "country": "JP"},
+                {"name": "Pentax", "country": "JP"},
+                {"name": "Olympus", "country": "JP"},
+                {"name": "Panasonic", "country": "JP"},
+                {"name": "Samsung", "country": "KR"},
+                {"name": "Arsenal", "country": "SU"},
+                {"name": "KMZ", "country": "SU"},
+                {"name": "Lomo", "country": "SU"},
+                {"name": "Zeiss", "country": "DE"},
+                {"name": "Exacta", "country": "DE"},
+                {"name": "Rolleiflex", "country": "DE"},
+                {"name": "Balda", "country": "DE"},
+                {"name": "Welta", "country": "DE"},
+                {"name": "Agfa", "country": "DE"},
+            ],
+        )
+    db.session.execute(
+            insert(SpareCategory),
+            [
+                {
+                    "name": "Затворы",
+                    "type": "MECHA",
+                    "description": "хуйхуйхуйхуйхуй",
+                    "image_name": "test_categ1.png",
+                    "prog_name": "shutter",
+                },
+                {
+                    "name": "Затворы",
+                    "type": "ELECTRIC",
+                    "description": "хуйхуйхуйхуйхуй",
+                    "image_name": "test_categ2.png",
+                    "prog_name": "shutter",
+                },
+                {
+                    "name": "Матрицы",
+                    "type": "ELECTRIC",
+                    "description": "хуйхуйхуйхуйхуй",
+                    "image_name": "3b71160fc60290752cb7.jpg",
+                    "prog_name": "matrices",
+                },
+                {
+                    "name": "Шлейфы",
+                    "type": "ELECTRIC",
+                    "description": "хуйхуйхуйхуйхуй",
+                    "image_name": "3b71160fc60290752cb7.jpg",
+                    "prog_name": "stubs",
+                },
+                                {
+                    "name": "Платы",
+                    "type": "ELECTRIC",
+                    "description": "хуйхуйхуйхуйхуй",
+                    "image_name": "3b71160fc60290752cb7.jpg",
+                    "prog_name": "stubs",
+                },
+            ],
+        )
+    db.session.execute(
+            insert(Spare),
+            [
+                {
+                    "brand_id": 2,
+                    "categ_id": 3,
+                    "name": "Digital IXUS 132/IXUS 135",
+                    "price": 600,
+                    "quantity": 3,
+                },
+                {
+                    "brand_id": 2,
+                    "categ_id": 3,
+                    "name": "EOS 1D Mark III",
+                    "price": 4900,
+                    "quantity": 3,
+                },
+                {
+                    "brand_id": 2,
+                    "categ_id": 3,
+                    "name": "PowerShot A2300/A2400",
+                    "price": 500,
+                    "quantity": 3,
+                },
+            ],
+        )
+    db.session.commit()
 
 class Status(enum.Enum):
     ORDERED = "ordered"

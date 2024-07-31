@@ -6,6 +6,9 @@ import Logo from './logo.svg';
 import AvitoLogo from './avito.svg';
 import VKLogo from './vk.svg';
 import TGLogo from './telegram.svg';
+import naberezhnaya from './naberezhnaya.jpg';
+import notfound from './404.png'
+import dvor from './dvor.jpg'
 
 function addPic(divId, Img, style=null) {
   const Pic = new Image();
@@ -143,7 +146,7 @@ if (window.location.href.includes("repair_order") || window.location.pathname ==
     if (validator.validationPassed) {
       let answer = new FormData(document.getElementById("form"));
       answer.append("soc_type", selectedOption);
-      await fetch("http://localhost:8000/form", {
+      await fetch("http://localhost:5000/form", {
             method: 'POST',
             headers: {
               'Accept': 'application/json',

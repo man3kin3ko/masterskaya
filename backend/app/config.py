@@ -5,3 +5,4 @@ class Config:
     AVITO_LINK = "https://avito.ru"
     VK_LINK = "https://vk.com"
     TG_LINK = "https://t.me/masterskaya35ru"
+    METRO = "Фрунзенская"
