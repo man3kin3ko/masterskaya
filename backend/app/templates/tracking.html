@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container text-center py-5 mb-5">
+<div class="cam-pattern p-5">
+<div class="container text-center py-5 my-5 card" style="min-height: 30vh;">
     <h2 class="display-6 fw-bold">Статус ремонта</h2>
 
     <div class="flex d-flex justify-content-center">
@@ -10,7 +11,7 @@
                     <div class="flex col-sm-8">
                         <form id="form">
                             <p class="text-secondary">На этой странице вы можете узнать статус заказа по трек-номеру</p>
-                        <input class="form-control my-1 p-2" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXX"
+                        <input class="form-control my-1 p-2 text-center" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXX"
                             id="order-uuid" name="order-uuid">
                         </form>
                     </div>
@@ -23,5 +24,6 @@
                     </div>
             </div>
     </div>
+</div>
 </div>
 {% endblock %}

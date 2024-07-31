@@ -35,9 +35,9 @@
                         <img src="{{ url_for('static', filename=categs[i].SpareCategory.image_name) }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
                         </div>
                         <div class="card-body">
-                          <strong class="d-inline-block text-secondary">{{'⚙️ Механика' if categs[i].SpareCategory.type.name == 'MECHA' else '⚡ Электроника'}}</strong>
                           <h4 class="fw-bold">{{categs[i].SpareCategory.name}}</h4>
-                          <p class="card-text mb-auto">{{categs[i].SpareCategory.description}}</p>
+                          <strong class="d-inline-block text-secondary">{{'⚙️ Механика' if categs[i].SpareCategory.type.name == 'MECHA' else '⚡ Электроника'}}</strong>
+                          <p class="card-text mb-auto ml-5 mt-2">{{categs[i].SpareCategory.description}}</p>
                         </div>
                         <a href="/store/spares/{{categs[i].SpareCategory.type.value}}/{{categs[i].SpareCategory.prog_name}}/" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Перейти в каталог</span></a>
                       </div>

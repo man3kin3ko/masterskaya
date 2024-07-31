@@ -31,6 +31,10 @@ def index():
 def page_not_found(e):
     return render_template("404.html", config=Config)
 
+@app.route("/tracking")
+def tracking():
+    return render_template("tracking.html", config=Config)
+
 
 @app.route("/store/")
 def store():

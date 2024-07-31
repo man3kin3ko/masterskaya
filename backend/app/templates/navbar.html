@@ -1,4 +1,4 @@
-<header class="bg-body-tertiary d-flex flex-wrap mb-4 border-bottom align-items-center justify-content-between">
+<header class="bg-body-tertiary d-flex flex-wrap {% if not request.path.startswith('/tracking') %}mb-4{%endif%} border-bottom align-items-center justify-content-between">
     <nav class="navbar navbar-expand-sm">
         <div class="container-fluid">
           <a style="border: none" class="navbar-toggler" onclick=toggleMobileNavbar() type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false">
