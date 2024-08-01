@@ -1,3 +1,4 @@
+import uuid
 from pydantic import BaseModel
 
 from .db_models import SocialMediaType
@@ -8,3 +9,6 @@ class OrderFormRequestSchema(BaseModel):
     model: str
     problem: str
     soc_type: SocialMediaType
+
+class OrderUUID(BaseModel):
+    uuid: uuid.UUID

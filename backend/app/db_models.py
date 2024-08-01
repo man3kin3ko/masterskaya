@@ -56,6 +56,16 @@ def get_categs():
         select(SpareCategory)
     ).all()
 
+def get_repair_order(uuid):
+    return db.session.execute(
+        select(RepairOrder).where(RepairOrder.uniq_link == str(uuid))
+    ).first()[0]
+
+def is_repair_order_exists(uuid):
+    return db.session.execute(
+        select(RepairOrder.uniq_link).where(RepairOrder.uniq_link == str(uuid))
+    ).first()
+
 def save_repair_order(order_form, order_uuid):
     new_order = RepairOrder(
         uniq_link=order_uuid,
@@ -167,6 +177,7 @@ class Status(enum.Enum):
     IN_PROGRESS = "in_progress"
     READY = "ready"
     CLOSED = "closed"
+    PROBLEMS = "problem"
 
 
 class SocialMediaType(enum.Enum):

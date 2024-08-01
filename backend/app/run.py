@@ -7,6 +7,7 @@ from flask import Flask, request, redirect, render_template
 from app.config import Config
 from app.utils import cycle_list
 import app.db_models as db
+from .schemas import OrderFormRequestSchema, OrderUUID
 
 app = Flask(__name__, static_folder="dist", static_url_path="")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -31,10 +32,24 @@ def index():
 def page_not_found(e):
     return render_template("404.html", config=Config)
 
-@app.route("/tracking")
+@app.route("/tracking/<uuid>")
+def tracking_order(uuid):
+    return render_template("tracking.html", config=Config, order=db.get_repair_order(OrderUUID(uuid=uuid).uuid))
+
+@app.route("/tracking/")
 def tracking():
     return render_template("tracking.html", config=Config)
 
+@app.route("/tracking")
+def trail():
+    return redirect("/tracking/", code=302)
+
+@app.route("/tracking/is_exist", methods=["POST"])
+def is_exists():
+    uuid = OrderUUID(uuid=request.data.decode("utf-8")).uuid
+    if (db.is_repair_order_exists(uuid)):
+        return '', 200
+    return '', 404
 
 @app.route("/store/")
 def store():
@@ -64,14 +79,15 @@ def rest_spare_electrical_redirect():
 @app.route("/form", methods=["POST"])
 async def read_item():
     try:
+        new_repair_order = OrderFormRequestSchema(**request.json)
         new_order_uuid = str(uuid.uuid4())
-        db.save_repair_order(order_form, new_order_uuid)
+        db.save_repair_order(new_repair_order, new_order_uuid)
 
-        await bot.send_new_order(order_form, new_order_uuid)
+        await bot.send_new_order(new_repair_order, new_order_uuid)
 
-        return {}, 200
+        return '', 200
     except Exception as e:
-        return {e.__repr__()}, 500 # change later :3
+        return f'{e.__repr__()}', 500 # change later :3
 
 
 @app.route("/store/spares/mecha/<spare_category>/")
