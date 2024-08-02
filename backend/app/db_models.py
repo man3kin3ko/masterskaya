@@ -3,7 +3,7 @@ import datetime
 import sqlalchemy
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, ForeignKey, select, insert
+from sqlalchemy import Integer, ForeignKey, select, insert, update
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from flask import current_app, g
 
@@ -56,7 +56,7 @@ def get_categs():
         select(SpareCategory)
     ).all()
 
-def get_repair_order(uuid):
+def get_repair_order(uuid): # add time when accepted on status page
     return db.session.execute(
         select(RepairOrder).where(RepairOrder.uniq_link == str(uuid))
     ).first()[0]
@@ -76,6 +76,15 @@ def save_repair_order(order_form, order_uuid):
     )
 
     db.session.add(new_order)
+    db.session.commit()
+
+def update_repair_status(uuid, status, master_id):
+    db.session.execute(
+        update(RepairOrder)
+        .where(RepairOrder.uniq_link == uuid)
+        .values(status=Status(status).name, master_id=master_id)
+        .returning(RepairOrder.uniq_link, RepairOrder.last_modified_time, RepairOrder.status)
+    )
     db.session.commit()
 
 def init_db():
@@ -221,7 +230,6 @@ class Status(enum.Enum):
     CLOSED = "closed"
     PROBLEMS = "problem"
 
-
 class SocialMediaType(enum.Enum):
     PHONE = "phone"
     EMAIL = "email"
@@ -238,11 +246,6 @@ class SpareAviability(enum.Enum):
     AVAILABLE = "В наличии"
     UNAVAILABLE = "Отсутствует"
 
-class Admin(UserMixin, db.Model):
-    __tablename__ = "admins"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    username = db.Column(db.String(50), nullable=False)
-
 
 class RepairOrder(db.Model):
     __tablename__ = "repairs"
@@ -254,11 +257,12 @@ class RepairOrder(db.Model):
     status: Mapped[Status] = mapped_column(default=Status.ORDERED)
     problem: Mapped[str] = mapped_column()
     model = db.Column(db.String(50), nullable=False)
-    creation_time = db.Column(
+    last_modified_time = db.Column(
         sqlalchemy.DateTime,
         default=datetime.datetime.utcnow,
         onupdate=datetime.datetime.now,
     )
+    master_id: Mapped[int] = mapped_column(nullable=True)
 
     def __repr__(self):
         return f"New order `{self.uniq_link}` from {self.contact} with {self.model}:\n {self.problem}"

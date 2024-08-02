@@ -5,13 +5,13 @@ import httpx
 import click
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from app.db_models import db
+from app.db_models import update_repair_status, Status
 
 TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG
 )
 logger = logging.getLogger(__name__)
 
@@ -24,6 +24,29 @@ class Singleton(type):
             cls._instances[cls] = instance
         return cls._instances[cls]
 
+class CallbackHelper():
+    def __init__(self):
+        self.types = Status
+        self.last_uuid = None
+        self.last_status = None
+
+    def check(self, callback_msg):
+        parts = callback_msg.split(":")
+        assert len(parts) == 2
+        print(len(parts))
+        print(self.types)
+        print(parts[1] in self.types)
+        condition = parts[1] in self.types and True # add uuid check
+        self.last_status = parts[1] if condition else None
+        self.last_uuid = parts[0] if condition else None
+        print(self.last_status)
+        print(self.last_uuid)
+        return condition
+
+    def handle_callback(self, callback_msg, master_id):
+        if (self.check(callback_msg)):
+            update_repair_status(self.last_uuid, self.last_status, master_id)
+
 
 class TelegramBridge(metaclass=Singleton):
     def __init__(self, token, chat):
@@ -31,6 +54,7 @@ class TelegramBridge(metaclass=Singleton):
         self.app.add_handler(CallbackQueryHandler(self.get_button))
         self.app.add_handler(CommandHandler("upload", self.upload_spares))
         self.chat = chat
+        self.callback_helper = CallbackHelper()
 
     def poll(self):
         self.app.run_polling(allowed_updates=Update.ALL_TYPES)
@@ -51,16 +75,15 @@ class TelegramBridge(metaclass=Singleton):
             problem=order_form.problem
             ),
             "parse_mode":telegram.constants.ParseMode.MARKDOWN_V2,
-            "reply_markup":{"inline_keyboard":[[{"text":"Последние операции","callback_data":"/last"}]]}
+            "reply_markup":{"inline_keyboard":[[{"text":"Принять","callback_data":f"{order_uuid}:{Status.ACCEPTED.value}"}]]}
         })
 
     async def get_button(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         query = update.callback_query
         await query.answer()
 
-        await query.edit_message_text(text=f"Selected option: {query.data}")
-
-        # if callback == accept repar db.add(master) + change status
+        self.callback_helper.handle_callback(query.data, query.from_user.id)
+        await query.edit_message_text(text=f"Заказ `{self.callback_helper.last_uuid}` принят {query.from_user.first_name} {query.from_user.last_name if query.from_user.last_name else ''}",parse_mode=telegram.constants.ParseMode.MARKDOWN_V2)
 
     async def upload_spares(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(context)
