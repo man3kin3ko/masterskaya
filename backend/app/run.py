@@ -2,7 +2,7 @@ import click
 import uuid
 import logging
 
-from app.telegram_bridge import bot
+from app.telegram_bridge import TelegramBridge, start_bot_command
 from flask import Flask, request, redirect, render_template
 from app.config import Config
 from app.utils import cycle_list
@@ -83,7 +83,7 @@ async def read_item():
         new_order_uuid = str(uuid.uuid4())
         db.save_repair_order(new_repair_order, new_order_uuid)
 
-        await bot.send_new_order(new_repair_order, new_order_uuid)
+        await TelegramBridge.send_new_order(new_repair_order, new_order_uuid)
 
         return '', 200
     except Exception as e:
@@ -111,3 +111,4 @@ def init_db_command():
         db.init_db()
 
 app.cli.add_command(init_db_command)
+app.cli.add_command(start_bot_command)
