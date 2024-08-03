@@ -7,7 +7,7 @@ from .utils import truncate
 from typing import Tuple
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from app.db_models import update_repair_status, Status, SpareType, get_order_page, get_categs_page, get_repair_order_full
+from app.db_models import update_repair_status, get_spares, get_categ, Status, SpareType, get_order_page, get_categs_page, get_repair_order_full
 
 TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
@@ -131,6 +131,18 @@ class InlineKeyboardUIBuilder:
                 )
         self.add_menu_btn()
 
+    def add_file_toggle(self, categ_id):
+        self.add_row([
+            InlineKeyboardButton(
+                text="Скачать",  
+                callback_data=f"/spares/{categ_id}/download",
+                ),
+            InlineKeyboardButton(
+                text="Загрузить",  
+                callback_data=f"/spares/{categ_id}/uplosad",
+                ),
+        ])
+
 
 class CallbackRouter:
     def __init__(self, builder, desc_len=20):
@@ -148,9 +160,16 @@ class CallbackRouter:
             self.builder.add_button(text=f"{model} {truncate(desc, self.desc_len)}", callback=f"/order/{uniq_link}/item")
         self.builder.add_pager()
         return "Меню", self.builder.product
+
+    def download_spare_categ(self, categ_id):
+        spares = get_spares(categ_id)
     
-    def get_spare(self, id_):
-        pass
+    def get_spare(self, categ_id, route):
+        prev = InlineKeyboardUI([])
+        self.builder.init(prev.from_route(route))
+        self.builder.add_file_toggle(categ_id)
+        self.builder.add_back_btn()
+        return f"{get_categ(categ_id)[0]}", self.builder.product
 
     def get_order(self, uuid, route):
         model, status, date, desc, soc_type, contact = get_repair_order_full(uuid)
@@ -171,8 +190,8 @@ class CallbackRouter:
 
     def get_categ(self, page):
         self.builder.add_route(f"/spares/page/{page}")
-        for id_, name in get_categs_page(self.builder.max_per_page, page):
-            self.builder.add_button(text=f"{name}", callback=f"/spares/{id_}/item")
+        for categ_id, name in get_categs_page(self.builder.max_per_page, page):
+            self.builder.add_button(text=f"{name}", callback=f"/spares/{categ_id}/item")
         self.builder.add_pager()
         return "Меню", self.builder.product
 
@@ -198,7 +217,11 @@ class CallbackRouter:
                 if route[1] == "page":
                     return self.get_categ(route[2])
                 if route[2] == 'item':
-                    return self.get_spare(route[1])
+                    return self.get_spare(route[1], route)
+                if route[2] == 'download':
+                    pass
+                if route[2] == 'upload':
+                    pass
             
             case _:
                 return f"Probably an error occured\.\n ```{callback_msg}```", None

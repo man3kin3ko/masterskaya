@@ -35,6 +35,15 @@ def get_spares(spare_type, spare_category):
         .order_by(Brand.id)
         ).all()
 
+def get_spares(spare_category_id):
+    return db.session.execute(
+        select(Spare)
+        .join(Spare.brand)
+        .join(Spare.categ)
+        .where(SpareCategory.id == spare_category_id)
+        .order_by(Brand.id)
+        ).all()
+
 def get_brands(spare_type, spare_category):
     return db.session.execute(
         select(Brand.name)
@@ -55,6 +64,11 @@ def get_categs():
     return db.session.execute(
         select(SpareCategory)
     ).all()
+
+def get_categ(categ_id):
+    return db.session.execute(
+        select(SpareCategory.name).where(SpareCategory.id == int(categ_id))
+    ).first()
 
 def get_categs_page(max_per_page, page):
     return db.session.query(SpareCategory.id, SpareCategory.name).paginate(page=int(page), max_per_page=int(max_per_page))
