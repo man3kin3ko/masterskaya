@@ -86,12 +86,8 @@ def update_repair_status(uuid, status, master_id):
     )
     db.session.commit()
 
-def get_order_page(self, max_per_page, page, master_id):
-    return db.session.execute(
-        select(RepairOrder)
-        .where(RepairOrder.master_id == master_id)
-        .paginate(page=page, max_per_page=max_per_page)
-    )
+def get_order_page(max_per_page, page, master_id):
+    return db.session.query(RepairOrder.uniq_link, RepairOrder.problem, RepairOrder.model).where(RepairOrder.master_id == master_id).paginate(page=int(page), max_per_page=int(max_per_page))
 
 def init_db():
     db.session.execute(
