@@ -7,7 +7,7 @@ from .utils import truncate
 from typing import Tuple
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from app.db_models import update_repair_status, Status, SpareType, get_order_page
+from app.db_models import update_repair_status, Status, SpareType, get_order_page, get_categs_page, get_repair_order_full
 
 TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
@@ -33,33 +33,42 @@ class InlineKeyboardUI(): # наследование от маркапа нев�
         self.rows = rows
         self.route = None
 
+    def from_route(self, route):
+        self.route = route
+        self.page = 1
+        return self
+
     def set_route(self, route):
         self.route = route.lstrip("/").split("/")
         if (len(self.route) > 2):
             self.page = int(self.route[2])
 
     def create(self):
-        print(self.rows)
         return InlineKeyboardMarkup(self.rows)
 
     def next(self):
-        return f"/{self.route[0]}/{self.route[1]}/{self.page + 1}"
+        return f"/{self.route[0]}/page/{self.page + 1}"
 
     def back(self):
-        return f"/{self.route[0]}/{self.route[1]}/{self.page - 1 if self.page > 1 else 1}"
+        return f"/{self.route[0]}/page/{self.page - 1 if self.page > 1 else 1}"
 
 
 class InlineKeyboardUIBuilder:
     def __init__(self, max_per_page=5):
         self.max_per_page = max_per_page
         self.reset()
-        self._back_btn = InlineKeyboardButton(text="Меню", callback_data="/menu")
+        self._menu_btn = InlineKeyboardButton(text="Меню", callback_data="/menu")
 
     def reset(self) -> None:
         self._product = InlineKeyboardUI([])
 
+    def init(self, product):
+        self._product = product
+
     @property
     def product(self) -> InlineKeyboardUI:
+        print(self._product.rows[0])
+        assert len(self._product.rows[0]) <= self.max_per_page + 1
         product = self._product.create()
         self.reset()
         return product
@@ -73,14 +82,17 @@ class InlineKeyboardUIBuilder:
     def add_route(self, route):
         self._product.set_route(route)
 
+    def add_menu_btn(self):
+        self._product.rows.append([self._menu_btn])
+
     def add_back_btn(self):
-        self._product.rows.append([self._back_btn])
+        self._product.rows.append([InlineKeyboardButton(text="⬅️", callback_data=self._product.back())])
 
     def add_pager(self):
         self._product.rows.append(
             [
                 InlineKeyboardButton(text="⬅️", callback_data=self._product.back()),
-                self._back_btn,
+                self._menu_btn,
                 InlineKeyboardButton(text="➡️", callback_data=self._product.next()),
             ]
         )
@@ -93,6 +105,11 @@ class InlineKeyboardUIBuilder:
         self.add_row(
                 [InlineKeyboardButton(text="Запчасти", callback_data=f"/spares/page/1")]
             )
+
+    def add_status_switch(self, uuid, current_status):
+        # todo кнопки на руzzком
+        row  = [i for i in Status if i.name != current_status.name and i.name != Status.ORDERED.name]
+        self.add_row(list(map(lambda i: InlineKeyboardButton(text=f"{i.name}", callback_data=f"/order/{uuid}/{i.name}"), row)))
         
     def make_spares(self):
         self.add_route(f"/spares/")
@@ -112,7 +129,7 @@ class InlineKeyboardUIBuilder:
                         )
                     ]
                 )
-        self.add_back_btn()
+        self.add_menu_btn()
 
 
 class CallbackRouter:
@@ -129,19 +146,35 @@ class CallbackRouter:
         self.builder.add_route(f"/order/page/{page}")
         for uniq_link, desc, model in get_order_page(self.builder.max_per_page, page, master.id):
             self.builder.add_button(text=f"{model} {truncate(desc, self.desc_len)}", callback=f"/order/{uniq_link}/item")
-        self.builder.add_pager() #max page min page?
-        kb = self.builder.product
-        print(kb)
-        return None, kb
+        self.builder.add_pager()
+        return "Меню", self.builder.product
     
-    def get_spares(self, page):
+    def get_spare(self, id_):
         pass
 
-    def get_order(self):
-        pass
+    def get_order(self, uuid, route):
+        model, status, date, desc, soc_type, contact = get_repair_order_full(uuid)
+        prev = InlineKeyboardUI([])
+        self.builder.init(prev.from_route(route))
+        self.builder.add_status_switch(uuid, status)
+        self.builder.add_back_btn()
+        msg = 'Заказ `{uuid}` от `{date}`:\n{model} \[{soc_type}\] {contact}\n```{desc}```\nСтатус: {status}'.format(
+            uuid=uuid,
+            model=model,
+            date=date.date(),
+            status=status.value,
+            desc=desc,
+            soc_type=soc_type.value,
+            contact=contact
+        )
+        return msg, self.builder.product
 
-    def get_categ(self):
-        pass
+    def get_categ(self, page):
+        self.builder.add_route(f"/spares/page/{page}")
+        for id_, name in get_categs_page(self.builder.max_per_page, page):
+            self.builder.add_button(text=f"{name}", callback=f"/spares/{id_}/item")
+        self.builder.add_pager()
+        return "Меню", self.builder.product
 
     def handle_callback(self, callback_msg, master) -> Tuple[str, InlineKeyboardUI]:
         route = callback_msg.lstrip("/").split("/")
@@ -149,7 +182,7 @@ class CallbackRouter:
         match route[0]:
             case "menu":
                 self.builder.make_menu()
-                return None, self.builder.product
+                return "Меню", self.builder.product
             
             case "order":
                 if route[1] == "page":
@@ -157,15 +190,15 @@ class CallbackRouter:
                 if route[2] in self.statuses:
                     return self.update_order(route[1], route[2], master)
                 if route[2] == "item":
-                    return self.get_order(route[1])
+                    return self.get_order(route[1], route)
                 
             case "spares":
                 if len(route) < 3:
-                    return None, self.builder.make_spares()
+                    return "Меню", self.builder.make_spares()
                 if route[1] == "page":
-                    return self.get_spares(route[2], master)
+                    return self.get_categ(route[2])
                 if route[2] == 'item':
-                    return self.get_categ(route[1])
+                    return self.get_spare(route[1])
             
             case _:
                 return f"Probably an error occured\.\n ```{callback_msg}```", None
@@ -232,11 +265,11 @@ class TelegramBridge(metaclass=Singleton):
             )
         if kb is not None:
             print(kb)
-            await query.message.edit_reply_markup(reply_markup=kb)
+            await query.edit_message_reply_markup(reply_markup=kb)
 
     async def menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         self.builder.make_menu()
-        await self.send_message(message="test", markup=self.builder.product)
+        await self.send_message(message=f"Меню", markup=self.builder.product)
 
 
 @click.command("start-bot")

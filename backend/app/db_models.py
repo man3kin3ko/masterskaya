@@ -56,10 +56,19 @@ def get_categs():
         select(SpareCategory)
     ).all()
 
+def get_categs_page(max_per_page, page):
+    return db.session.query(SpareCategory.id, SpareCategory.name).paginate(page=int(page), max_per_page=int(max_per_page))
+
 def get_repair_order(uuid): # add time when accepted on status page
     return db.session.execute(
         select(RepairOrder).where(RepairOrder.uniq_link == str(uuid))
     ).first()[0]
+
+def get_repair_order_full(uuid):
+    return db.session.execute(
+        select(RepairOrder.model, RepairOrder.status, RepairOrder.last_modified_time, RepairOrder.problem, RepairOrder.social_media_type, RepairOrder.contact)
+        .where(RepairOrder.uniq_link == uuid)
+    ).first()
 
 def is_repair_order_exists(uuid):
     return db.session.execute(
@@ -231,6 +240,7 @@ class Status(enum.Enum):
     READY = "ready"
     CLOSED = "closed"
     PROBLEMS = "problem"
+        
 
 class SocialMediaType(enum.Enum):
     PHONE = "phone"
