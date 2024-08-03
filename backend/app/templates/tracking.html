@@ -1,17 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container text-center py-5 mb-5">
+<div class="cam-pattern p-5">
+<div class="container text-center py-5 my-5 card justify-content-center" style="min-height: 50vh;">
     <h2 class="display-6 fw-bold">Статус ремонта</h2>
 
     <div class="flex d-flex justify-content-center">
             <div class="card-body">
+                {% if not order %}
                 <div class="flex d-flex row justify-content-center">
+
                     <div class="flex col-sm-8">
                         <form id="form">
                             <p class="text-secondary">На этой странице вы можете узнать статус заказа по трек-номеру</p>
-                        <input class="form-control my-1 p-2" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXX"
-                            id="order-uuid" name="order-uuid">
+                        <input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="form-control my-1 p-2 text-center" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXX"
+                            id="order-uuid">
                         </form>
                     </div>
                     
@@ -20,8 +23,26 @@
                                 type="button" id="formButton">Найти</button>
                         </span>
 
-                    </div>
+                </div>
+                {% else %}
+                <h2>Заказ <code class="m-text-primary fw-bold bg-light">{{order.uniq_link}}</code> ({{order.model}}) :</h2>
+                <h3 id="status">Состояние: {%if order.status.value == 'ordered'%}
+                    <code class="text-secondary fw-bold bg-light">Зарегестрирован</code>
+                    {%elif order.status.value == 'accepted'%}
+                    <code class="fw-bold" style="background-color: #057effa8; color:white">Принят в очередь работ</code>
+                    {%elif order.status.value == 'in_progress'%}
+                    <code class="fw-bold text-white" style="background-color: var(--primary);">В работе</code>
+                    {%elif order.status.value == 'ready'%}
+                    <code style="background-color: #8ecd45" class="fw-bold text-white">Готов</code>
+                    {%elif order.status.value == 'closed'%}
+                    <code class="fw-bold" style="background-color: #8400ff82; color:#420087">Завершен</code>
+                    {%elif order.status.value == 'problem'%}<code class="fw-bold" style="background-color: #ff0505a8; color:#b02a37">Требуется ваше внимание</code>
+                    {%endif%}
+                </h3>
+                <p class="mt-5 text-muted">Мы свяжемся с вами по указанным контактам, если возникнут оперативные вопросы</p>
+                {% endif %}
             </div>
     </div>
+</div>
 </div>
 {% endblock %}
