@@ -7,7 +7,7 @@ from .utils import truncate
 from typing import Tuple
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from app.db_models import update_repair_status, get_spares, get_categ, Status, SpareType, get_order_page, get_categs_page, get_repair_order_full
+from app.db_models import update_repair_status, get_spares, get_categ, export_csv, Status, SpareType, get_order_page, get_categs_page, get_repair_order_full
 
 TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
@@ -160,9 +160,6 @@ class CallbackRouter:
             self.builder.add_button(text=f"{model} {truncate(desc, self.desc_len)}", callback=f"/order/{uniq_link}/item")
         self.builder.add_pager()
         return "Меню", self.builder.product
-
-    def download_spare_categ(self, categ_id):
-        spares = get_spares(categ_id)
     
     def get_spare(self, categ_id, route):
         prev = InlineKeyboardUI([])
@@ -219,8 +216,10 @@ class CallbackRouter:
                 if route[2] == 'item':
                     return self.get_spare(route[1], route)
                 if route[2] == 'download':
-                    pass
+                    export_csv(route[1])
+                    return None, None
                 if route[2] == 'upload':
+                    #https://stackoverflow.com/questions/31394998/using-sqlalchemy-to-load-a-csv-file-into-a-database
                     pass
             
             case _:
@@ -289,6 +288,9 @@ class TelegramBridge(metaclass=Singleton):
         if kb is not None:
             print(kb)
             await query.edit_message_reply_markup(reply_markup=kb)
+        if text is None and kb is None:
+            print(query.to_dict()['message']['reply_markup']['inline_keyboard'])
+            await self.app.bot.send_document(self.chat, open('temp.csv', 'rb'))
 
     async def menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         self.builder.make_menu()

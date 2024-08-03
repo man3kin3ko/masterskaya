@@ -1,6 +1,7 @@
 import enum
 import datetime
 import sqlalchemy
+import csv
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, ForeignKey, select, insert, update
@@ -69,6 +70,19 @@ def get_categ(categ_id):
     return db.session.execute(
         select(SpareCategory.name).where(SpareCategory.id == int(categ_id))
     ).first()
+
+def export_csv(categ_id):
+    records = db.session.execute(
+        select(Spare)
+        .join(Spare.categ)
+        .join(Spare.brand)
+        .where(SpareCategory.id == int(categ_id))
+        .order_by(Brand.id)
+        ).all()
+    with open('temp.csv', 'w') as f:
+        outcsv = csv.writer(f)
+        for c in records:
+            outcsv.writerow([getattr(c[0], i.name, None) for i in Spare.__mapper__.columns])
 
 def get_categs_page(max_per_page, page):
     return db.session.query(SpareCategory.id, SpareCategory.name).paginate(page=int(page), max_per_page=int(max_per_page))
