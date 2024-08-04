@@ -22,7 +22,7 @@ TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG
 )
 logger = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ class InlineKeyboardUIBuilder:
 
     def add_status_switch(self, uuid, current_status):
         row  = [i for i in Status if i.name != current_status.name and i.name != Status.ORDERED.name]
-        self.add_row(list(map(lambda i: InlineKeyboardButton(text=str(i), callback_data=f"/order/{uuid}/{i.name}"), row)))
+        self.add_row(list(map(lambda i: InlineKeyboardButton(text=str(i), callback_data=f"/order/{uuid}/{i.value}"), row)))
         
     def make_spares(self):
         self.add_route(f"/spares/")
@@ -160,7 +160,7 @@ class CallbackRouter:
 
     def update_order(self, uuid, status, master):
         update_repair_status(uuid, status, master.id)
-        return f"Заказ `{uuid}` принят {master.first_name} {master.last_name if master.last_name else ''}", None
+        return f"Заказ `{uuid}` изменен {master.first_name} {master.last_name if master.last_name else ''} на `{str(Status(status))}`", None
 
     def get_orders(self, page, master):
         self.builder.add_route(f"/order/page/{page}")
@@ -186,7 +186,7 @@ class CallbackRouter:
             uuid=uuid,
             model=model,
             date=date.date(),
-            status=status.value,
+            status=str(status),
             desc=desc,
             soc_type=soc_type.value,
             contact=contact
@@ -202,7 +202,6 @@ class CallbackRouter:
 
     def handle_callback(self, callback_msg, master) -> Tuple[str, InlineKeyboardUI]:
         route = callback_msg.lstrip("/").split("/")
-        print(route)
         if (route[0] == "menu"):
             self.builder.make_menu()
             return "Меню", self.builder.product
@@ -228,6 +227,7 @@ class CallbackRouter:
             if route[2] == 'upload':
                     #https://stackoverflow.com/questions/31394998/using-sqlalchemy-to-load-a-csv-file-into-a-database
                 pass
+        return f"```{route} {Status(route[2]) in self.statuses} {self.statuses} {Status.ACCEPTED.value}```", None
 
 
 class TelegramBridge(metaclass=Singleton):

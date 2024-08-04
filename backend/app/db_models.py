@@ -280,7 +280,6 @@ class Status(BaseEnum):
     CLOSED = "closed"
     PROBLEMS = "problem"
     def __str__(item):
-        print("hui")
         rus = {
             'ordered':'Зарегестрирован',
             'accepted':'Принят в очередь работ',
