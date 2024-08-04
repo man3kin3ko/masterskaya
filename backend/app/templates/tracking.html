@@ -27,16 +27,16 @@
                 {% else %}
                 <h2>Заказ <code class="m-text-primary fw-bold bg-light">{{order.uniq_link}}</code> ({{order.model}}) :</h2>
                 <h3 id="status">Состояние: {%if order.status.value == 'ordered'%}
-                    <code class="text-secondary fw-bold bg-light">Зарегестрирован</code>
+                    <code class="text-secondary fw-bold bg-light">{{order.status|string}}</code>
                     {%elif order.status.value == 'accepted'%}
-                    <code class="fw-bold" style="background-color: #057effa8; color:white">Принят в очередь работ</code>
+                    <code class="fw-bold" style="background-color: #057effa8; color:white">{{order.status|string}}</code>
                     {%elif order.status.value == 'in_progress'%}
-                    <code class="fw-bold text-white" style="background-color: var(--primary);">В работе</code>
+                    <code class="fw-bold text-white" style="background-color: var(--primary);">{{order.status|string}}</code>
                     {%elif order.status.value == 'ready'%}
-                    <code style="background-color: #8ecd45" class="fw-bold text-white">Готов</code>
+                    <code style="background-color: #8ecd45" class="fw-bold text-white">{{order.status|string}}</code>
                     {%elif order.status.value == 'closed'%}
-                    <code class="fw-bold" style="background-color: #8400ff82; color:#420087">Завершен</code>
-                    {%elif order.status.value == 'problem'%}<code class="fw-bold" style="background-color: #ff0505a8; color:#b02a37">Требуется ваше внимание</code>
+                    <code class="fw-bold" style="background-color: #8400ff82; color:#420087">{{order.status|string}}</code>
+                    {%elif order.status.value == 'problem'%}<code class="fw-bold" style="background-color: #ff0505a8; color:#b02a37">{{order.status|string}}</code>
                     {%endif%}
                 </h3>
                 <p class="mt-5 text-muted">Мы свяжемся с вами по указанным контактам, если возникнут оперативные вопросы</p>

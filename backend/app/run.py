@@ -11,6 +11,7 @@ from .schemas import OrderFormRequestSchema, OrderUUID
 
 app = Flask(__name__, static_folder="dist", static_url_path="")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+#app.jinja_env.globals.update(to_human_status=db.Status.__str__)
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO

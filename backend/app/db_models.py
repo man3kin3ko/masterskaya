@@ -279,6 +279,17 @@ class Status(BaseEnum):
     READY = "ready"
     CLOSED = "closed"
     PROBLEMS = "problem"
+    def __str__(item):
+        print("hui")
+        rus = {
+            'ordered':'Зарегестрирован',
+            'accepted':'Принят в очередь работ',
+            'in_progress':'В работе',
+            'ready':'Готов',
+            'closed':'Завершен',
+            'problem':'Требуется ваше внимание'
+        }
+        return rus[item.value]
 
 class SocialMediaType(enum.Enum):
     PHONE = "phone"

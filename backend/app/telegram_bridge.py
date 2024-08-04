@@ -107,9 +107,8 @@ class InlineKeyboardUIBuilder:
             )
 
     def add_status_switch(self, uuid, current_status):
-        # todo кнопки на руzzком
         row  = [i for i in Status if i.name != current_status.name and i.name != Status.ORDERED.name]
-        self.add_row(list(map(lambda i: InlineKeyboardButton(text=f"{i.name}", callback_data=f"/order/{uuid}/{i.name}"), row)))
+        self.add_row(list(map(lambda i: InlineKeyboardButton(text=str(i), callback_data=f"/order/{uuid}/{i.name}"), row)))
         
     def make_spares(self):
         self.add_route(f"/spares/")
