@@ -261,14 +261,24 @@ def init_db():
         )
     db.session.commit()
 
-class Status(enum.Enum):
+class MetaEnum(enum.EnumMeta):
+    def __contains__(cls, item):
+        try:
+            cls(item)
+        except ValueError:
+            return False
+        return True 
+
+class BaseEnum(enum.Enum, metaclass=MetaEnum):
+    pass
+
+class Status(BaseEnum):
     ORDERED = "ordered"
     ACCEPTED = "accepted"
     IN_PROGRESS = "in_progress"
     READY = "ready"
     CLOSED = "closed"
     PROBLEMS = "problem"
-        
 
 class SocialMediaType(enum.Enum):
     PHONE = "phone"

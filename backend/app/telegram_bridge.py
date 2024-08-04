@@ -195,35 +195,31 @@ class CallbackRouter:
     def handle_callback(self, callback_msg, master) -> Tuple[str, InlineKeyboardUI]:
         route = callback_msg.lstrip("/").split("/")
         print(route)
-        match route[0]:
-            case "menu":
-                self.builder.make_menu()
-                return "Меню", self.builder.product
+        if (route[0] == "menu"):
+            self.builder.make_menu()
+            return "Меню", self.builder.product
             
-            case "order":
-                if route[1] == "page":
-                    return self.get_orders(route[2], master)
-                if route[2] in self.statuses:
-                    return self.update_order(route[1], route[2], master)
-                if route[2] == "item":
-                    return self.get_order(route[1], route)
+        elif (route[0] == "order"):
+            if route[1] == "page":
+                return self.get_orders(route[2], master)
+            if route[2] in self.statuses:
+                return self.update_order(route[1], route[2], master)
+            if route[2] == "item":
+                return self.get_order(route[1], route)
                 
-            case "spares":
-                if len(route) < 3:
-                    return "Меню", self.builder.make_spares()
-                if route[1] == "page":
-                    return self.get_categ(route[2])
-                if route[2] == 'item':
-                    return self.get_spare(route[1], route)
-                if route[2] == 'download':
-                    export_csv(route[1])
-                    return None, None
-                if route[2] == 'upload':
+        elif (route[0] == "spares"):
+            if len(route) < 3:
+                return "Меню", self.builder.make_spares()
+            if route[1] == "page":
+                return self.get_categ(route[2])
+            if route[2] == 'item':
+                return self.get_spare(route[1], route)
+            if route[2] == 'download':
+                export_csv(route[1])
+                return None, None
+            if route[2] == 'upload':
                     #https://stackoverflow.com/questions/31394998/using-sqlalchemy-to-load-a-csv-file-into-a-database
-                    pass
-            
-            case _:
-                return f"Probably an error occured\.\n ```{callback_msg}```", None
+                pass
 
 
 class TelegramBridge(metaclass=Singleton):

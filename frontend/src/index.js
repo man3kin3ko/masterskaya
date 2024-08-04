@@ -152,7 +152,7 @@ if (window.location.href.includes("repair_order") || window.location.pathname ==
     if (validator.validationPassed) {
       let answer = new FormData(document.getElementById("form"));
       answer.append("soc_type", selectedOption);
-      await fetch("form", {
+      await fetch("https://masterskaya35.ru/form", {
             method: 'POST',
             headers: {
               'Accept': 'application/json',
@@ -185,7 +185,7 @@ if (window.location.href.includes("tracking")) {
     document.getElementById("formButton").addEventListener('click', async (e) => {
       let userInput = document.getElementById("order-uuid");
       if (userInput.value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
-        await fetch("/tracking/is_exist", {
+        await fetch("https://masterskaya35.ru/tracking/is_exist", {
           method: 'POST',
               headers: {
                 'Accept': 'application/json',
