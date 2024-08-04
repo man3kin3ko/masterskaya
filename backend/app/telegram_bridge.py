@@ -7,7 +7,16 @@ from .utils import truncate
 from typing import Tuple
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from app.db_models import update_repair_status, get_spares, get_categ, export_csv, Status, SpareType, get_order_page, get_categs_page, get_repair_order_full
+from app.db_models import (
+    update_repair_status, 
+    get_categ, 
+    export_csv, 
+    Status,
+    SpareType, 
+    get_order_page, 
+    get_categs_page, 
+    get_repair_order_full
+    )
 
 TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]

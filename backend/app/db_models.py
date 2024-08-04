@@ -36,7 +36,7 @@ def get_spares(spare_type, spare_category):
         .order_by(Brand.id)
         ).all()
 
-def get_spares(spare_category_id):
+def get_all_spares(spare_category_id):
     return db.session.execute(
         select(Spare)
         .join(Spare.brand)
