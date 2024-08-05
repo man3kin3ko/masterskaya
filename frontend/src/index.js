@@ -138,7 +138,6 @@ class Validator {
       default:
         toggleValidationWarning(contact, this.constructor.socialNetworksValidate);
     }
-    console.log(this)
   }
 }
 
@@ -181,24 +180,25 @@ if (window.location.href.includes("repair_order") || window.location.pathname ==
 
 if (window.location.href.includes("tracking")) {
   let form = document.getElementById("form");
-  try {
-    document.getElementById("formButton").addEventListener('click', async (e) => {
-      let userInput = document.getElementById("order-uuid");
-      if (userInput.value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
-        await fetch("https://masterskaya35.ru/tracking/is_exist", {
-          method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-              },
-              body: userInput.value
-        }).then(res => {
-          if (res.status == 200) {
-            let uuid = userInput.value;
-            form.reset();
-            document.location += uuid; 
-          }})
-      }
+  const trackingLogic = async (e) => {
+    let userInput = document.getElementById("order-uuid");
+    if (userInput.value.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
+      await fetch("https://masterskaya35.ru/tracking/is_exist", {
+        method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: userInput.value
+      }).then(res => {
+        if (res.status == 200) {
+          console.log("hui");
+          let uuid = userInput.value;
+          form.reset();
+          document.location += uuid; 
+        }})
+    }
+    else {
       userInput.classList.add("form-control", "is-invalid");
       if (userInput.label === undefined) {
         userInput.label = document.createElement('div');
@@ -206,6 +206,16 @@ if (window.location.href.includes("tracking")) {
         userInput.label.innerHTML += "Пожалуйста, проверьте данные";
       
         userInput.parentNode.insertBefore(userInput.label, userInput.nextSibling);
+      }
+    }
+  }
+  try {
+    document.getElementById("formButton").addEventListener('click', trackingLogic);
+    form.addEventListener("keypress", (e) => {
+      console.log(e.key)
+      if(e.key === 'Enter') {
+          e.preventDefault();
+          trackingLogic(e);
       }
     });
   } catch (e) {
@@ -215,7 +225,7 @@ if (window.location.href.includes("tracking")) {
   if (document.getElementById("status").children[0].innerText == "Готов") {
     const jsConfetti = new JSConfetti();
     jsConfetti.addConfetti({
-      emojis: ['📷', '🪛', '⚙️', '✨', '🔋', '🧑‍🏭', '📸'],
+      emojis: ['📷', '🎞️', '⚙️', '✨', '🔋', '📸'],
    })
   }
 }
