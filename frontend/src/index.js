@@ -92,7 +92,15 @@ class Validator {
     .toLowerCase()
     .match(
       /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/
-    );
+    )
+  }
+
+  static not_empty(elem) {
+    if (elem.value.length < 4) {
+      alert("Пожалуйста, заполните поле");
+      return false
+    } 
+    return true;
   }
 
   validate(selectedOption, contact) {
@@ -147,8 +155,10 @@ if (window.location.href.includes("repair_order") || window.location.pathname ==
     let contact = document.getElementById("contact");
     let selectedOption = document.getElementById("socSelect").selectedOptions[0].value;
     validator.validate(selectedOption, contact);
+    let problem = document.getElementById("form").lastElementChild;
+    let model = document.getElementById("contact").nextElementSibling;
 
-    if (validator.validationPassed) {
+    if (validator.validationPassed && validator.constructor.not_empty(problem) && validator.constructor.not_empty(model)) {
       let answer = new FormData(document.getElementById("form"));
       answer.append("soc_type", selectedOption);
       await fetch("https://masterskaya35.ru/form", {
@@ -192,7 +202,6 @@ if (window.location.href.includes("tracking")) {
             body: userInput.value
       }).then(res => {
         if (res.status == 200) {
-          console.log("hui");
           let uuid = userInput.value;
           form.reset();
           document.location += uuid; 
@@ -212,7 +221,6 @@ if (window.location.href.includes("tracking")) {
   try {
     document.getElementById("formButton").addEventListener('click', trackingLogic);
     form.addEventListener("keypress", (e) => {
-      console.log(e.key)
       if(e.key === 'Enter') {
           e.preventDefault();
           trackingLogic(e);
@@ -225,7 +233,7 @@ if (window.location.href.includes("tracking")) {
   if (document.getElementById("status").children[0].innerText == "Готов") {
     const jsConfetti = new JSConfetti();
     jsConfetti.addConfetti({
-      emojis: ['📷', '🎞️', '⚙️', '✨', '🔋', '📸'],
+      emojis: ['✨', '📷', '🎞️', '⚙️', '✨', '🔋', '📸'],
    })
   }
 }
