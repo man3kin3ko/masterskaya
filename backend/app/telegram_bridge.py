@@ -1,13 +1,12 @@
 import os
 import telegram
-import logging
 import httpx
 import click
 from .utils import truncate
 from typing import Tuple
 from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from app.db_models import (
+from .db_models import (
     update_repair_status, 
     get_categ, 
     export_csv, 
@@ -20,12 +19,6 @@ from app.db_models import (
 
 TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
-
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG
-)
-logger = logging.getLogger(__name__)
-
 
 class Singleton(type):
     _instances = {}
@@ -232,7 +225,7 @@ class CallbackRouter:
 
 class TelegramBridge(metaclass=Singleton):
     def __init__(self, token, chat):
-        self.app = Application.builder().token(token).build()
+        self.app = Application.builder().token(token).updater(None).build()
         self.app.add_handler(CallbackQueryHandler(self.get_button))
         self.app.add_handler(CommandHandler("menu", self.menu))
         self.chat = chat
@@ -250,33 +243,17 @@ class TelegramBridge(metaclass=Singleton):
             reply_markup=kwargs.get("markup"),
         )
 
-    @staticmethod  # делается сырым запросом чтобы бот мог получать апдейты в другом процессе. таков костыль(
-    async def send_new_order(order_form, order_uuid):
+    async def send_new_order(self, order_form, order_uuid):
         msg_template = "Новый заказ от \[{soc_type}\] {contact}\n\nМодель {model}\n\n```{problem}```\n\nНомер заказа: `{uuid}`"
-        httpx.post(
-            f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
-            json={
-                "chat_id": WORKING_CHAT,
-                "text": msg_template.format(
-                    uuid=order_uuid,
-                    soc_type=order_form.soc_type.value,
-                    contact=order_form.contact,
-                    model=order_form.model,
-                    problem=order_form.problem,
-                ),
-                "parse_mode": telegram.constants.ParseMode.MARKDOWN_V2,
-                "reply_markup": {
-                    "inline_keyboard": [
-                        [
-                            {
-                                "text": "Принять",
-                                "callback_data": f"/order/{order_uuid}/{Status.ACCEPTED.value}",
-                            }
-                        ]
-                    ]
-                },
-            },
-        )
+        await self.send_message(msg_template.format(
+            uuid=order_uuid, 
+            soc_type=order_form.soc_type.value, 
+            contact=order_form.contact, 
+            model=order_form.model, 
+            problem=order_form.problem
+            ), markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton("Принять заказ", callback_data="accept_repair")]]
+                ))
 
     async def get_button(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query

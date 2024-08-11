@@ -2,7 +2,6 @@ import enum
 import datetime
 import sqlalchemy
 import csv
-from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, ForeignKey, select, insert, update
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship

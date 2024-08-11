@@ -1,6 +1,5 @@
 import uuid
 from pydantic import BaseModel
-
 from .db_models import SocialMediaType
 
 
