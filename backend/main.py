@@ -15,7 +15,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 async def main() -> None:
-    bot = TelegramBridge(TG_TOKEN, WORKING_CHAT)
+    bot = TelegramBridge(TG_TOKEN, WORKING_CHAT, app)
 
     @app.route("/form", methods=["POST"])
     async def read_item():
@@ -42,7 +42,9 @@ async def main() -> None:
 
     async with bot.app:
         await bot.app.start()
+        await bot.app.updater.start_polling()
         await webserver.serve()
+        await bot.app.updater.stop()
         await bot.app.stop()
 
 if __name__ == '__main__':

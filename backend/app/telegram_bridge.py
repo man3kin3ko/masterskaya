@@ -44,7 +44,7 @@ class Singleton(type):
         return cls._instances[cls]
 
 @dataclass
-class WebhookUpdate:
+class FlaskUpdate:
     user_id: int
     payload: str
 
@@ -55,7 +55,7 @@ class CustomContext(CallbackContext[ExtBot, dict, dict, dict]):
         update: object,
         application: "Application",
     ) -> "CustomContext":
-        if isinstance(update, WebhookUpdate):
+        if isinstance(update, FlaskUpdate):
             return cls(application=application, user_id=update.user_id)
         return super().from_update(update, application)
 
@@ -176,18 +176,20 @@ class InlineKeyboardUIBuilder:
 
 
 class CallbackRouter:
-    def __init__(self, builder, desc_len=20):
+    def __init__(self, builder, flask, desc_len=20):
         self.statuses = Status
         self.builder = builder
+        self.flask = flask
         self.desc_len = desc_len
 
     def update_order(self, uuid, status, master):
-        update_repair_status(uuid, status, master.id)
+        make_db_req(update_repair_status, uuid, status, master.id)
         return f"Заказ `{uuid}` изменен {master.first_name} {master.last_name if master.last_name else ''} на `{str(Status(status))}`", None
 
     def get_orders(self, page, master):
         self.builder.add_route(f"/order/page/{page}")
-        for uniq_link, desc, model in get_order_page(self.builder.max_per_page, page, master.id):
+        page = self.make_db_req(get_order_page, self.builder.max_per_page, page, master.id)
+        for uniq_link, desc, model in page:
             self.builder.add_button(text=f"{model} {truncate(desc, self.desc_len)}", callback=f"/order/{uniq_link}/item")
         self.builder.add_pager()
         return "Меню", self.builder.product
@@ -197,10 +199,10 @@ class CallbackRouter:
         self.builder.init(prev.from_route(route))
         self.builder.add_file_toggle(categ_id)
         self.builder.add_back_btn()
-        return f"{get_categ(categ_id)[0]}", self.builder.product
+        return f"{make_db_req(get_categ,categ_id)[0]}", self.builder.product
 
     def get_order(self, uuid, route):
-        model, status, date, desc, soc_type, contact = get_repair_order_full(uuid)
+        model, status, date, desc, soc_type, contact = make_db_req(get_repair_order_full, uuid)
         prev = InlineKeyboardUI([])
         self.builder.init(prev.from_route(route))
         self.builder.add_status_switch(uuid, status)
@@ -218,10 +220,15 @@ class CallbackRouter:
 
     def get_categ(self, page):
         self.builder.add_route(f"/spares/page/{page}")
-        for categ_id, name in get_categs_page(self.builder.max_per_page, page):
+        page = make_db_req(get_categs_page, self.builder.max_per_page, page)
+        for categ_id, name in page:
             self.builder.add_button(text=f"{name}", callback=f"/spares/{categ_id}/item")
         self.builder.add_pager()
         return "Меню", self.builder.product
+
+    def make_db_req(self, f, *args):
+        with self.flask.app_context():
+            return f(*args)
 
     def handle_callback(self, callback_msg, master) -> Tuple[str, InlineKeyboardUI]:
         route = callback_msg.lstrip("/").split("/")
@@ -254,17 +261,17 @@ class CallbackRouter:
 
 
 class TelegramBridge(metaclass=Singleton):
-    def __init__(self, token, chat):
-        self.app = Application.builder().token(token).updater(None).build()
+    def __init__(self, token, chat, flask):
+        self.app = Application.builder().token(token).build()
         self.app.add_handler(CallbackQueryHandler(self.get_button))
         self.app.add_handler(CommandHandler("menu", self.menu))
-        self.app.add_handler(TypeHandler(type=WebhookUpdate, callback=self.send_new_order))
+        self.app.add_handler(TypeHandler(type=FlaskUpdate, callback=self.send_new_order))
         self.chat = chat
         self.builder = InlineKeyboardUIBuilder()
-        self.router = CallbackRouter(self.builder)
+        self.router = CallbackRouter(self.builder, flask)
 
     async def add_update(self, update):
-        await self.app.update_queue.put(WebhookUpdate(user_id=self.chat, payload=update))
+        await self.app.update_queue.put(FlaskUpdate(user_id=self.chat, payload=update))
 
     def poll(self):
         self.app.run_polling(allowed_updates=Update.ALL_TYPES)
@@ -277,13 +284,13 @@ class TelegramBridge(metaclass=Singleton):
             reply_markup=kwargs.get("markup"),
         )
 
-    async def send_new_order(self, update: WebhookUpdate, context: CustomContext):
+    async def send_new_order(self, update: FlaskUpdate, context: CustomContext):
         logging.debug(update.payload)
         await self.send_message(str(update.payload), markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton("Принять заказ", callback_data="accept_repair")]]
                 ))
 
-    async def get_button(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def get_button(self, update: Update, context: CustomContext):
         query = update.callback_query
         await query.answer()
 
@@ -297,7 +304,7 @@ class TelegramBridge(metaclass=Singleton):
         if kb is not None:
             await query.edit_message_reply_markup(reply_markup=kb)
 
-    async def menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def menu(self, update: Update, context: CustomContext):
         self.builder.make_menu()
         await self.send_message(message=f"Меню", markup=self.builder.product)
 
