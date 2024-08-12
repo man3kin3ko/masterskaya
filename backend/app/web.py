@@ -5,7 +5,6 @@ from flask import Flask, request, redirect, render_template
 from .config import Config
 from .utils import cycle_list
 from . import db_models as db
-from .schemas import OrderUUID
 
 app = Flask(__name__, static_folder="dist", static_url_path="")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -27,7 +26,7 @@ async def page_not_found(e):
 
 @app.route("/tracking/<uuid>")
 async def tracking_order(uuid):
-    return render_template("tracking.html", config=Config, order=db.get_repair_order(OrderUUID(uuid=uuid).uuid))
+    return render_template("tracking.html", config=Config, order=db.get_repair_order(db.OrderUUID(uuid=uuid).uuid))
 
 @app.route("/tracking/")
 async def tracking():
@@ -39,7 +38,7 @@ async def trail():
 
 @app.route("/tracking/is_exist", methods=["POST"])
 async def is_exists():
-    uuid = OrderUUID(uuid=request.data.decode("utf-8")).uuid
+    uuid = db.OrderUUID(uuid=request.data.decode("utf-8")).uuid
     if (db.is_repair_order_exists(uuid)):
         return '', 200
     return '', 404

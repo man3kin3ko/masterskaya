@@ -2,11 +2,23 @@ import enum
 import datetime
 import sqlalchemy
 import csv
+import uuid
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, ForeignKey, select, insert, update
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import (
+    Integer, 
+    ForeignKey, 
+    select, 
+    insert, 
+    update
+    )
+from sqlalchemy.orm import (
+    DeclarativeBase, 
+    Mapped, 
+    mapped_column, 
+    relationship
+    )
 from flask import current_app, g
-
+from pydantic import BaseModel
 
 class Base(DeclarativeBase):
     pass
@@ -101,18 +113,6 @@ def is_repair_order_exists(uuid):
     return db.session.execute(
         select(RepairOrder.uniq_link).where(RepairOrder.uniq_link == str(uuid))
     ).first()
-
-def save_repair_order(order_form, order_uuid):
-    new_order = RepairOrder(
-        uniq_link=order_uuid,
-        contact=order_form.contact,
-        model=order_form.model,
-        problem=order_form.problem,
-        social_media_type=order_form.soc_type
-    )
-
-    db.session.add(new_order)
-    db.session.commit()
 
 def update_repair_status(uuid, status, master_id):
     db.session.execute(
@@ -295,7 +295,6 @@ class SocialMediaType(enum.Enum):
     TG = "tg"
     VK = "vk"
 
-
 class SpareType(enum.Enum):
     MECHA = "mecha"
     ELECTRIC = "electrical"
@@ -305,6 +304,14 @@ class SpareAviability(enum.Enum):
     AVAILABLE = "В наличии"
     UNAVAILABLE = "Отсутствует"
 
+class OrderFormRequestSchema(BaseModel):
+    contact: str
+    model: str
+    problem: str
+    soc_type: SocialMediaType
+
+class OrderUUID(BaseModel):
+    uuid: uuid.UUID
 
 class RepairOrder(db.Model):
     __tablename__ = "repairs"
@@ -316,6 +323,10 @@ class RepairOrder(db.Model):
     status: Mapped[Status] = mapped_column(default=Status.ORDERED)
     problem: Mapped[str] = mapped_column()
     model = db.Column(db.String(50), nullable=False)
+    # created_time = db.Column(
+    #     sqlalchemy.DateTime,
+    #     default=datetime.datetime.utcnow,
+    # )
     last_modified_time = db.Column(
         sqlalchemy.DateTime,
         default=datetime.datetime.utcnow,
@@ -324,7 +335,22 @@ class RepairOrder(db.Model):
     master_id: Mapped[int] = mapped_column(nullable=True)
 
     def __repr__(self):
-        return f"New order `{self.uniq_link}` from {self.contact} with {self.model}:\n {self.problem}"
+        return f"Заказ от \[{self.social_media_type.value}\] {self.contact}\n\nМодель {self.model}\n\n```{self.problem}```\n\nНомер заказа: `{self.uniq_link}`"
+
+    @staticmethod
+    def from_request(json_data):
+        schema = OrderFormRequestSchema(**json_data)
+        return RepairOrder(
+            uniq_link = str(uuid.uuid4()),
+            contact = schema.contact,
+            social_media_type = schema.soc_type.name,
+            problem = schema.problem,
+            model = schema.model
+        )
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
 
 class Brand(db.Model):

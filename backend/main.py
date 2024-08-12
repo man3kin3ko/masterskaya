@@ -1,11 +1,9 @@
 import asyncio
 import uvicorn
 import logging
-import uuid
-from app.run import app
+from app.web import app
 import app.db_models as db
 from flask import request
-from app.schemas import OrderFormRequestSchema
 from asgiref.wsgi import WsgiToAsgi
 from app.telegram_bridge import TG_TOKEN, WORKING_CHAT, TelegramBridge
 
@@ -22,15 +20,16 @@ async def main() -> None:
     @app.route("/form", methods=["POST"])
     async def read_item():
         try:
-            new_repair_order = OrderFormRequestSchema(**request.json)
-            new_order_uuid = str(uuid.uuid4())
-            db.save_repair_order(new_repair_order, new_order_uuid)
+            new_repair_order = db.RepairOrder.from_request(request.json)
+            new_repair_order.save()
+            logging.info(new_repair_order)
 
-            await bot.send_new_order(new_repair_order, new_order_uuid)
-
+            await bot.add_update(new_repair_order)
             return '', 200
+
         except Exception as e:
-            return f'{e.__repr__()}', 500 # change later :3
+            logging.debug(e.__repr__())
+            return '', 500
 
     webserver = uvicorn.Server(
         config=uvicorn.Config(

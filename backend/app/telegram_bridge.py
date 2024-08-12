@@ -2,10 +2,24 @@ import os
 import telegram
 import httpx
 import click
+import logging
 from .utils import truncate
 from typing import Tuple
-from telegram.ext import Application, CallbackQueryHandler, CommandHandler, ContextTypes
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from dataclasses import dataclass
+from telegram.ext import (
+    ExtBot,
+    Application, 
+    CallbackQueryHandler, 
+    CommandHandler, 
+    TypeHandler,
+    ContextTypes,
+    CallbackContext
+    )
+from telegram import (
+    InlineKeyboardButton, 
+    InlineKeyboardMarkup, 
+    Update
+    )
 from .db_models import (
     update_repair_status, 
     get_categ, 
@@ -28,6 +42,22 @@ class Singleton(type):
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance
         return cls._instances[cls]
+
+@dataclass
+class WebhookUpdate:
+    user_id: int
+    payload: str
+
+class CustomContext(CallbackContext[ExtBot, dict, dict, dict]):
+    @classmethod
+    def from_update(
+        cls,
+        update: object,
+        application: "Application",
+    ) -> "CustomContext":
+        if isinstance(update, WebhookUpdate):
+            return cls(application=application, user_id=update.user_id)
+        return super().from_update(update, application)
 
 
 class InlineKeyboardUI(): # наследование от маркапа невозможно, тк там переопределен сетаттр(
@@ -228,9 +258,13 @@ class TelegramBridge(metaclass=Singleton):
         self.app = Application.builder().token(token).updater(None).build()
         self.app.add_handler(CallbackQueryHandler(self.get_button))
         self.app.add_handler(CommandHandler("menu", self.menu))
+        self.app.add_handler(TypeHandler(type=WebhookUpdate, callback=self.send_new_order))
         self.chat = chat
         self.builder = InlineKeyboardUIBuilder()
         self.router = CallbackRouter(self.builder)
+
+    async def add_update(self, update):
+        await self.app.update_queue.put(WebhookUpdate(user_id=self.chat, payload=update))
 
     def poll(self):
         self.app.run_polling(allowed_updates=Update.ALL_TYPES)
@@ -243,15 +277,9 @@ class TelegramBridge(metaclass=Singleton):
             reply_markup=kwargs.get("markup"),
         )
 
-    async def send_new_order(self, order_form, order_uuid):
-        msg_template = "Новый заказ от \[{soc_type}\] {contact}\n\nМодель {model}\n\n```{problem}```\n\nНомер заказа: `{uuid}`"
-        await self.send_message(msg_template.format(
-            uuid=order_uuid, 
-            soc_type=order_form.soc_type.value, 
-            contact=order_form.contact, 
-            model=order_form.model, 
-            problem=order_form.problem
-            ), markup=InlineKeyboardMarkup(
+    async def send_new_order(self, update: WebhookUpdate, context: CustomContext):
+        logging.debug(update.payload)
+        await self.send_message(str(update.payload), markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton("Принять заказ", callback_data="accept_repair")]]
                 ))
 
@@ -260,18 +288,14 @@ class TelegramBridge(metaclass=Singleton):
         await query.answer()
 
         text, kb = self.router.handle_callback(query.data, query.from_user)
-        print(text)
+
         if text is not None:
             await query.edit_message_text(
                 text=text,
                 parse_mode=telegram.constants.ParseMode.MARKDOWN_V2,
             )
         if kb is not None:
-            print(kb)
             await query.edit_message_reply_markup(reply_markup=kb)
-        if text is None and kb is None:
-            print(query.to_dict()['message']['reply_markup']['inline_keyboard'])
-            await self.app.bot.send_document(self.chat, open('temp.csv', 'rb'))
 
     async def menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         self.builder.make_menu()
