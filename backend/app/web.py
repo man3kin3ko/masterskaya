@@ -4,7 +4,7 @@ from .telegram_bridge import TelegramBridge, start_bot_command
 from flask import Flask, request, redirect, render_template, g
 from .config import Config
 from .utils import cycle_list
-from .db import db_proxy, init_db
+from .db import db_proxy, init_db, SpareType
 
 app = Flask(__name__, static_folder="dist", static_url_path="")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -25,7 +25,8 @@ async def page_not_found(e):
 
 @app.route("/tracking/<uuid>")
 async def tracking_order(uuid):
-    return render_template("tracking.html", config=Config, order=db.get_repair_order(db.OrderUUID(uuid=uuid).uuid))
+    order = db_proxy.get_repair_order(uuid)
+    return render_template("tracking.html", config=Config, order=order)
 
 @app.route("/tracking/")
 async def tracking():
@@ -37,14 +38,14 @@ async def trail():
 
 @app.route("/tracking/is_exist", methods=["POST"])
 async def is_exists():
-    uuid = db.OrderUUID(uuid=request.data.decode("utf-8")).uuid
-    if (db.is_repair_order_exists(uuid)):
+    if (db_proxy.is_repair_order_exist(request.data.decode("utf-8"))):
         return '', 200
     return '', 404
 
 @app.route("/store/")
 async def store():
-    return render_template("store.html", config=Config, categs=cycle_list(db.get_categs()))
+    categories = db_proxy.get_categories()
+    return render_template("store.html", config=Config, categs=cycle_list(categories))
 
 
 @app.route("/store/cameras/")
@@ -54,7 +55,8 @@ async def cameras():
 
 @app.route("/store/spares/")
 async def spares():
-    return render_template("spares.html", config=Config, categs=db.get_categs())
+    categories = db_proxy.get_categories()
+    return render_template("spares.html", config=Config, categs=categories)
 
 
 @app.route("/store/spares/mecha")
@@ -70,15 +72,15 @@ async def rest_spare_electrical_redirect():
 @app.route("/store/spares/mecha/<spare_category>/")
 @app.route("/store/spares/electrical/<spare_category>/")
 async def electrical_details(spare_category):
-    spare_type = "MECHA" if request.path.split("/")[3] == 'mecha' else "ELECTRIC"
+    spare_type = SpareType(request.path.split("/")[3])
     return render_template(
         "detail-catalogue-page.html",
         config=Config,
-        spare_type=request.path.split("/")[3],
-        human_spare_type="Механика" if request.path.split("/")[3] == 'mecha' else "Электроника",
-        human_spare_category=db.get_human_name(spare_category),
-        spares=db.get_spares(spare_type, spare_category),
-        brands=db.get_brands(spare_type, spare_category),
+        spare_type=spare_type.name,
+        human_spare_type=str(spare_type),
+        human_spare_category=db_proxy.get_category_by_name(spare_category).name,
+        spares=db_proxy.get_spares_by_category_and_type(spare_type, spare_category),
+        brands=db_proxy.get_brands_by_category_and_type(spare_type, spare_category),
     )
 
 

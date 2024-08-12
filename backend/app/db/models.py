@@ -29,10 +29,15 @@ class DBProxy(metaclass=Singleton):
         self.db = SQLAlchemy(model_class=Base)
         self.max_per_page = int(max_per_page)
 
+    @staticmethod
+    def validate_uuid(uuid):
+        return OrderUUID(uuid).uuid
+
     def assign_app(self, app):
         self.app = app
     
     def get_repair_order(self, uuid):
+        uuid = self.validate_uuid(uuid)
         with self.app.app_context():
             return RepairOrder.query.where(RepairOrder.uniq_link == str(uuid))
     
@@ -40,96 +45,95 @@ class DBProxy(metaclass=Singleton):
         with self.app.app_context():
             return RepairOrder.query.where(RepairOrder.master_id == master_id).paginate(page=int(page), max_per_page=self.max_per_page)
 
-db_proxy = DBProxy()
-db = None
+    def export_category_to_csv(self, categ_id):
+        with self.app.app_context():
+            records = self.db.session.execute(
+                select(Spare)
+                .join(Spare.categ)
+                .join(Spare.brand)
+                .where(SpareCategory.id == int(categ_id))
+                .order_by(Brand.id)
+                ).all()
+            with open('temp.csv', 'w') as f:
+                outcsv = csv.writer(f)
+                for c in records:
+                    outcsv.writerow([getattr(c[0], i.name, None) for i in Spare.__mapper__.columns]) 
 
-def get_spares(spare_type, spare_category):
-    return db.session.execute(
-        select(Spare)
-        .join(Spare.brand)
-        .join(Spare.categ)
-        .where(SpareCategory.type == spare_type)
-        .where(SpareCategory.prog_name == spare_category)
-        .order_by(Brand.id)
-        ).all()
+    def get_spares_by_category_and_type(self, spare_type, spare_category):
+        with self.app.app_context():
+            return self.db.session.execute(
+                select(Spare)
+                .join(Spare.brand)
+                .join(Spare.categ)
+                .where(SpareCategory.type == spare_type)
+                .where(SpareCategory.prog_name == spare_category)
+                .order_by(Brand.id)
+                ).all()
+    
+    def get_spares_by_category(self, spare_category):
+        with self.app.app_context():
+            return self.db.session.execute(
+                select(Spare)
+                .join(Spare.brand)
+                .join(Spare.categ)
+                .where(SpareCategory.id == spare_category_id)
+                .order_by(Brand.id)
+                ).all()
 
-def get_all_spares(spare_category_id):
-    return db.session.execute(
-        select(Spare)
-        .join(Spare.brand)
-        .join(Spare.categ)
-        .where(SpareCategory.id == spare_category_id)
-        .order_by(Brand.id)
-        ).all()
+    def get_brands_by_category_and_type(self, spare_type, spare_category):
+        with self.app.app_context():
+            return self.db.session.execute(
+                select(Brand.name)
+                .join(Spare.brand)
+                .join(Spare.categ)
+                .where(SpareCategory.type == spare_type)
+                .where(SpareCategory.prog_name == spare_category)
+                .order_by(Brand.id)
+                .distinct()
+                ).all()
+    
+    def get_category_by_id(self, categ_id):
+        with self.app.app_context():
+            return self.db.session.execute(
+                select(SpareCategory.name).where(SpareCategory.id == int(categ_id))
+            ).first()
 
-def get_brands(spare_type, spare_category):
-    return db.session.execute(
-        select(Brand.name)
-        .join(Spare.brand)
-        .join(Spare.categ)
-        .where(SpareCategory.type == spare_type)
-        .where(SpareCategory.prog_name == spare_category)
-        .order_by(Brand.id)
-        .distinct()
-        ).all()
+    def get_category_by_name(self, prog_name):
+        with self.app.app_context():
+            return self.db.session.execute(
+                select(SpareCategory).where(SpareCategory.prog_name == prog_name)
+            ).first()[0]
 
-def get_human_name(spare_category):
-    return db.session.execute(
-        select(SpareCategory.name).where(SpareCategory.prog_name == spare_category)
-    ).first()[0]
+    def is_repair_order_exist(self, uuid):
+        uuid = self.validate_uuid(uuid)
+        with self.app.app_context():
+            return self.db.session.execute(
+                select(RepairOrder.uniq_link).where(RepairOrder.uniq_link == str(uuid))
+            ).first()
 
-def get_categs():
-    return db.session.execute(
-        select(SpareCategory)
-    ).all()
+    def get_categories(self):
+        with self.app.app_context():
+            return self.db.session.execute(
+                select(SpareCategory)
+                ).all()
 
-def get_categ(categ_id):
-    return db.session.execute(
-        select(SpareCategory.name).where(SpareCategory.id == int(categ_id))
-    ).first()
-
-def export_csv(categ_id):
-    records = db.session.execute(
-        select(Spare)
-        .join(Spare.categ)
-        .join(Spare.brand)
-        .where(SpareCategory.id == int(categ_id))
-        .order_by(Brand.id)
-        ).all()
-    with open('temp.csv', 'w') as f:
-        outcsv = csv.writer(f)
-        for c in records:
-            outcsv.writerow([getattr(c[0], i.name, None) for i in Spare.__mapper__.columns])
-
-def get_categs_page(max_per_page, page):
-    return db.session.query(SpareCategory.id, SpareCategory.name).paginate(page=int(page), max_per_page=int(max_per_page))
-
-def get_repair_order(uuid): # add time when accepted on status page
-    return db.session.execute(
-        select(RepairOrder).where(RepairOrder.uniq_link == str(uuid))
-    ).first()[0]
-
-def get_repair_order_full(uuid):
-    return db.session.execute(
-        select(RepairOrder.model, RepairOrder.status, RepairOrder.last_modified_time, RepairOrder.problem, RepairOrder.social_media_type, RepairOrder.contact)
-        .where(RepairOrder.uniq_link == uuid)
-    ).first()
-
-def is_repair_order_exists(uuid):
-    return db.session.execute(
-        select(RepairOrder.uniq_link).where(RepairOrder.uniq_link == str(uuid))
-    ).first()
-
-def update_repair_status(uuid, status, master_id):
-    db.session.execute(
-        update(RepairOrder)
-        .where(RepairOrder.uniq_link == uuid)
-        .values(status=Status(status).name, master_id=master_id)
-    )
-    db.session.commit()
+    def get_categories_page(self, max_per_page, page):
+        with self.app.app_context():
+            return self.db.session.query(
+                SpareCategory.id, SpareCategory.name
+                ).paginate(page=int(page), max_per_page=self.max_page_size)
 
 def get_order_page(max_per_page, page, master_id):
-    return db.session.query(RepairOrder.uniq_link, RepairOrder.problem, RepairOrder.model).where(RepairOrder.master_id == master_id).paginate(page=int(page), max_per_page=int(max_per_page))
+    with self.app.app_context():
+        return self.db.session.query(
+            RepairOrder.uniq_link, 
+            RepairOrder.problem, 
+            RepairOrder.model
+            ).where(
+                RepairOrder.master_id == master_id
+                ).paginate(page=int(page), max_per_page=self.max_page_size)
+
+db_proxy = DBProxy()
 
 class MetaEnum(enum.EnumMeta):
     def __contains__(cls, item):
@@ -169,6 +173,12 @@ class SocialMediaType(enum.Enum):
 class SpareType(enum.Enum):
     MECHA = "mecha"
     ELECTRIC = "electrical"
+    def __str__(item):
+        rus = {
+            'mecha':'Механика',
+            'electrical':'Электроника'
+        }
+        return rus[item.value]
 
 class SpareAviability(enum.Enum):
     UNKNOWN = "Уточняйте"
@@ -222,6 +232,15 @@ class RepairOrder(db_proxy.db.Model):
     def save(self):
         db_proxy.db.session.add(self)
         db_proxy.db.session.commit()
+    
+    def update(self, status):
+        self.status = Status(status).name
+        # db.session.execute(
+        #     update(RepairOrder)
+        #     .where(RepairOrder.uniq_link == uuid)
+        #     .values(status=Status(status).name, master_id=master_id)
+        # )
+        # db.session.commit()
 
 
 class Brand(db_proxy.db.Model):
