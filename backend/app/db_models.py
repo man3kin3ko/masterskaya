@@ -3,6 +3,7 @@ import datetime
 import sqlalchemy
 import csv
 import uuid
+from .utils import Singleton
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import (
     Integer, 
@@ -17,25 +18,30 @@ from sqlalchemy.orm import (
     mapped_column, 
     relationship
     )
-from flask import current_app, g
+from flask import g
 from pydantic import BaseModel
 
 class Base(DeclarativeBase):
     pass
 
-db = SQLAlchemy(model_class=Base)
+class DBProxy(metaclass=Singleton):
+    def __init__(self, max_per_page=5):
+        self.db = SQLAlchemy(model_class=Base)
+        self.max_per_page = int(max_per_page)
 
-def get_db():
-    if 'db' not in g:
-        g.db = db
-    return g.db
+    def assign_app(self, app):
+        self.app = app
+    
+    def get_repair_order(self, uuid):
+        with self.app.app_context():
+            return RepairOrder.query.where(RepairOrder.uniq_link == str(uuid))
+    
+    def get_repair_orders(self, master_id, page):
+        with self.app.app_context():
+            return RepairOrder.query.where(RepairOrder.master_id == master_id).paginate(page=int(page), max_per_page=self.max_per_page)
 
-
-def close_db(e=None):
-    db = g.pop('db', None)
-
-    if db is not None:
-        db.close()
+db_proxy = DBProxy()
+db = None
 
 def get_spares(spare_type, spare_category):
     return db.session.execute(
@@ -313,21 +319,21 @@ class OrderFormRequestSchema(BaseModel):
 class OrderUUID(BaseModel):
     uuid: uuid.UUID
 
-class RepairOrder(db.Model):
+class RepairOrder(db_proxy.db.Model):
     __tablename__ = "repairs"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    uniq_link = db.Column(db.String(36), nullable=False, unique=True)
+    uniq_link = db_proxy.db.Column(db_proxy.db.String(36), nullable=False, unique=True)
     contact: Mapped[str] = mapped_column()
     social_media_type: Mapped[SocialMediaType] = mapped_column()
     status: Mapped[Status] = mapped_column(default=Status.ORDERED)
     problem: Mapped[str] = mapped_column()
-    model = db.Column(db.String(50), nullable=False)
-    # created_time = db.Column(
-    #     sqlalchemy.DateTime,
-    #     default=datetime.datetime.utcnow,
-    # )
-    last_modified_time = db.Column(
+    model = db_proxy.db.Column(db_proxy.db.String(50), nullable=False)
+    created_time = db.Column(
+        sqlalchemy.DateTime,
+        default=datetime.datetime.utcnow,
+    )
+    last_modified_time = db_proxy.db.Column(
         sqlalchemy.DateTime,
         default=datetime.datetime.utcnow,
         onupdate=datetime.datetime.now,
@@ -349,35 +355,35 @@ class RepairOrder(db.Model):
         )
     
     def save(self):
-        db.session.add(self)
-        db.session.commit()
+        db_proxy.db.session.add(self)
+        db_proxy.db.session.commit()
 
 
-class Brand(db.Model):
+class Brand(db_proxy.db.Model):
     __tablename__ = "brand"
     id = mapped_column(Integer, primary_key=True)
-    name = db.Column(db.String(256), nullable=False)
-    country = db.Column(db.String(2))
+    name = db_proxy.db.Column(db_proxy.db.String(256), nullable=False)
+    country = db_proxy.db.Column(db_proxy.db.String(2))
 
 
-class Spare(db.Model):
+class Spare(db_proxy.db.Model):
     __tablename__ = "spares"
     id = mapped_column(Integer, primary_key=True)
     brand_id = mapped_column(Integer, ForeignKey("brand.id"), nullable=False)
     brand = relationship("Brand")
     categ_id = mapped_column(Integer, ForeignKey("spare_category.id"), nullable=False)
     categ = relationship("SpareCategory")
-    name = db.Column(db.String(256), nullable=False)
+    name = db_proxy.db.Column(db_proxy.db.String(256), nullable=False)
     availability: Mapped[SpareAviability] = mapped_column(default=SpareAviability.UNKNOWN)
-    price = db.Column(Integer)
-    quantity = db.Column(Integer, default=0)
+    price = db_proxy.db.Column(Integer)
+    quantity = db_proxy.db.Column(Integer, default=0)
 
 
-class SpareCategory(db.Model):
+class SpareCategory(db_proxy.db.Model):
     __tablename__ = "spare_category"
     id = mapped_column(Integer, primary_key=True)
     type: Mapped[SpareType] = mapped_column()
-    name = db.Column(db.String(64), nullable=False)
-    description = db.Column(db.String(256))
-    image_name = db.Column(db.String(30))
-    prog_name = db.Column(db.String(30))
+    name = db_proxy.db.Column(db_proxy.db.String(64), nullable=False)
+    description = db_proxy.db.Column(db_proxy.db.String(256))
+    image_name = db_proxy.db.Column(db_proxy.db.String(30))
+    prog_name = db_proxy.db.Column(db_proxy.db.String(30))

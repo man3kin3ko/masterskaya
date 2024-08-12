@@ -1,24 +1,23 @@
 import click
 import uuid
 from .telegram_bridge import TelegramBridge, start_bot_command
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, g
 from .config import Config
 from .utils import cycle_list
-from . import db_models as db
+from .db_models import db_proxy
 
 app = Flask(__name__, static_folder="dist", static_url_path="")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
-
 with app.app_context():
-    instance = db.get_db()
-    instance.init_app(app)
-    instance.create_all()
-
+    db_proxy.assign_app(app)
+    db_proxy.db.init_app(app)
+    db_proxy.db.create_all()
+    if 'db' not in g:
+        g.db = db_proxy.db
 
 @app.route("/")
 async def index():
     return render_template("index.html", config=Config)
-
 
 @app.errorhandler(404)
 async def page_not_found(e):

@@ -3,7 +3,7 @@ import telegram
 import httpx
 import click
 import logging
-from .utils import truncate
+from .utils import truncate, Singleton
 from typing import Tuple
 from dataclasses import dataclass
 from telegram.ext import (
@@ -21,8 +21,9 @@ from telegram import (
     Update
     )
 from .db_models import (
+    db_proxy,
     update_repair_status, 
-    get_categ, 
+    get_categ,
     export_csv, 
     Status,
     SpareType, 
@@ -33,15 +34,6 @@ from .db_models import (
 
 TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
-
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-        return cls._instances[cls]
 
 @dataclass
 class FlaskUpdate:
@@ -86,7 +78,7 @@ class InlineKeyboardUI(): # наследование от маркапа нев�
 
 
 class InlineKeyboardUIBuilder:
-    def __init__(self, max_per_page=5):
+    def __init__(self, max_per_page):
         self.max_per_page = max_per_page
         self.reset()
         self._menu_btn = InlineKeyboardButton(text="Меню", callback_data="/menu")
@@ -99,7 +91,6 @@ class InlineKeyboardUIBuilder:
 
     @property
     def product(self) -> InlineKeyboardUI:
-        print(self._product.rows[0])
         assert len(self._product.rows[0]) <= self.max_per_page + 1
         product = self._product.create()
         self.reset()
@@ -176,10 +167,11 @@ class InlineKeyboardUIBuilder:
 
 
 class CallbackRouter:
-    def __init__(self, builder, flask, desc_len=20):
+    def __init__(self, builder, db_proxy, desc_len=20):
         self.statuses = Status
         self.builder = builder
-        self.flask = flask
+        self.flask = None
+        self.db_proxy = db_proxy
         self.desc_len = desc_len
 
     def update_order(self, uuid, status, master):
@@ -188,7 +180,9 @@ class CallbackRouter:
 
     def get_orders(self, page, master):
         self.builder.add_route(f"/order/page/{page}")
-        page = self.make_db_req(get_order_page, self.builder.max_per_page, page, master.id)
+        #page = self.make_db_req(get_order_page, self.builder.max_per_page, page, master.id)
+        page = self.db_proxy.get_repair_orders(master.id, page)
+        logging.debug(page)
         for uniq_link, desc, model in page:
             self.builder.add_button(text=f"{model} {truncate(desc, self.desc_len)}", callback=f"/order/{uniq_link}/item")
         self.builder.add_pager()
@@ -261,14 +255,15 @@ class CallbackRouter:
 
 
 class TelegramBridge(metaclass=Singleton):
-    def __init__(self, token, chat, flask):
+    def __init__(self, token, chat, flask, max_page_size=5):
         self.app = Application.builder().token(token).build()
         self.app.add_handler(CallbackQueryHandler(self.get_button))
         self.app.add_handler(CommandHandler("menu", self.menu))
         self.app.add_handler(TypeHandler(type=FlaskUpdate, callback=self.send_new_order))
+
         self.chat = chat
-        self.builder = InlineKeyboardUIBuilder()
-        self.router = CallbackRouter(self.builder, flask)
+        self.builder = InlineKeyboardUIBuilder(max_page_size)
+        self.router = CallbackRouter(self.builder, db_proxy)
 
     async def add_update(self, update):
         await self.app.update_queue.put(FlaskUpdate(user_id=self.chat, payload=update))
