@@ -20,17 +20,7 @@ from telegram import (
     InlineKeyboardMarkup, 
     Update
     )
-from .db_models import (
-    db_proxy,
-    update_repair_status, 
-    get_categ,
-    export_csv, 
-    Status,
-    SpareType, 
-    get_order_page, 
-    get_categs_page, 
-    get_repair_order_full
-    )
+from .db import db_proxy, Status
 
 TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
@@ -303,6 +293,8 @@ class TelegramBridge(metaclass=Singleton):
         self.builder.make_menu()
         await self.send_message(message=f"Меню", markup=self.builder.product)
 
+def start_bot(app):
+    return TelegramBridge(TG_TOKEN, WORKING_CHAT, app)
 
 @click.command("start-bot")
 def start_bot_command():

@@ -2,10 +2,10 @@ import asyncio
 import uvicorn
 import logging
 from app.web import app
-import app.db_models as db
+import app.db as db
 from flask import request
 from asgiref.wsgi import WsgiToAsgi
-from app.telegram_bridge import TG_TOKEN, WORKING_CHAT, TelegramBridge
+from app.telegram_bridge import start_bot
 
 #https://docs.python-telegram-bot.org/en/stable/examples.customwebhookbot.html
 
@@ -15,7 +15,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 async def main() -> None:
-    bot = TelegramBridge(TG_TOKEN, WORKING_CHAT, app)
+    bot = start_bot(app)
 
     @app.route("/form", methods=["POST"])
     async def read_item():
