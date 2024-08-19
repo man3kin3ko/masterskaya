@@ -21,10 +21,11 @@ async def main() -> None:
     async def read_item():
         try:
             new_repair_order = db.RepairOrder.from_request(request.json)
-            new_repair_order.save()
-            logging.info(new_repair_order)
+            uniq_link = new_repair_order.uniq_link
 
-            await bot.add_update(new_repair_order)
+            new_repair_order.save()
+
+            await bot.add_update(uniq_link)
             return '', 200
 
         except Exception as e:

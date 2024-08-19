@@ -25,7 +25,7 @@ async def page_not_found(e):
 
 @app.route("/tracking/<uuid>")
 async def tracking_order(uuid):
-    order = db_proxy.get_repair_order(uuid)
+    order = db_proxy.get_repair_order(uuid)[0]
     return render_template("tracking.html", config=Config, order=order)
 
 @app.route("/tracking/")

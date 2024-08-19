@@ -119,7 +119,7 @@ class InlineKeyboardUIBuilder:
                 [InlineKeyboardButton(text="Запчасти", callback_data=f"/spares/page/1")]
             )
 
-    def add_status_switch(self, uuid, current_status):
+    def add_status_switch(self, uuid, current_status: Status):
         row  = [i for i in Status if i.name != current_status.name and i.name != Status.ORDERED.name]
         self.add_row(list(map(lambda i: InlineKeyboardButton(text=str(i), callback_data=f"/order/{uuid}/{i.value}"), row)))
         
@@ -151,7 +151,7 @@ class InlineKeyboardUIBuilder:
                 ),
             InlineKeyboardButton(
                 text="Загрузить",  
-                callback_data=f"/spares/{categ_id}/uplosad",
+                callback_data=f"/spares/{categ_id}/upload",
                 ),
         ])
 
@@ -160,59 +160,57 @@ class CallbackRouter:
     def __init__(self, builder, db_proxy, desc_len=20):
         self.statuses = Status
         self.builder = builder
-        self.flask = None
         self.db_proxy = db_proxy
         self.desc_len = desc_len
 
     def update_order(self, uuid, status, master):
-        make_db_req(update_repair_status, uuid, status, master.id)
-        return f"Заказ `{uuid}` изменен {master.first_name} {master.last_name if master.last_name else ''} на `{str(Status(status))}`", None
+        order = db_proxy.get_repair_order(uuid, master)[0]
+        return order.update(status, master), None
 
-    def get_orders(self, page, master):
+    def get_orders_page(self, page, master):
         self.builder.add_route(f"/order/page/{page}")
-        #page = self.make_db_req(get_order_page, self.builder.max_per_page, page, master.id)
         page = self.db_proxy.get_repair_orders(master.id, page)
-        logging.debug(page)
-        for uniq_link, desc, model in page:
-            self.builder.add_button(text=f"{model} {truncate(desc, self.desc_len)}", callback=f"/order/{uniq_link}/item")
+        for i in page.items:
+            self.builder.add_button(text=f"{i.model} {truncate(i.problem, self.desc_len)}", callback=f"/order/{i.uniq_link}/item")
         self.builder.add_pager()
         return "Меню", self.builder.product
     
-    def get_spare(self, categ_id, route):
+    def get_category(self, categ_id, route):
         prev = InlineKeyboardUI([])
         self.builder.init(prev.from_route(route))
         self.builder.add_file_toggle(categ_id)
         self.builder.add_back_btn()
-        return f"{make_db_req(get_categ,categ_id)[0]}", self.builder.product
+
+        categ = db_proxy.get_category_by_id(categ_id)[0]
+        logging.debug(categ)
+
+        return str(categ), self.builder.product
 
     def get_order(self, uuid, route):
-        model, status, date, desc, soc_type, contact = make_db_req(get_repair_order_full, uuid)
+        order = db_proxy.get_repair_order(uuid)[0]
         prev = InlineKeyboardUI([])
         self.builder.init(prev.from_route(route))
-        self.builder.add_status_switch(uuid, status)
+        self.builder.add_status_switch(uuid, order.status)
         self.builder.add_back_btn()
-        msg = 'Заказ `{uuid}` от `{date}`:\n{model} \[{soc_type}\] {contact}\n```{desc}```\nСтатус: {status}'.format(
-            uuid=uuid,
-            model=model,
-            date=date.date(),
-            status=str(status),
-            desc=desc,
-            soc_type=soc_type.value,
-            contact=contact
-        )
+
+        msg = '\n'.join([
+            order.get_title(),
+            order.get_description(),
+            order.get_status(),
+            "\n",
+            order.get_tracking_link(),
+            order.get_created_time(),
+        ])
+
         return msg, self.builder.product
 
-    def get_categ(self, page):
+    def get_categories_page(self, page):
         self.builder.add_route(f"/spares/page/{page}")
-        page = make_db_req(get_categs_page, self.builder.max_per_page, page)
-        for categ_id, name in page:
-            self.builder.add_button(text=f"{name}", callback=f"/spares/{categ_id}/item")
+        page = db_proxy.get_categories_page(self.builder.max_per_page, page)
+        for i in page.items:
+            self.builder.add_button(text=f"{i.name}", callback=f"/spares/{i.id}/item")
         self.builder.add_pager()
         return "Меню", self.builder.product
-
-    def make_db_req(self, f, *args):
-        with self.flask.app_context():
-            return f(*args)
 
     def handle_callback(self, callback_msg, master) -> Tuple[str, InlineKeyboardUI]:
         route = callback_msg.lstrip("/").split("/")
@@ -222,7 +220,7 @@ class CallbackRouter:
             
         elif (route[0] == "order"):
             if route[1] == "page":
-                return self.get_orders(route[2], master)
+                return self.get_orders_page(route[2], master)
             if route[2] in self.statuses:
                 return self.update_order(route[1], route[2], master)
             if route[2] == "item":
@@ -232,16 +230,16 @@ class CallbackRouter:
             if len(route) < 3:
                 return "Меню", self.builder.make_spares()
             if route[1] == "page":
-                return self.get_categ(route[2])
+                return self.get_categories_page(route[2])
             if route[2] == 'item':
-                return self.get_spare(route[1], route)
+                return self.get_category(route[1], route)
             if route[2] == 'download':
                 export_csv(route[1])
                 return None, None
             if route[2] == 'upload':
                     #https://stackoverflow.com/questions/31394998/using-sqlalchemy-to-load-a-csv-file-into-a-database
                 pass
-        return f"```{route} {Status(route[2]) in self.statuses} {self.statuses} {Status.ACCEPTED.value}```", None
+        return f"```{route}```", None
 
 
 class TelegramBridge(metaclass=Singleton):
@@ -258,9 +256,6 @@ class TelegramBridge(metaclass=Singleton):
     async def add_update(self, update):
         await self.app.update_queue.put(FlaskUpdate(user_id=self.chat, payload=update))
 
-    def poll(self):
-        self.app.run_polling(allowed_updates=Update.ALL_TYPES)
-
     async def send_message(self, message, **kwargs):
         await self.app.bot.send_message(
             chat_id=self.chat,
@@ -270,9 +265,10 @@ class TelegramBridge(metaclass=Singleton):
         )
 
     async def send_new_order(self, update: FlaskUpdate, context: CustomContext):
-        logging.debug(update.payload)
-        await self.send_message(str(update.payload), markup=InlineKeyboardMarkup(
-                [[InlineKeyboardButton("Принять заказ", callback_data="accept_repair")]]
+        uniq_link = update.payload
+        order = db_proxy.get_order(uniq_link)[0]
+        await self.send_message(str(order), markup=InlineKeyboardMarkup(
+                [[InlineKeyboardButton("Принять заказ", callback_data=f"/order/{uniq_link}/{Status.ACCEPTED.value}")]]
                 ))
 
     async def get_button(self, update: Update, context: CustomContext):

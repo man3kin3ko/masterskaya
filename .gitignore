@@ -5,6 +5,8 @@ backend/venv/
 backend/.idea/
 backend/db.csv
 backend/app/__pycache__/
-backend/app/instance/
+backend/instance/
+backend/app/db/__pycache__/
 backend/__pycache__/
 backend/app/dist
+venv/

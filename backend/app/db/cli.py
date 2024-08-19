@@ -1,3 +1,6 @@
+from sqlalchemy import insert
+from .models import Brand, SpareCategory, Spare
+
 def init_db(db):
     db.session.execute(
             insert(Brand),
