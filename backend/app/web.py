@@ -4,7 +4,7 @@ from .telegram_bridge import TelegramBridge, start_bot_command
 from flask import Flask, request, redirect, render_template, g
 from .config import Config
 from .utils import cycle_list
-from .db import db_proxy, init_db, SpareType
+from .db import db_proxy, init_db, SpareType, dump_db, restore_db
 
 app = Flask(__name__, static_folder="dist", static_url_path="")
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
@@ -83,11 +83,24 @@ async def electrical_details(spare_category):
         brands=db_proxy.get_brands_by_category_and_type(spare_type, spare_category),
     )
 
+# todo: move cli commands
 
 @click.command("init-db")
 def init_db_command():
     with app.app_context():
         init_db(db_proxy.db)
 
+@click.command("dump-db")
+def dump_db_command():
+    with app.app_context():
+        dump_db(db_proxy.db)
+
+@click.command("restore-db")
+def restore_db_command():
+    with app.app_context():
+        restore_db(db_proxy.db)
+
 app.cli.add_command(init_db_command)
 app.cli.add_command(start_bot_command)
+app.cli.add_command(dump_db_command)
+app.cli.add_command(restore_db_command)

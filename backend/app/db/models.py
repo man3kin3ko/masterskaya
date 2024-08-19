@@ -1,5 +1,6 @@
 import enum
 from datetime import datetime, timezone, timedelta
+import abc
 import sqlalchemy
 import logging
 import csv
@@ -24,7 +25,7 @@ from sqlalchemy.orm import (
     relationship
     )
 
-UTC_DELTA = 3
+UTC_DELTA = 2 #?
 TIME_FORMAT = "%H:%M %d.%m.%Y"
 
 # https://docs.sqlalchemy.org/en/14/_modules/examples/asyncio/async_orm.html
@@ -204,13 +205,13 @@ class Status(BaseEnum):
         }
         return rus[item.value]
 
-class SocialMediaType(enum.Enum):
+class SocialMediaType(BaseEnum):
     PHONE = "phone"
     EMAIL = "email"
     TG = "tg"
     VK = "vk"
 
-class SpareType(enum.Enum):
+class SpareType(BaseEnum):
     MECHA = "mecha"
     ELECTRIC = "electrical"
     def __str__(item):
@@ -220,7 +221,7 @@ class SpareType(enum.Enum):
         }
         return rus[item.value]
 
-class SpareAviability(enum.Enum):
+class SpareAviability(BaseEnum):
     UNKNOWN = "Уточняйте"
     AVAILABLE = "В наличии"
     UNAVAILABLE = "Отсутствует"
@@ -234,7 +235,33 @@ class OrderFormRequestSchema(BaseModel):
 class OrderUUIDSchema(BaseModel):
     uuid: uuid.UUID
 
-class RepairOrder(db_proxy.db.Model):
+class CSVParseable():
+    __metaclass__ = abc.ABCMeta
+    @abc.abstractmethod
+    def from_csv(attrs: dict):
+        pass
+
+    @classmethod
+    def serialize(cls, record):
+        return map(
+                    lambda x: x.name if issubclass(x.__class__, BaseEnum) else x, 
+                    [ getattr(record[0], i.name, None) for i in cls.__mapper__.columns ]
+                )
+
+    @staticmethod
+    def deserialize(obj, attr, attr_cls):
+        if obj.get(attr):
+            if issubclass(attr_cls, BaseEnum):
+                obj[attr] = attr_cls[obj[attr]]
+            if attr_cls == int:
+                obj[attr] = int(obj[attr])
+            if issubclass(attr_cls, datetime):
+                # ! exel зачем-то ломает iso
+                obj[attr] = datetime.strptime(obj[attr], '%Y-%m-%d %H:%M:%S.%f')
+
+
+
+class RepairOrder(db_proxy.db.Model, CSVParseable):
     __tablename__ = "repairs"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -254,6 +281,15 @@ class RepairOrder(db_proxy.db.Model):
         onupdate=datetime.now(timezone.utc),
     )
     master_id: Mapped[int] = mapped_column(nullable=True)
+
+    @classmethod
+    def from_csv(cls, attrs):
+        cls.deserialize(attrs, "id", int)
+        cls.deserialize(attrs, "status", Status)
+        cls.deserialize(attrs, "created_time", datetime)
+        cls.deserialize(attrs, "last_modified_time", datetime)
+        cls.deserialize(attrs, "social_media_type", SocialMediaType)
+        return attrs
 
     def get_title(self):
         return f"Заказ от \[{self.social_media_type.value}\] {self.contact}\n\nМодель {self.model}"
@@ -333,14 +369,18 @@ class RepairOrder(db_proxy.db.Model):
             ])
 
 
-class Brand(db_proxy.db.Model):
+class Brand(db_proxy.db.Model, CSVParseable):
     __tablename__ = "brand"
     id = mapped_column(Integer, primary_key=True)
     name = db_proxy.db.Column(db_proxy.db.String(256), nullable=False)
     country = db_proxy.db.Column(db_proxy.db.String(2))
 
+    @classmethod
+    def from_csv(cls, attrs):
+        cls.deserialize(attrs, "id", int)
 
-class Spare(db_proxy.db.Model):
+
+class Spare(db_proxy.db.Model, CSVParseable):
     __tablename__ = "spares"
     id = mapped_column(Integer, primary_key=True)
     brand_id = mapped_column(Integer, ForeignKey("brand.id"), nullable=False)
@@ -351,10 +391,17 @@ class Spare(db_proxy.db.Model):
     availability: Mapped[SpareAviability] = mapped_column(default=SpareAviability.UNKNOWN)
     price = db_proxy.db.Column(Integer)
     quantity = db_proxy.db.Column(Integer, default=0)
-        
+    
+    @classmethod
+    def from_csv(cls, attrs):
+        cls.deserialize(attrs, "id", int)
+        cls.deserialize(attrs, "price", int)
+        cls.deserialize(attrs, "quantity", int)
+        cls.deserialize(attrs, "categ_id", int)
+        cls.deserialize(attrs, "aviability", SpareAviability)
 
 
-class SpareCategory(db_proxy.db.Model):
+class SpareCategory(db_proxy.db.Model, CSVParseable):
     __tablename__ = "spare_category"
     id = mapped_column(Integer, primary_key=True)
     type: Mapped[SpareType] = mapped_column()
@@ -365,3 +412,8 @@ class SpareCategory(db_proxy.db.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def from_csv(cls, attrs):
+        cls.deserialize(attrs, "id", int)
+        cls.deserialize(attrs, "type", SpareType)

@@ -1,4 +1,4 @@
-from .cli import init_db
+from .cli import init_db, dump_db, restore_db
 from .models import (
     db_proxy,
     Status,

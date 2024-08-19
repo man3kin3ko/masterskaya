@@ -1,5 +1,30 @@
-from sqlalchemy import insert
-from .models import Brand, SpareCategory, Spare
+import csv
+from sqlalchemy import insert, select, update
+from .models import Brand, SpareCategory, Spare, RepairOrder, BaseEnum
+
+tables = [RepairOrder, SpareCategory, Spare, Brand]
+
+def dump_db(db, tables=tables):
+    for i in tables:
+        records = db.session.execute(
+            select(i)
+        ).all()
+        with open(f'instance/{i.__name__}.csv', 'w') as f:
+            writer = csv.writer(f)
+            writer.writerow([j.key for j in i.__mapper__.columns])
+            for record in records:
+                writer.writerow(i.serialize(record)) 
+
+def restore_db(db, tables=tables):
+    for i in tables:
+        with open(f'instance/{i.__name__}.csv') as f:
+            reader = csv.reader(f)
+            header = next(reader)
+            db.session.execute(
+                    update(i), [i.from_csv(dict(zip(header, row))) for row in reader]
+                )
+            db.session.commit()
+
 
 def init_db(db):
     db.session.execute(
