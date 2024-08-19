@@ -67,7 +67,7 @@ def init_db(db):
                 {
                     "name": "Двигатели",
                     "type": "ELECTRIC",
-                    "description": "Миктромоторы затворов и объективов",
+                    "description": "Микромоторы затворов и объективов",
                     "image_name": "3b71160fc60290752cb7.jpg",
                     "prog_name": "motor",
                 },

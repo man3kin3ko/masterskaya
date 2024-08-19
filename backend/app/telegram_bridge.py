@@ -182,7 +182,6 @@ class CallbackRouter:
         self.builder.add_back_btn()
 
         categ = db_proxy.get_category_by_id(categ_id)[0]
-        logging.debug(categ)
 
         return str(categ), self.builder.product
 

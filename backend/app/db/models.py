@@ -195,7 +195,7 @@ class Status(BaseEnum):
     PROBLEMS = "problem"
     def __str__(item):
         rus = {
-            'ordered':'Зарегестрирован',
+            'ordered':'Зарегистрирован',
             'accepted':'Принят в очередь работ',
             'in_progress':'В работе',
             'ready':'Готов',
@@ -289,10 +289,6 @@ class RepairOrder(db_proxy.db.Model):
         if self.created_time is not None: #wtf
             return (self.created_time + timedelta(hours=UTC_DELTA)).strftime(TIME_FORMAT)
 
-    # @hybrid_property
-    # def get_status_as_object(self):
-    #     return Status[self.status]
-
     def __str__(self):
         return "\n".join([
             self.get_title(),
@@ -317,7 +313,9 @@ class RepairOrder(db_proxy.db.Model):
         db_proxy.add(self)
     
     def update(self, status, master):
-        # for some reason were out of session so we cannot update only attributes
+        # for some reason were out of session so we cannot update db state by changing attributes
+        # flask-sqlalchemy-session is also useless here therefore we use asyncio flask which has broken 
+        # this library
 
         with db_proxy.app.app_context():
             db_proxy.db.session.execute(
