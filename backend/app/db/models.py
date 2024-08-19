@@ -8,6 +8,7 @@ import uuid
 from ..utils import Singleton
 from flask import g
 from pydantic import BaseModel
+from telegram.helpers import escape_markdown
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import (
@@ -292,7 +293,7 @@ class RepairOrder(db_proxy.db.Model, CSVParseable):
         return attrs
 
     def get_title(self):
-        return f"Заказ от \[{self.social_media_type.value}\] {self.contact}\n\nМодель {self.model}"
+        return f"Заказ от \[{escape_markdown(self.social_media_type.value, version=2)}\] {escape_markdown(self.contact, version=2)}\n\nМодель {escape_markdown(self.model, version=2)}"
 
     def get_uuid(self):
         return f"Номер заказа: `{self.uniq_link}`"
@@ -304,13 +305,13 @@ class RepairOrder(db_proxy.db.Model, CSVParseable):
         return f"Статус: `{self.status}`"
 
     def get_modified_time(self):
-        return f"Обновлен: `{self._last_modified_time}`"
+        return f"Обновлен: {escape_markdown(self._last_modified_time, version=2)}"
 
     def get_created_time(self):
-        return f"Создан: `{self._created_time}`"
+        return f"Создан: {escape_markdown(self._created_time, version=2)}"
 
     def get_description(self):
-        return f"\n```{self.problem}```\n"
+        return f"```Описание проблемы\n{self.problem}```\n"
 
     @hybrid_property
     def _social_media_type(self): 
