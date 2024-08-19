@@ -23,6 +23,14 @@ async def index():
 async def page_not_found(e):
     return render_template("404.html", config=Config)
 
+@app.route("/rules")
+async def rules():
+    return render_template("rules.html", config=Config)
+
+@app.route("/route")
+async def route():
+    return render_template("route.html", config=Config)
+
 @app.route("/tracking/<uuid>")
 async def tracking_order(uuid):
     order = db_proxy.get_repair_order(uuid)[0]
