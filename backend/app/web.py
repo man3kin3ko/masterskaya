@@ -78,10 +78,9 @@ async def rest_spare_electrical_redirect():
 
 @app.route("/store/spares/<spare_type>/<spare_category>/")
 async def electrical_details(spare_type, spare_category):
-    spare_type_obj = SpareType(spare_type)
-    spares, brands = db_proxy.get_spares_by_category_and_type(spare_type_obj.name, spare_category)
-    
+    spare_type = SpareType(spare_type)
     spare_category = db_proxy.get_category_by_name(spare_category)
+    spares, brands = db_proxy.get_spares_by_category_and_type(spare_type.name, spare_category.prog_name)
 
     return render_template(
         "detail-catalogue-page.html",
