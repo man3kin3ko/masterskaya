@@ -76,19 +76,20 @@ async def rest_spare_mecha_redirect():
 async def rest_spare_electrical_redirect():
     return redirect("/store/spares#electrical", code=302)
 
+@app.route("/store/spares/<spare_type>/<spare_category>/")
+async def electrical_details(spare_type, spare_category):
+    spare_type_obj = SpareType(spare_type)
+    spares, brands = db_proxy.get_spares_by_category_and_type(spare_type_obj.name, spare_category)
+    
+    spare_category = db_proxy.get_category_by_name(spare_category)
 
-@app.route("/store/spares/mecha/<spare_category>/")
-@app.route("/store/spares/electrical/<spare_category>/")
-async def electrical_details(spare_category):
-    spare_type = SpareType(request.path.split("/")[3])
     return render_template(
         "detail-catalogue-page.html",
         config=Config,
-        spare_type=spare_type.name,
-        human_spare_type=str(spare_type),
-        human_spare_category=db_proxy.get_category_by_name(spare_category).name,
-        spares=db_proxy.get_spares_by_category_and_type(spare_type, spare_category),
-        brands=db_proxy.get_brands_by_category_and_type(spare_type, spare_category),
+        spare_type=spare_type,
+        spare_category=spare_category,
+        spares=spares,
+        brands=brands
     )
 
 # todo: move cli commands

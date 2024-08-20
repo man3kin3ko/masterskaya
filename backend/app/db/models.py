@@ -103,14 +103,26 @@ class DBProxy(metaclass=Singleton):
 
     def get_spares_by_category_and_type(self, spare_type, spare_category):
         with self.app.app_context():
-            return self.db.session.execute(
-                select(Spare)
+            spares = self.db.session.execute(
+                select(Spare, Brand.name)
                 .join(Spare.brand)
                 .join(Spare.categ)
                 .where(SpareCategory.type == spare_type)
                 .where(SpareCategory.prog_name == spare_category)
                 .order_by(Brand.id)
                 ).all()
+
+            brands = self.db.session.execute(
+                select(Brand.name)
+                    .join(Spare.brand)
+                    .join(Spare.categ)
+                    .where(SpareCategory.type == spare_type)
+                    .where(SpareCategory.prog_name == spare_category)
+                    .order_by(Brand.id)
+                    .distinct()
+                ).all()
+
+            return spares, brands
     
     def get_spares_by_category(self, spare_category):
         with self.app.app_context():
@@ -120,18 +132,6 @@ class DBProxy(metaclass=Singleton):
                 .join(Spare.categ)
                 .where(SpareCategory.id == spare_category_id)
                 .order_by(Brand.id)
-                ).all()
-
-    def get_brands_by_category_and_type(self, spare_type, spare_category):
-        with self.app.app_context():
-            return self.db.session.execute(
-                select(Brand.name)
-                .join(Spare.brand)
-                .join(Spare.categ)
-                .where(SpareCategory.type == spare_type)
-                .where(SpareCategory.prog_name == spare_category)
-                .order_by(Brand.id)
-                .distinct()
                 ).all()
     
     def get_category_by_id(self, categ_id):

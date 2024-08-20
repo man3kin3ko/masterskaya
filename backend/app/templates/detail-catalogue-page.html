@@ -3,8 +3,8 @@
 {% block content %}
     <section>
         <div class="row flex-row m-3 fw-bold">
-            <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/<a href="/store/spares/#{{ spare_type }}" class="no-link-underscoring">{{ human_spare_type }}</a>/</span>
-            <h1 class="fw-bold my-2">{{ human_spare_category }}</h1>
+            <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/<a href="/store/spares/#{{ spare_type }}" class="no-link-underscoring">{{ spare_type|string }}</a>/</span>
+            <h1 class="fw-bold my-2">{{ spare_category|string }}</h1>
         </div>
     </section>
     <section>
@@ -13,11 +13,12 @@
               <nav class="col-md-2 col-lg-2 col-xxl-1 d-none d-md-block bg-light sidebar">
                 <div class="sidebar-sticky">
                   <ul class="nav flex-column">
+                    
                     {% if brands %}
                     {% for i in brands %}
                     <li class="nav-item">
-                      <a class="nav-link active text-muted" href="#{{ i.name|lower }}">
-                        {{ i.name }}
+                      <a class="nav-link active text-muted" href="#{{ i[0].name|lower }}">
+                        {{ i[0].name }}
                       </a>
                     </li>
                     {% endfor %}
@@ -44,13 +45,13 @@
                     <tbody>
                       {% if spares %}
                         {% for i in spares %}
-                        {% if i.Spare.brand.name == j.name %}
+                        {% if i[1] == j.name %}
                         <tr>
-                          <td>{{ i.Spare.id }}</td>
-                          <td>{{ i.Spare.name }}</td>
-                          <td class="{{ 'text-success' if i.Spare.availability.name == 'AVAILABLE'}}{{ 'text-danger' if i.Spare.availability.name == 'UNAVAILABLE'}}{{ 'text-warning' if i.Spare.availability.name == 'UNKNOWN'}}">{{i.Spare.availability.value}}</td>
-                          <td>{{ i.Spare.quantity|string + ' шт' if i.Spare.quantity else ''}}</td>
-                          <td>{{ i.Spare.price|string+' руб' if i.Spare.price else ''}}</td>
+                          <td>{{ i[0].id }}</td>
+                          <td>{{ i[0].name }}</td>
+                          <td class="{{ 'text-success' if i[0].availability.name == 'AVAILABLE'}}{{ 'text-danger' if i[0].availability.name == 'UNAVAILABLE'}}{{ 'text-warning' if i[0].availability.name == 'UNKNOWN'}}">{{i[0].availability.value}}</td>
+                          <td>{{ i[0].quantity|string + ' шт' if i[0].quantity else ''}}</td>
+                          <td>{{ i[0].price|string+' руб' if i[0].price else ''}}</td>
                         </tr>
                         {% endif %}
                         {% endfor %}
