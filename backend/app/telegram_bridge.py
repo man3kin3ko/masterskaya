@@ -1,4 +1,5 @@
 import os
+import csv
 import telegram
 import httpx
 import click
@@ -162,6 +163,8 @@ class CallbackRouter:
         self.builder = builder
         self.db_proxy = db_proxy
         self.desc_len = desc_len
+        self._answer = (None, None)
+        self._file = None
 
     def update_order(self, uuid, status, master):
         order = db_proxy.get_repair_order(uuid, master)[0]
@@ -211,33 +214,58 @@ class CallbackRouter:
         self.builder.add_pager()
         return "Меню", self.builder.product
 
+    @property
+    def answer(self):
+        answer = self._answer
+        self._answer = (None, None)
+        return answer
+
+    @property
+    def file(self):
+        file = self._file
+        self._file = None
+        return file
+
+    def set_answer(self, msg, kb):
+        self._answer = (msg, kb)
+
+    def set_file(self, filename):
+        self._file = filename
+
     def handle_callback(self, callback_msg, master) -> Tuple[str, InlineKeyboardUI]:
         route = callback_msg.lstrip("/").split("/")
         if (route[0] == "menu"):
             self.builder.make_menu()
-            return "Меню", self.builder.product
+            self.set_answer("Меню", self.builder.product)
             
         elif (route[0] == "order"):
             if route[1] == "page":
-                return self.get_orders_page(route[2], master)
+                self.set_answer(*self.get_orders_page(route[2], master))
             if route[2] in self.statuses:
-                return self.update_order(route[1], route[2], master)
+                self.set_answer(*self.update_order(route[1], route[2], master))
             if route[2] == "item":
-                return self.get_order(route[1], route)
+                self.set_answer(*self.get_order(route[1], route))
                 
         elif (route[0] == "spares"):
             if len(route) < 3:
-                return "Меню", self.builder.make_spares()
+                self.set_answer("Меню", self.builder.make_spares())
             if route[1] == "page":
-                return self.get_categories_page(route[2])
+                self.set_answer(*self.get_categories_page(route[2]))
             if route[2] == 'item':
-                return self.get_category(route[1], route)
+                return self.set_answer(*self.get_category(route[1], route))
             if route[2] == 'download':
-                export_csv(route[1])
-                return None, None
+                category_name, header, lines = db_proxy.export_category_to_csv(route[1])
+                filename = f"instance/{category_name}.csv"
+                with open(filename, 'w') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(header)
+                    for line in lines:
+                        writer.writerow(line)
+                
+                self.set_file(filename)
             if route[2] == 'upload':
-                    #https://stackoverflow.com/questions/31394998/using-sqlalchemy-to-load-a-csv-file-into-a-database
                 pass
+
         return f"```{route}```", None
 
 
@@ -270,19 +298,29 @@ class TelegramBridge(metaclass=Singleton):
                 [[InlineKeyboardButton("Принять заказ", callback_data=f"/order/{uniq_link}/{Status.ACCEPTED.value}")]]
                 ))
 
+    async def send_document(self, path):
+        await self.app.bot.send_document(chat_id=self.chat, document=open(path, 'rb'))
+
     async def get_button(self, update: Update, context: CustomContext):
         query = update.callback_query
         await query.answer()
 
-        text, kb = self.router.handle_callback(query.data, query.from_user)
+        self.router.handle_callback(query.data, query.from_user)
+        text, kb = self.router.answer
 
         if text is not None:
             await query.edit_message_text(
                 text=text,
                 parse_mode=telegram.constants.ParseMode.MARKDOWN_V2,
             )
+
         if kb is not None:
             await query.edit_message_reply_markup(reply_markup=kb)
+
+        filename = self.router.file
+
+        if filename is not None:
+            await self.send_document(filename)
 
     async def menu(self, update: Update, context: CustomContext):
         self.builder.make_menu()

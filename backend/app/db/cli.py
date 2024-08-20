@@ -11,7 +11,7 @@ def dump_db(db, tables=tables):
         ).all()
         with open(f'instance/{i.__name__}.csv', 'w') as f:
             writer = csv.writer(f)
-            writer.writerow([j.key for j in i.__mapper__.columns])
+            writer.writerow(i.get_header())
             for record in records:
                 writer.writerow(i.serialize(record)) 
 

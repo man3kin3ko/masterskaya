@@ -13,6 +13,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import (
     Integer, 
+    String,
     ForeignKey, 
     select, 
     insert, 
@@ -75,18 +76,24 @@ class DBProxy(metaclass=Singleton):
                     ).paginate(page=int(page), max_per_page=self.max_per_page)
 
     def export_category_to_csv(self, categ_id):
+        header = ['id', 'name', 'aviability', 'quantity', 'price', 'brand', 'country']
+
         with self.app.app_context():
+            category_name = self.db.session.execute(
+                select(SpareCategory.prog_name).where(SpareCategory.id == int(categ_id))
+            ).first()[0]
+            
             records = self.db.session.execute(
-                select(Spare)
+                select(Spare, Brand.name, Brand.country)
                 .join(Spare.categ)
                 .join(Spare.brand)
                 .where(SpareCategory.id == int(categ_id))
                 .order_by(Brand.id)
                 ).all()
-            with open('temp.csv', 'w') as f:
-                outcsv = csv.writer(f)
-                for c in records:
-                    outcsv.writerow([getattr(c[0], i.name, None) for i in Spare.__mapper__.columns]) 
+
+            lines = [i[0].serialize() + [i[1], i[2]] for i in records]
+
+            return category_name, header, lines
 
     def get_spare(self, spare_id):
         with self.app.app_context():
@@ -249,6 +256,11 @@ class CSVParseable():
                     [ getattr(record[0], i.name, None) for i in cls.__mapper__.columns ]
                 )
 
+    @classmethod
+    def get_header(cls):
+        # cls.__mapper__.all_orm_descriptors.keys() for unions?
+        return [i.key for i in cls.__mapper__.columns]
+
     @staticmethod
     def deserialize(obj, attr, attr_cls):
         if obj.get(attr):
@@ -266,17 +278,17 @@ class RepairOrder(db_proxy.db.Model, CSVParseable):
     __tablename__ = "repairs"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    uniq_link = db_proxy.db.Column(db_proxy.db.String(36), nullable=False, unique=True)
+    uniq_link: Mapped[str] = mapped_column(String(36), nullable=False, unique=True)
     contact: Mapped[str] = mapped_column()
     social_media_type: Mapped[SocialMediaType] = mapped_column()
     status: Mapped[Status] = mapped_column(default=Status.ORDERED)
     problem: Mapped[str] = mapped_column()
-    model = db_proxy.db.Column(db_proxy.db.String(50), nullable=False)
-    created_time = db_proxy.db.Column(
+    model = mapped_column(String(50), nullable=False)
+    created_time: Mapped[datetime] = mapped_column(
         sqlalchemy.DateTime,
         default=datetime.now(timezone.utc),
     )
-    last_modified_time = db_proxy.db.Column(
+    last_modified_time: Mapped[datetime] = mapped_column(
         sqlalchemy.DateTime,
         default=datetime.now(timezone.utc),
         onupdate=datetime.now(timezone.utc),
@@ -323,8 +335,7 @@ class RepairOrder(db_proxy.db.Model, CSVParseable):
 
     @hybrid_property
     def _created_time(self):
-        if self.created_time is not None: #wtf
-            return (self.created_time + timedelta(hours=UTC_DELTA)).strftime(TIME_FORMAT)
+        return (self.created_time + timedelta(hours=UTC_DELTA)).strftime(TIME_FORMAT)
 
     def __str__(self):
         return "\n".join([
@@ -345,9 +356,6 @@ class RepairOrder(db_proxy.db.Model, CSVParseable):
             model = schema.model
         )
         return order
-    
-    def save(self):
-        db_proxy.add(self)
     
     def update(self, status, master):
         # for some reason were out of session so we cannot update db state by changing attributes
@@ -372,9 +380,10 @@ class RepairOrder(db_proxy.db.Model, CSVParseable):
 
 class Brand(db_proxy.db.Model, CSVParseable):
     __tablename__ = "brand"
-    id = mapped_column(Integer, primary_key=True)
-    name = db_proxy.db.Column(db_proxy.db.String(256), nullable=False)
-    country = db_proxy.db.Column(db_proxy.db.String(2))
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    country: Mapped[str] = mapped_column(String(2))
 
     @classmethod
     def from_csv(cls, attrs):
@@ -383,15 +392,16 @@ class Brand(db_proxy.db.Model, CSVParseable):
 
 class Spare(db_proxy.db.Model, CSVParseable):
     __tablename__ = "spares"
-    id = mapped_column(Integer, primary_key=True)
-    brand_id = mapped_column(Integer, ForeignKey("brand.id"), nullable=False)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    brand_id: Mapped[int] = mapped_column(Integer, ForeignKey("brand.id"), nullable=False)
     brand = relationship("Brand")
-    categ_id = mapped_column(Integer, ForeignKey("spare_category.id"), nullable=False)
-    categ = relationship("SpareCategory")
-    name = db_proxy.db.Column(db_proxy.db.String(256), nullable=False)
+    categ_id: Mapped[int] = mapped_column(Integer, ForeignKey("spare_category.id"), nullable=False)
+    categ: Mapped[str] = relationship("SpareCategory")
+    name: Mapped[str] = mapped_column(String(256), nullable=False)
     availability: Mapped[SpareAviability] = mapped_column(default=SpareAviability.UNKNOWN)
-    price = db_proxy.db.Column(Integer)
-    quantity = db_proxy.db.Column(Integer, default=0)
+    price: Mapped[int] = mapped_column(Integer)
+    quantity: Mapped[int] = mapped_column(Integer, default=0)
     
     @classmethod
     def from_csv(cls, attrs):
@@ -401,15 +411,22 @@ class Spare(db_proxy.db.Model, CSVParseable):
         cls.deserialize(attrs, "categ_id", int)
         cls.deserialize(attrs, "aviability", SpareAviability)
 
+    def serialize(self):
+        return list(map(
+                lambda x: x.name if issubclass(x.__class__, BaseEnum) else x, 
+                [ getattr(self, i.name, None) for i in self.__mapper__.columns ]
+            ))
+
 
 class SpareCategory(db_proxy.db.Model, CSVParseable):
     __tablename__ = "spare_category"
-    id = mapped_column(Integer, primary_key=True)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
     type: Mapped[SpareType] = mapped_column()
-    name = db_proxy.db.Column(db_proxy.db.String(64), nullable=False)
-    description = db_proxy.db.Column(db_proxy.db.String(256))
-    image_name = db_proxy.db.Column(db_proxy.db.String(30))
-    prog_name = db_proxy.db.Column(db_proxy.db.String(30))
+    name: Mapped[str] = mapped_column(String(64), nullable=False)
+    description: Mapped[str] = mapped_column(String(256))
+    image_name: Mapped[str] = mapped_column(String(30))
+    prog_name: Mapped[str] = mapped_column(String(30))
 
     def __str__(self):
         return self.name
