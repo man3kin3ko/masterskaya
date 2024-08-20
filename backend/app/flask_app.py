@@ -1,6 +1,6 @@
 import click
 import uuid
-from .telegram_bridge import TelegramBridge, start_bot_command
+from .tg import start_bot_command
 from flask import Flask, request, redirect, render_template, g
 from .config import Config
 from .utils import cycle_list

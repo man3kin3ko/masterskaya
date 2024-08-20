@@ -1,11 +1,11 @@
 import asyncio
 import uvicorn
 import logging
-from app.web import app
+from app.flask_app import app
 import app.db as db
 from flask import request
 from asgiref.wsgi import WsgiToAsgi
-from app.telegram_bridge import start_bot
+from app.tg import start_bot
 
 #https://docs.python-telegram-bot.org/en/stable/examples.customwebhookbot.html
 
