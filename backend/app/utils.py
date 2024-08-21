@@ -1,3 +1,10 @@
+import asyncio
+
+def async_to_sync(f):
+    def wrapper(*args):
+        return asyncio.get_running_loop().create_task(f(*args))
+    return wrapper
+
 class Singleton(type):
     _instances = {}
 

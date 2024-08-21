@@ -6,7 +6,7 @@ import httpx
 import click
 import logging
 from .ui import InlineKeyboardUI, InlineKeyboardUIBuilder
-from ..utils import truncate, Singleton
+from ..utils import truncate, Singleton, async_to_sync
 from typing import Tuple
 from dataclasses import dataclass
 from telegram.ext import (
@@ -86,7 +86,6 @@ class AbstractHandler():
         def wrapper(*args):
             it = args[0]
             another_handler = it.handle_pass(args[1])
-            logging.debug(another_handler)
             if another_handler is None:
                 return f(*args)
             return another_handler
@@ -210,26 +209,11 @@ class SpareHandler(AbstractHandler):
         return filename
 
 class CallbackRouter:
-    def __init__(self, max_page_size):
-        self._file = None
-        self._answer = (None, None)
+    def __init__(self, msg_callback, kb_callback, doc_callback, max_page_size):
         self.max_page_size = max_page_size
-
-    def get_answer(self):
-        answer = self._answer
-        self._answer = (None, None)
-        return answer
-
-    def get_file(self):
-        file = self._file
-        self._file = None
-        return file
-
-    def set_file(self, filename):
-        self._file = filename
-
-    def set_answer(self, msg, kb):
-        self._answer = (msg, kb)
+        self.msg_callback = async_to_sync(msg_callback)
+        self.kb_callback = async_to_sync(kb_callback)
+        self.doc_callback = async_to_sync(doc_callback)
 
     @staticmethod
     def make_route(msg):
@@ -238,17 +222,23 @@ class CallbackRouter:
             route.append(None)
         return route
 
-    def handle_callback(self, callback_msg, master) -> Tuple[str, InlineKeyboardUI]:
+    def make_callback(self, query, msg, kb):
+        if msg is not None:
+            self.msg_callback(query, msg)
+        if kb is not None:
+            self.kb_callback(query, kb)
+
+    def handle_callback(self, query):
+        callback_msg = query.data
+        master = query.from_user
         route = self.make_route(callback_msg)
         builder = InlineKeyboardUIBuilder(self.max_page_size)
         menu = MenuHandler(builder=builder)
         order = OrderHandler(builder=builder, master=master)
-        spare = SpareHandler(builder=builder, callback=self.set_file)
+        spare = SpareHandler(builder=builder, callback=self.doc_callback)
         
         menu.set_next(order).set_next(spare)
-        result = menu.handle(route)
-
-        self.set_answer(*result)
+        self.make_callback(query, *menu.handle(route))
 
 
 class TelegramBridge(metaclass=Singleton):
@@ -260,7 +250,12 @@ class TelegramBridge(metaclass=Singleton):
 
         self.chat = chat
         self.builder = InlineKeyboardUIBuilder(max_page_size)
-        self.router = CallbackRouter(max_page_size)
+        self.router = CallbackRouter(
+            self.edit_text,
+            self.edit_kb,
+            self.send_document,
+            max_page_size
+            )
 
     async def add_update(self, update):
         await self.app.update_queue.put(FlaskUpdate(user_id=self.chat, payload=update))
@@ -283,26 +278,20 @@ class TelegramBridge(metaclass=Singleton):
     async def send_document(self, path):
         await self.app.bot.send_document(chat_id=self.chat, document=open(path, 'rb'))
 
+    async def edit_kb(self, query, kb):
+        await query.edit_message_reply_markup(reply_markup=kb)
+
+    async def edit_text(self, query, msg):
+        await query.edit_message_text(
+                text=msg,
+                parse_mode=telegram.constants.ParseMode.MARKDOWN_V2,
+            )
+
     async def get_button(self, update: Update, context: CustomContext):
         query = update.callback_query
         await query.answer()
 
-        self.router.handle_callback(query.data, query.from_user)
-        text, kb = self.router.get_answer()
-
-        if text is not None:
-            await query.edit_message_text(
-                text=text,
-                parse_mode=telegram.constants.ParseMode.MARKDOWN_V2,
-            )
-
-        if kb is not None:
-            await query.edit_message_reply_markup(reply_markup=kb)
-
-        filename = self.router.get_file()
-
-        if filename is not None:
-            await self.send_document(filename)
+        self.router.handle_callback(query)
 
     async def menu(self, update: Update, context: CustomContext):
         self.builder.make_menu()
