@@ -5,3 +5,4 @@ class Config:
     AVITO_LINK = "https://www.avito.ru/brands/62a50357047c5f3aff4741df28540fb5/"
     VK_LINK = "https://vk.com"
     TG_LINK = "https://t.me/masterskaya35ru"
+    HOSTNAME = "masterskaya35.ru"

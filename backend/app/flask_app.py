@@ -1,7 +1,7 @@
 import click
 import uuid
 from .tg import start_bot_command
-from flask import Flask, request, redirect, render_template, g
+from flask import Flask, request, redirect, render_template, make_response, g
 from .config import Config
 from .utils import cycle_list
 from .db import db_proxy, init_db, SpareType, dump_db, restore_db
@@ -90,6 +90,26 @@ async def electrical_details(spare_type, spare_category):
         spares=spares,
         brands=brands
     )
+
+@app.route("/sitemap")
+@app.route("/sitemap/")
+@app.route("/sitemap.xml")
+def sitemap():
+    sitemap = render_template("sitemap.xml", urls=map(
+        lambda x: f"https://{Config.HOSTNAME}{x}",
+    [
+        "/",
+        "/route",
+        "/store",
+        "/store/cameras/",
+        "/store/spares/",
+        "/store/spares/mecha",
+        "/store/spares/electrical"
+    ]))
+    response = make_response(sitemap)
+    response.headers["Content-Type"] = "application/xml"
+
+    return response
 
 # todo: move cli commands
 
