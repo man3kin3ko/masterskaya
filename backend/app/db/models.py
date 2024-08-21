@@ -271,7 +271,7 @@ class RepairOrder(db_proxy.db.Model, CSVParseable):
         return f"Создан: {escape_markdown(self._created_time, version=2)}"
 
     def get_description(self):
-        return f"```Описание проблемы\n{self.problem}```\n"
+        return f"```Описание\n{self.problem}```\n"
 
     @hybrid_property
     def _social_media_type(self): 
