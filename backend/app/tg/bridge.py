@@ -18,11 +18,7 @@ from telegram.ext import (
     ContextTypes,
     CallbackContext
     )
-from telegram import (
-    InlineKeyboardButton, 
-    InlineKeyboardMarkup, 
-    Update
-    )
+from telegram import Update
 from ..db import db_proxy, Status
 
 TG_TOKEN = os.environ["TOKEN"]
@@ -155,7 +151,10 @@ class OrderHandler(AbstractHandler):
         page = db_proxy.get_order_page(page_num, self.master.id)
 
         for i in page.items:
-            self.builder.add_button(text=f"{i.model} {truncate(i.problem, self.desc_len)}", callback=f"/{self.prog_name}/{i.uniq_link}/item")
+            self.builder.add_button(
+                text=f"{i.model} {truncate(i.problem, self.desc_len)}", 
+                callback=f"/{self.prog_name}/{i.uniq_link}/item"
+                )
         self.builder.add_pager()
 
         return "Меню", self.builder.product
@@ -189,7 +188,10 @@ class SpareHandler(AbstractHandler):
         page = db_proxy.get_categories_page(page_num)
 
         for i in page.items:
-            self.builder.add_button(text=f"{i.name}", callback=f"/{self.prog_name}/{i.id}/item")
+            self.builder.add_button(
+                text=f"{i.name}", 
+                callback=f"/{self.prog_name}/{i.id}/item"
+                )
         self.builder.add_pager()
 
         return "Меню", self.builder.product
@@ -267,11 +269,10 @@ class TelegramBridge(metaclass=Singleton):
         )
 
     async def send_new_order(self, update: FlaskUpdate, context: CustomContext):
-        uniq_link = update.payload
+        uniq_link = update.payload #validate?
         order = db_proxy.get_order(uniq_link)
-        await self.send_message(str(order), markup=InlineKeyboardMarkup(
-                [[InlineKeyboardButton("Принять заказ", callback_data=f"/order/{uniq_link}/{Status.ACCEPTED.value}")]]
-                ))
+        self.builder.accept_order(uniq_link)
+        await self.send_message(str(order), markup=self.builder.product)
 
     async def send_document(self, path):
         await self.app.bot.send_document(chat_id=self.chat, document=open(path, 'rb'))

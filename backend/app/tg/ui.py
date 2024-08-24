@@ -47,6 +47,12 @@ class InlineKeyboardUIBuilder:
         product = self._product.create()
         self.reset()
         return product
+
+    def accept_order(self, uniq_link):
+        self.add_row([InlineKeyboardButton(
+            "Принять заказ", 
+            callback_data=f"/order/{uniq_link}/{Status.ACCEPTED.value}"
+            )])
     
     def add_button(self, text, callback):
         self.add_row([InlineKeyboardButton(text=text, callback_data=callback)])
