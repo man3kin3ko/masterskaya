@@ -83,22 +83,20 @@ class AbstractHandler():
 
     @staticmethod
     def is_this_handler(f):
-        def wrapper(*args):
-            it = args[0]
-            another_handler = it.handle_pass(args[1])
+        def wrapper(self, *args):
+            another_handler = self.handle_pass(args[0])
             if another_handler is None:
-                return f(*args)
+                return f(self, *args)
             return another_handler
         return wrapper
 
     @staticmethod
     def can_parent_handle(f):
-        def wrapper(*args):
-            it = args[0]
-            upcasted = super(type(it), it)
-            parent_handling = upcasted.handle(args[1])
+        def wrapper(self, *args):
+            upcasted = super(type(self), self)
+            parent_handling = upcasted.handle(args[0])
             if parent_handling is None:
-                return f(*args)
+                return f(self, *args)
             return parent_handling
         return wrapper
 
@@ -129,13 +127,13 @@ class OrderHandler(AbstractHandler):
     def handle_update(self, route):
         uuid = route[1]
         status = route[2]
-        order = db_proxy.get_repair_order(uuid, self.master)[0]
+        order = db_proxy.get_repair_order(uuid, self.master)
 
         return order.update(status, self.master), None
 
     def handle_item(self, route):
         uuid = route[1]
-        order = db_proxy.get_repair_order(uuid)[0]
+        order = db_proxy.get_repair_order(uuid)
         prev = InlineKeyboardUI([])
         self.builder.init(prev.from_route(route))
         self.builder.add_status_switch(uuid, order.status)
@@ -154,7 +152,7 @@ class OrderHandler(AbstractHandler):
 
     def handle_page(self, route):
         page_num = self.get_page(route)
-        page = db_proxy.get_repair_orders(self.master.id, page_num)
+        page = db_proxy.get_order_page(page_num, self.master.id)
 
         for i in page.items:
             self.builder.add_button(text=f"{i.model} {truncate(i.problem, self.desc_len)}", callback=f"/{self.prog_name}/{i.uniq_link}/item")
@@ -178,7 +176,7 @@ class SpareHandler(AbstractHandler):
 
     def handle_item(self, route):
         categ_id = route[1]
-        categ = db_proxy.get_category_by_id(categ_id)[0]
+        categ = db_proxy.get_category_by_id(categ_id)
         prev = InlineKeyboardUI([])
         self.builder.init(prev.from_route(route))
         self.builder.add_file_toggle(categ_id)
@@ -188,7 +186,7 @@ class SpareHandler(AbstractHandler):
 
     def handle_page(self, route):
         page_num = self.get_page(route)
-        page = db_proxy.get_categories_page(self.builder.max_per_page, page_num)
+        page = db_proxy.get_categories_page(page_num)
 
         for i in page.items:
             self.builder.add_button(text=f"{i.name}", callback=f"/{self.prog_name}/{i.id}/item")
@@ -270,7 +268,7 @@ class TelegramBridge(metaclass=Singleton):
 
     async def send_new_order(self, update: FlaskUpdate, context: CustomContext):
         uniq_link = update.payload
-        order = db_proxy.get_order(uniq_link)[0]
+        order = db_proxy.get_order(uniq_link)
         await self.send_message(str(order), markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton("Принять заказ", callback_data=f"/order/{uniq_link}/{Status.ACCEPTED.value}")]]
                 ))

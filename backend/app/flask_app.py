@@ -33,7 +33,7 @@ async def route():
 
 @app.route("/tracking/<uuid>")
 async def tracking_order(uuid):
-    order = db_proxy.get_repair_order(uuid)[0]
+    order = db_proxy.get_repair_order(uuid)
     return render_template("tracking.html", config=Config, order=order)
 
 @app.route("/tracking/")

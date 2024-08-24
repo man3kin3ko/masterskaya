@@ -1,15 +1,3 @@
-from .enums import (
-    OrderFormRequestSchema, 
-    OrderUUIDSchema, 
-    Status, 
-    SpareType, 
-    SocialMediaType, 
-    SpareAviability,
-    BaseEnum
-    )
-from ..utils import Singleton
-
-
 import abc
 import sqlalchemy
 import logging
@@ -19,6 +7,7 @@ from datetime import datetime, timezone, timedelta
 from telegram.helpers import escape_markdown
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
+from functools import wraps
 from sqlalchemy import (
     Integer, 
     String,
@@ -34,13 +23,40 @@ from sqlalchemy.orm import (
     relationship
     )
 
-UTC_DELTA = 2 #?
+from .enums import (
+    OrderFormRequestSchema, 
+    OrderUUIDSchema, 
+    Status, 
+    SpareType, 
+    SocialMediaType, 
+    SpareAviability,
+    BaseEnum
+    )
+from ..utils import Singleton
+
+UTC_DELTA = 3
 TIME_FORMAT = "%H:%M %d.%m.%Y"
 
 # https://docs.sqlalchemy.org/en/14/_modules/examples/asyncio/async_orm.html
 
 class Base(DeclarativeBase):
     pass
+
+
+def with_app_context(action_type):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(self, *args):
+            with self.app.app_context():
+                if action_type == 'single':
+                    return self.db.session.execute(f(self, *args)).first()[0]
+                elif action_type == 'many':
+                    return self.db.session.execute(f(self, *args)).all()
+                else:
+                    return f(self, *args)
+
+        return wrapper
+    return decorator
 
 class DBProxy(metaclass=Singleton):
     def __init__(self, max_per_page=5):
@@ -54,127 +70,99 @@ class DBProxy(metaclass=Singleton):
     def assign_app(self, app):
         self.app = app
 
+    @with_app_context(action_type=None)
     def add(self, orm_object):
-        with self.app.app_context():
-            self.db.session.add(orm_object)
-            self.db.session.commit()
+        self.db.session.add(orm_object)
+        self.db.session.commit()
 
+    @with_app_context(action_type=None)
     def commit(self):
-        with self.app.app_context():
-            self.db.session.commit()
+        self.db.session.commit()
     
+    @with_app_context(action_type=None)
     def refresh(self, orm_object):
-        with self.app.app_context():
-            self.db.session.refresh(orm_object)
+        self.db.session.refresh(orm_object)
 
+    @with_app_context(action_type='single')
     def get_repair_order(self, uuid, master_id=None):
-        uuid = self.validate_uuid(uuid)
-        with self.app.app_context():
-            return self.db.session.execute(
-                select(RepairOrder).where(RepairOrder.uniq_link == str(uuid))
-                ).first()
-    
-    def get_repair_orders(self, master_id, page):
-        with self.app.app_context():
-            return self.db.session.query(
-                RepairOrder
-                ).where(
-                    RepairOrder.master_id == master_id
-                    ).paginate(page=int(page), max_per_page=self.max_per_page)
+        return select(RepairOrder).where(RepairOrder.uniq_link == str(self.validate_uuid(uuid)))
 
+    @with_app_context(action_type=None)
     def export_category_to_csv(self, categ_id):
         header = ['id', 'name', 'aviability', 'quantity', 'price', 'brand', 'country']
 
-        with self.app.app_context():
-            category_name = self.db.session.execute(
-                select(SpareCategory.prog_name).where(SpareCategory.id == int(categ_id))
-            ).first()[0]
+        category_name = self.db.session.execute(
+            select(SpareCategory.prog_name).where(SpareCategory.id == int(categ_id))
+        ).first()[0]
             
-            records = self.db.session.execute(
-                select(Spare, Brand.name, Brand.country)
-                .join(Spare.categ)
-                .join(Spare.brand)
-                .where(SpareCategory.id == int(categ_id))
-                .order_by(Brand.id)
-                ).all()
+        records = self.db.session.execute(
+            select(Spare, Brand.name, Brand.country)
+            .join(Spare.categ)
+            .join(Spare.brand)
+            .where(SpareCategory.id == int(categ_id))
+            .order_by(Brand.id)
+            ).all()
 
-            lines = [i[0].serialize() + [i[1], i[2]] for i in records]
+        lines = [i[0].serialize() + [i[1], i[2]] for i in records]
 
-            return category_name, header, lines
+        return category_name, header, lines
 
+    @with_app_context(action_type='single')
     def get_spare(self, spare_id):
-        with self.app.app_context():
-            return self.db.session.execute(
-                select(Spare).where(Spare.id == int(spare_id))
-            ).first()
+        return select(Spare).where(Spare.id == int(spare_id))
 
+    @with_app_context(action_type=None)
     def get_spares_by_category_and_type(self, spare_type, spare_category):
-        with self.app.app_context():
-            spares = self.db.session.execute(
-                select(Spare, Brand.name)
+        spares = self.db.session.execute(
+            select(Spare, Brand.name)
+            .join(Spare.brand)
+            .join(Spare.categ)
+            .where(SpareCategory.type == spare_type)
+            .where(SpareCategory.prog_name == spare_category)
+            .order_by(Brand.id)
+            ).all()
+
+        brands = self.db.session.execute(
+            select(Brand.name)
                 .join(Spare.brand)
                 .join(Spare.categ)
                 .where(SpareCategory.type == spare_type)
                 .where(SpareCategory.prog_name == spare_category)
                 .order_by(Brand.id)
-                ).all()
+                .distinct()
+            ).all()
 
-            brands = self.db.session.execute(
-                select(Brand.name)
-                    .join(Spare.brand)
-                    .join(Spare.categ)
-                    .where(SpareCategory.type == spare_type)
-                    .where(SpareCategory.prog_name == spare_category)
-                    .order_by(Brand.id)
-                    .distinct()
-                ).all()
+        return spares, brands
 
-            return spares, brands
-    
+    @with_app_context(action_type='many')
     def get_spares_by_category(self, spare_category):
-        with self.app.app_context():
-            return self.db.session.execute(
-                select(Spare)
-                .join(Spare.brand)
-                .join(Spare.categ)
-                .where(SpareCategory.id == spare_category_id)
-                .order_by(Brand.id)
-                ).all()
+        return select(Spare).join(Spare.brand).join(Spare.categ).where(SpareCategory.id == spare_category_id).order_by(Brand.id)
     
+    @with_app_context(action_type='single')
     def get_category_by_id(self, categ_id):
-        with self.app.app_context():
-            return self.db.session.execute(
-                select(SpareCategory.name).where(SpareCategory.id == int(categ_id))
-            ).first()
+        return select(SpareCategory.name).where(SpareCategory.id == int(categ_id))
 
+    @with_app_context(action_type='single')
     def get_category_by_name(self, prog_name):
-        with self.app.app_context():
-            return self.db.session.execute(
-                select(SpareCategory).where(SpareCategory.prog_name == prog_name)
-            ).first()[0]
+        return select(SpareCategory).where(SpareCategory.prog_name == prog_name)
 
+    @with_app_context(action_type='single')
     def is_repair_order_exist(self, uuid):
-        uuid = self.validate_uuid(uuid)
-        with self.app.app_context():
-            return self.db.session.execute(
-                select(RepairOrder.uniq_link).where(RepairOrder.uniq_link == str(uuid))
-            ).first()
+        return select(RepairOrder.uniq_link).where(RepairOrder.uniq_link == str(self.validate_uuid(uuid)))
 
+    @with_app_context(action_type='many')
     def get_categories(self):
-        with self.app.app_context():
-            return self.db.session.execute(
-                select(SpareCategory)
-                ).all()
+        return select(SpareCategory)
 
-    def get_categories_page(self, max_per_page, page):
-        with self.app.app_context():
-            return self.db.session.query(
+    @with_app_context(action_type=None)
+    def get_categories_page(self, page):
+        return self.db.session.query(
                 SpareCategory.id, SpareCategory.name
                 ).paginate(page=int(page), max_per_page=self.max_per_page)
 
-    def get_order_page(self, max_per_page, page, master_id):
-        with self.app.app_context():
-            return self.db.session.query(
+    @with_app_context(action_type=None)
+    def get_order_page(self, page, master_id):
+        return self.db.session.query(
                 RepairOrder.uniq_link, 
                 RepairOrder.problem, 
                 RepairOrder.model
@@ -182,12 +170,9 @@ class DBProxy(metaclass=Singleton):
                     RepairOrder.master_id == master_id
                     ).paginate(page=int(page), max_per_page=self.max_per_page)
 
+    @with_app_context(action_type='single')
     def get_order(self, uuid):
-        with self.app.app_context():
-            return self.db.session.execute(
-                select(RepairOrder).where(
-                    RepairOrder.uniq_link == uuid
-                )).first()
+        return select(RepairOrder).where(RepairOrder.uniq_link == uuid)
 
 db_proxy = DBProxy()
 
@@ -221,6 +206,13 @@ class CSVParseable():
                 obj[attr] = datetime.strptime(obj[attr], '%Y-%m-%d %H:%M:%S.%f')
 
 
+class SpareUpdate(CSVParseable):
+    def __init__(self, filename):
+        self.category = db_proxy.get_category_by_name(filename.rstrip('.csv'))
+    
+    def get_update(self):
+        pass
+
 
 class RepairOrder(db_proxy.db.Model, CSVParseable):
     __tablename__ = "repairs"
@@ -251,6 +243,9 @@ class RepairOrder(db_proxy.db.Model, CSVParseable):
         cls.deserialize(attrs, "last_modified_time", datetime)
         cls.deserialize(attrs, "social_media_type", SocialMediaType)
         return attrs
+
+    def save(self):
+        db_proxy.add(self)
 
     def get_title(self):
         return f"Заказ от \[{escape_markdown(self.social_media_type.value, version=2)}\] {escape_markdown(self.contact, version=2)}\n\nМодель {escape_markdown(self.model, version=2)}"
@@ -317,7 +312,7 @@ class RepairOrder(db_proxy.db.Model, CSVParseable):
                 .values(status=Status(status).name, master_id=master.id)
             )
             db_proxy.db.session.commit()
-        updated = db_proxy.get_order(self.uniq_link)[0]
+        updated = db_proxy.get_order(self.uniq_link)
 
         return "\n".join([
             f"Заказ `{updated.uniq_link}` изменен {master.first_name} {master.last_name if master.last_name else ''}\n",
