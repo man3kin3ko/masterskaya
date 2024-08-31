@@ -3,13 +3,6 @@ import JSConfetti from 'js-confetti';
 import './style.css';
 import Master from './master_nocolor.png';
 import Leadpic from './leadpic.png';
-import Logo from './logo.svg';
-import AvitoLogo from './avito.svg';
-import VKLogo from './vk.svg';
-import TGLogo from './telegram.svg';
-import naberezhnaya from './naberezhnaya.jpg';
-import notfound from './404.png'
-import dvor from './dvor.jpg'
 
 // svistoperdelki
 
