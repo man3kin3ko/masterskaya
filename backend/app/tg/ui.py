@@ -91,25 +91,25 @@ class InlineKeyboardUIBuilder:
         row  = [i for i in Status if i.name != current_status.name and i.name != Status.ORDERED.name]
         self.add_row(list(map(lambda i: InlineKeyboardButton(text=str(i), callback_data=f"/order/{uuid}/{i.value}"), row)))
         
-    def make_spares(self):
-        self.add_route(f"/spares/")
-        self.add_row(
-                    [
-                        InlineKeyboardButton(
-                            text="Электроника",
-                            callback_data=f"/spares/{SpareType.ELECTRIC.value}",
-                        )
-                    ]
-                )
-        self.add_row(
-                    [
-                        InlineKeyboardButton(
-                            text="Механика",
-                            callback_data=f"/spares/{SpareType.MECHA.value}",
-                        )
-                    ]
-                )
-        self.add_menu_btn()
+    # def make_spares(self):
+    #     self.add_route(f"/spares/")
+    #     self.add_row(
+    #                 [
+    #                     InlineKeyboardButton(
+    #                         text="Электроника",
+    #                         callback_data=f"/spares/{SpareType.ELECTRIC.value}",
+    #                     )
+    #                 ]
+    #             )
+    #     self.add_row(
+    #                 [
+    #                     InlineKeyboardButton(
+    #                         text="Механика",
+    #                         callback_data=f"/spares/{SpareType.MECHA.value}",
+    #                     )
+    #                 ]
+    #             )
+    #     self.add_menu_btn()
 
     def add_file_toggle(self, categ_id):
         self.add_row([
@@ -117,9 +117,9 @@ class InlineKeyboardUIBuilder:
                 text="Скачать",  
                 callback_data=f"/spares/{categ_id}/download",
                 ),
-            InlineKeyboardButton(
-                text="Загрузить",  
-                callback_data=f"/spares/{categ_id}/upload",
-                ),
+            # InlineKeyboardButton(
+            #     text="Загрузить",  
+            #     callback_data=f"/spares/{categ_id}/upload",
+            #     ),
         ])
 

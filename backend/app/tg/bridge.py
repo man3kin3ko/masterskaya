@@ -1,14 +1,14 @@
 import os
 import abc
 import csv
-import telegram
 import httpx
 import click
 import logging
-from .ui import InlineKeyboardUI, InlineKeyboardUIBuilder
-from ..utils import truncate, Singleton, async_to_sync
-from typing import Tuple
 from dataclasses import dataclass
+
+import telegram
+import telegram.ext.filters as filters
+from telegram import Update
 from telegram.ext import (
     ExtBot,
     Application, 
@@ -16,13 +16,18 @@ from telegram.ext import (
     CommandHandler, 
     TypeHandler,
     ContextTypes,
-    CallbackContext
+    CallbackContext,
+    MessageHandler,
     )
-from telegram import Update
-from ..db import db_proxy, Status
+
+from .ui import InlineKeyboardUI, InlineKeyboardUIBuilder
+from ..utils import truncate, Singleton, async_to_sync
+from ..db import db_proxy, SpareUpdate, Status
 
 TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
+
+logging.getLogger("httpx").setLevel(logging.WARNING)
 
 @dataclass
 class FlaskUpdate:
@@ -247,6 +252,7 @@ class TelegramBridge(metaclass=Singleton):
         self.app.add_handler(CallbackQueryHandler(self.get_button))
         self.app.add_handler(CommandHandler("menu", self.menu))
         self.app.add_handler(TypeHandler(type=FlaskUpdate, callback=self.send_new_order))
+        self.app.add_handler(MessageHandler(filters=filters.ATTACHMENT, callback=self.parse_attach))
 
         self.chat = chat
         self.builder = InlineKeyboardUIBuilder(max_page_size)
@@ -256,6 +262,15 @@ class TelegramBridge(metaclass=Singleton):
             self.send_document,
             max_page_size
             )
+
+    async def parse_attach(self, update, context):
+        document_update = SpareUpdate(
+            await update.message.document.get_file(), 
+            update.message.document.file_name
+            )
+        await document_update.download()
+        document_update.parse()
+        document_update.delete()
 
     async def add_update(self, update):
         await self.app.update_queue.put(FlaskUpdate(user_id=self.chat, payload=update))

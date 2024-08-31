@@ -5,6 +5,7 @@ from .models import (
     Spare,
     Brand,
     RepairOrder,
+    SpareUpdate
 )
 from .enums import (
     Status,

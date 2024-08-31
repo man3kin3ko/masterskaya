@@ -7,38 +7,44 @@
             <h1 class="fw-bold my-2">Запчасти</h1>
         </div>
     </section>
+    {% set electric_items = categs | selectattr('SpareCategory.type.value', 'equalto', 'electrical') | list %}
+    
+    {% if electric_items %}
     <section>
         <div class="container-fluid px-5 bg-light" id="electrical">
             <div class="row d-flex justify-content-center">
                 <h2 class="fw-bold text-secondary my-5 text-center">Электроника</h2>
-                {% if categs %}
-                {% for i in categs %}
-                  {% if i.SpareCategory.type.value == "electrical" %}
+                
+                {% for i in electric_items %}
+
                     <div class="col-sm-12 col-md-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
-                      <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
+                      <div class="row pt-0 p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
                         <div class="col-12 d-flex justify-content-center">
-                        <img src="{{ url_for('static', filename=i.SpareCategory.image_name) }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        <img src="{{ url_for('static', filename=i.SpareCategory.image_name) }}" style="width: 15em; height: 13em;" class="rounded m-3 img-fluid">
                         </div>
                         <div class="card-body">
                           <h4 class="fw-bold">{{i.SpareCategory.name}}</h4>
                           <p class="card-text mb-auto">{{i.SpareCategory.description}}</p>
                         </div>
-                        <a href="/store/spares/{{i.SpareCategory.type.value}}/{{i.SpareCategory.prog_name}}/" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Перейти в каталог</span></a>
+                        <a href="{{ i.SpareCategory.get_store_link() }}" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Перейти в каталог</span></a>
                       </div>
                     </div>
-                  {% endif %}
+
                 {% endfor %}
-              {% endif %}
+              
             </div>
         </div>
     </section>
+    {% endif %}
+    {% set mecha_items = categs | selectattr('SpareCategory.type.value', 'equalto', 'mecha') | list %}
+    {% if mecha_items %}
     <section>
         <div class="container-fluid px-5" id="mecha">
             <div class="row justify-content-center">
                 <h2 class="fw-bold my-5 text-center">Механика</h2>
-                {% if categs %}
-                {% for i in categs %}
-                  {% if i.SpareCategory.type.value == "mecha" %}
+                
+                {% for i in mecha_items %}
+
                     <div class="col-sm-12 col-md-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
                       <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
                         <div class="col-12 d-flex justify-content-center">
@@ -51,10 +57,11 @@
                         <a href="/store/spares/{{i.SpareCategory.type.value}}/{{i.SpareCategory.prog_name}}/" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Перейти в каталог</span></a>
                       </div>
                     </div>
-                  {% endif %}
+
                 {% endfor %}
-              {% endif %}
+              
             </div>
         </div>
     </section>
+    {% endif %}
 {% endblock %}

@@ -1,5 +1,6 @@
 import click
 import uuid
+import logging
 from .tg import start_bot_command
 from flask import Flask, request, redirect, render_template, make_response, g
 from .config import Config
@@ -14,31 +15,34 @@ with app.app_context():
     db_proxy.db.create_all()
     if 'db' not in g:
         g.db = db_proxy.db
+        
+app.jinja_env.globals['config'] = Config
+app.jinja_env.globals['cached_categs'] = filter(lambda x: x[0].is_empty(), db_proxy.get_categories())
 
 @app.route("/")
 async def index():
-    return render_template("index.html", config=Config)
+    return render_template("index.html")
 
 @app.errorhandler(404)
 async def page_not_found(e):
-    return render_template("404.html", config=Config)
+    return render_template("404.html")
 
 @app.route("/rules")
 async def rules():
-    return render_template("rules.html", config=Config)
+    return render_template("rules.html")
 
 @app.route("/route")
 async def route():
-    return render_template("route.html", config=Config)
+    return render_template("route.html")
 
 @app.route("/tracking/<uuid>")
 async def tracking_order(uuid):
     order = db_proxy.get_repair_order(uuid)
-    return render_template("tracking.html", config=Config, order=order)
+    return render_template("tracking.html", order=order)
 
 @app.route("/tracking/")
 async def tracking():
-    return render_template("tracking.html", config=Config)
+    return render_template("tracking.html")
 
 @app.route("/tracking")
 async def trail():
@@ -53,7 +57,12 @@ async def is_exists():
 @app.route("/store/")
 async def store():
     categories = db_proxy.get_categories()
-    return render_template("store.html", config=Config, categs=cycle_list(categories))
+    return render_template(
+        "store.html", 
+        categs=cycle_list(list(
+            filter(lambda x: x[0].is_empty(), categories)
+            )
+        ))
 
 
 @app.route("/store/cameras/")
@@ -64,7 +73,11 @@ async def cameras():
 @app.route("/store/spares/")
 async def spares():
     categories = db_proxy.get_categories()
-    return render_template("spares.html", config=Config, categs=categories)
+    return render_template(
+        "spares.html", 
+        categs=filter(
+            lambda x: x[0].is_empty(), categories
+            ))
 
 
 @app.route("/store/spares/mecha")
@@ -84,7 +97,6 @@ async def electrical_details(spare_type, spare_category):
 
     return render_template(
         "detail-catalogue-page.html",
-        config=Config,
         spare_type=spare_type,
         spare_category=spare_category,
         spares=spares,

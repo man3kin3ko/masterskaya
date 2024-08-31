@@ -10,12 +10,20 @@
               <div class="dropdown" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                 <a class="nav-link" href="#" id="navbarDropdown" role="button" aria-haspopup="true" aria-expanded="false">Запчасти</a>
                 <ul class="dropdown-menu pl-2 pr-3" aria-labelledby="navbarDropdown" data-popper-placement="bottom-end" style="position: absolute;">
-                    <li><h5 class="dropdown-header">⚡ Электроника</h5></li>
-                    <li><a class="dropdown-item mobile-nav-link" href="#" onclick="redirect('/store/spares/electrical/stubs/')">Шлейфы</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="redirect('/store/spares/electrical/matrices/')">Матрицы</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="redirect('/store/spares/electrical/circuits/')">Платы</a></li>
+                  {% set electric_items = cached_categs | selectattr('SpareCategory.type.value', 'equalto', 'electrical') | list %}
+                  {% if electric_items %}
+                  <li><h5 class="dropdown-header">⚡ Электроника</h5></li>
+                  {% for i in electric_items %}
+                    <li><a class="dropdown-item" href="#" onclick="redirect('{{i.SpareCategory.get_store_link()}}')">{{i.SpareCategory.name}}</a></li>
+                  {% endfor %}
+                  {% endif %}
+                  {% set mecha_items = categs | selectattr('SpareCategory.type.value', 'equalto', 'mecha') | list %}
+                  {% if mecha_items %}
                     <li><h5 class="dropdown-header">⚙️ Механика</h5></li>
-                    <li><a class="dropdown-item" href="#" onclick="redirect('/store/spares/mecha/shutter/')">Затворы</a></li>
+                  {% for i in mecha_items %}
+                    <li><a class="dropdown-item" href="#" onclick="redirect('{{i.SpareCategory.get_store_link()}}')">Затворы</a></li>
+                  {% endfor %}
+                  {% endif %}
                     <script>
                       function redirect(url) {
                         window.location = url;

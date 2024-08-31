@@ -1,4 +1,5 @@
 import abc
+import os
 import sqlalchemy
 import logging
 import csv
@@ -76,8 +77,22 @@ class DBProxy(metaclass=Singleton):
         self.db.session.commit()
 
     @with_app_context(action_type=None)
+    def update(self, cls, bulk:list):
+        self.db.session.execute(
+                    update(cls), bulk
+                )
+        self.db.session.commit()
+
+    @with_app_context(action_type=None)
     def commit(self):
         self.db.session.commit()
+
+    @with_app_context(action_type="single")
+    def get_spare_by_category_and_brand(spare, brand, category):
+        q = select(Spare).join(Brand).join(SpareCategory)
+        q = q.where(Spare.brand_id == brand.id).where(Spare.categ_id == category.id)
+        q = q.where(Spare.name == spare.name)
+        return q
     
     @with_app_context(action_type=None)
     def refresh(self, orm_object):
@@ -89,7 +104,7 @@ class DBProxy(metaclass=Singleton):
 
     @with_app_context(action_type=None)
     def export_category_to_csv(self, categ_id):
-        header = ['id', 'name', 'aviability', 'quantity', 'price', 'brand', 'country']
+        header = ['name', 'quantity', 'price', 'brand']
 
         category_name = self.db.session.execute(
             select(SpareCategory.prog_name).where(SpareCategory.id == int(categ_id))
@@ -135,7 +150,7 @@ class DBProxy(metaclass=Singleton):
         return spares, brands
 
     @with_app_context(action_type='many')
-    def get_spares_by_category(self, spare_category):
+    def get_spares_by_category(self, spare_category_id):
         return select(Spare).join(Spare.brand).join(Spare.categ).where(SpareCategory.id == spare_category_id).order_by(Brand.id)
     
     @with_app_context(action_type='single')
@@ -174,6 +189,10 @@ class DBProxy(metaclass=Singleton):
     def get_order(self, uuid):
         return select(RepairOrder).where(RepairOrder.uniq_link == uuid)
 
+    @with_app_context(action_type='single')
+    def get_brand_by_name(self, name):
+        return select(Brand).where(Brand.name == name)
+
 db_proxy = DBProxy()
 
 class CSVParseable():
@@ -207,18 +226,43 @@ class CSVParseable():
 
 
 class SpareUpdate(CSVParseable):
-    def __init__(self, filename):
+    def __init__(self, file, filename):
+        self.file = file
+        self.path = f"/tmp/{file.file_id}"
         self.category = db_proxy.get_category_by_name(filename.rstrip('.csv'))
     
-    def get_update(self):
-        pass
+    async def download(self):
+        await self.file.download_to_drive(custom_path=self.path)
+
+    def delete(self):
+        os.remove(self.path)
+
+    def parse(self):
+        with open(self.path) as f:
+            reader = csv.reader(f)
+            header = next(reader)[:-1]
+            updates = []
+            for row in reader:
+                brand = db_proxy.get_brand_by_name(row.pop())
+                spare = Spare(**Spare.from_csv(dict(zip(header, row))))
+                try:
+                    spare = db_proxy.get_spare_by_category_and_brand(
+                        spare, brand, self.category
+                        )
+                    updates.append(spare)
+                except TypeError:
+                    spare.categ_id = self.category.id
+                    spare.brand_id = brand.id
+                    db_proxy.add(spare)
+
+            db_proxy.update(updates)
 
 
 class RepairOrder(db_proxy.db.Model, CSVParseable):
     __tablename__ = "repairs"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    uniq_link: Mapped[str] = mapped_column(String(36), nullable=False, unique=True)
+    uniq_link: Mapped[str] = mapped_column(String(36), nullable=False, unique=True, index=True)
     contact: Mapped[str] = mapped_column()
     social_media_type: Mapped[SocialMediaType] = mapped_column()
     status: Mapped[Status] = mapped_column(default=Status.ORDERED)
@@ -325,12 +369,13 @@ class Brand(db_proxy.db.Model, CSVParseable):
     __tablename__ = "brand"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(256), nullable=False)
-    country: Mapped[str] = mapped_column(String(2))
+    name: Mapped[str] = mapped_column(String(256), nullable=False, primary_key=True)
+    country: Mapped[str] = mapped_column(String(2), nullable=False)
 
     @classmethod
     def from_csv(cls, attrs):
         cls.deserialize(attrs, "id", int)
+        return attrs
 
 
 class Spare(db_proxy.db.Model, CSVParseable):
@@ -341,7 +386,7 @@ class Spare(db_proxy.db.Model, CSVParseable):
     brand = relationship("Brand")
     categ_id: Mapped[int] = mapped_column(Integer, ForeignKey("spare_category.id"), nullable=False)
     categ: Mapped[str] = relationship("SpareCategory")
-    name: Mapped[str] = mapped_column(String(256), nullable=False)
+    name: Mapped[str] = mapped_column(String(256), nullable=False, index=True)
     availability: Mapped[SpareAviability] = mapped_column(default=SpareAviability.UNKNOWN)
     price: Mapped[int] = mapped_column(Integer)
     quantity: Mapped[int] = mapped_column(Integer, default=0)
@@ -353,11 +398,12 @@ class Spare(db_proxy.db.Model, CSVParseable):
         cls.deserialize(attrs, "quantity", int)
         cls.deserialize(attrs, "categ_id", int)
         cls.deserialize(attrs, "aviability", SpareAviability)
+        return attrs
 
-    def serialize(self):
+    def serialize(self, header):
         return list(map(
                 lambda x: x.name if issubclass(x.__class__, BaseEnum) else x, 
-                [ getattr(self, i.name, None) for i in self.__mapper__.columns ]
+                [ getattr(self, i.name, None) for i in self.__mapper__.columns if i in header]
             ))
 
 
@@ -378,3 +424,9 @@ class SpareCategory(db_proxy.db.Model, CSVParseable):
     def from_csv(cls, attrs):
         cls.deserialize(attrs, "id", int)
         cls.deserialize(attrs, "type", SpareType)
+
+    def is_empty(self):
+        return len(db_proxy.get_spares_by_category(self.id)) > 0
+
+    def get_store_link(self):
+        return f"/store/spares/{self.type.value}/{self.prog_name}/"
