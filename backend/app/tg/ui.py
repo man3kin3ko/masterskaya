@@ -117,9 +117,9 @@ class InlineKeyboardUIBuilder:
                 text="Скачать",  
                 callback_data=f"/spares/{categ_id}/download",
                 ),
-            # InlineKeyboardButton(
-            #     text="Загрузить",  
-            #     callback_data=f"/spares/{categ_id}/upload",
-            #     ),
+            InlineKeyboardButton(
+                text="Загрузить",  
+                callback_data=f"/spares/{categ_id}/upload",
+                ),
         ])
 

@@ -13,6 +13,7 @@ from telegram.ext import (
     ExtBot,
     Application, 
     CallbackQueryHandler, 
+    ConversationHandler,
     CommandHandler, 
     TypeHandler,
     ContextTypes,
@@ -55,9 +56,9 @@ class AbstractHandler():
         return handler
 
     def handle(self, route):
-        if route[1] == "page":
+        if route[1] == "page" or route[2] == "page":
             return self.handle_page(route)
-        if route[2] == "item":
+        if route[-1] == "item":
             return self.handle_item(route)
 
     def handle_pass(self, route):
@@ -247,12 +248,22 @@ class CallbackRouter:
 
 
 class TelegramBridge(metaclass=Singleton):
+
+    WAIT_FOR_UPDATE = 1
+
     def __init__(self, token, chat, flask, max_page_size=5):
         self.app = Application.builder().token(token).build()
+        self.updated_spares_id = None
+        self.app.add_handler(ConversationHandler(
+            entry_points=[CallbackQueryHandler(get_ready_for_update, pattern="^\/spares\/\d+\/upload/$")],
+            states={
+                WAIT_FOR_UPDATE:[MessageHandler(filters.ATTACHMENT, wait_for_update)]
+            },
+            fallbacks=[CallbackQueryHandler(reset_state, pattern="^reset$")]
+        ))
         self.app.add_handler(CallbackQueryHandler(self.get_button))
         self.app.add_handler(CommandHandler("menu", self.menu))
         self.app.add_handler(TypeHandler(type=FlaskUpdate, callback=self.send_new_order))
-        self.app.add_handler(MessageHandler(filters=filters.ATTACHMENT, callback=self.parse_attach))
 
         self.chat = chat
         self.builder = InlineKeyboardUIBuilder(max_page_size)
@@ -263,14 +274,38 @@ class TelegramBridge(metaclass=Singleton):
             max_page_size
             )
 
-    async def parse_attach(self, update, context):
-        document_update = SpareUpdate(
-            await update.message.document.get_file(), 
-            update.message.document.file_name
-            )
-        await document_update.download()
-        document_update.parse()
-        document_update.delete()
+    async def reset_state(self, update, context):
+        self.updated_spares_id = None
+
+        return ConversationHandler.END
+
+    async def get_ready_for_update(self, update, context):
+        query = update.callback_query
+        await query.answer()
+        
+        self.updated_spares_id = self.router.make_route(query.data)[1]
+        return self.WAIT_FOR_UPDATE
+
+    async def wait_for_update(self, update, context):
+        try:
+            document_update = SpareUpdate(
+                await update.message.document.get_file(), 
+                update.message.document.file_name
+                )
+            await document_update.download()
+            document_update.parse()
+            document_update.delete()
+            self.updated_spares_id = None
+
+            return ConversationHandler.END
+
+        except Exception as e:
+            self.builder.add_button("⬅️", "reset")
+            await self.send_message(
+                f"Произошла ошибка\n```{e.__repr__()}```.\n Попробуйте снова"б
+                markup=self.builder.product
+                )
+            return self.WAIT_FOR_UPDATE
 
     async def add_update(self, update):
         await self.app.update_queue.put(FlaskUpdate(user_id=self.chat, payload=update))
