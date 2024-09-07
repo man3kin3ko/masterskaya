@@ -17,7 +17,7 @@
                     <li><a class="dropdown-item" href="#" onclick="redirect('{{i.SpareCategory.get_store_link()}}')">{{i.SpareCategory.name}}</a></li>
                   {% endfor %}
                   {% endif %}
-                  {% set mecha_items = categs | selectattr('SpareCategory.type.value', 'equalto', 'mecha') | list %}
+                  {% set mecha_items = cached_categs | selectattr('SpareCategory.type.value', 'equalto', 'mecha') | list %}
                   {% if mecha_items %}
                     <li><h5 class="dropdown-header">⚙️ Механика</h5></li>
                   {% for i in mecha_items %}
