@@ -5,7 +5,8 @@ from .models import (
     Spare,
     Brand,
     RepairOrder,
-    SpareUpdate
+    SpareUpdate,
+    CameraResale
 )
 from .enums import (
     Status,

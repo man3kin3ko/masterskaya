@@ -148,6 +148,10 @@ class DBProxy(metaclass=Singleton):
             ).all()
 
         return spares, brands
+    
+    @with_app_context(action_type='many')
+    def get_resale_cameras(self):
+        return select(CameraResale).where(CameraResale.quantity >= 1).order_by(CameraResale.id)
 
     @with_app_context(action_type='many')
     def get_spares_by_category(self, spare_category_id):
@@ -430,3 +434,23 @@ class SpareCategory(db_proxy.db.Model, CSVParseable):
 
     def get_store_link(self):
         return f"/store/spares/{self.type.value}/{self.prog_name}/"
+
+
+class CameraResale(db_proxy.db.Model, CSVParseable):
+    __tablename__ = "camera_resale"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(64))
+    description: Mapped[str] = mapped_column(String(256))
+    price: Mapped[int] = mapped_column(Integer)
+    quantity: Mapped[int] = mapped_column(Integer, default=1)
+    avito_link: Mapped[str] = mapped_column(String(256))
+    _images: Mapped[str] = mapped_column(String(1024), nullable=True)
+
+    @property
+    def image_list(self):
+        return self._images.split(',') if self._images else []
+
+    @image_list.setter
+    def tags_list(self, value):
+        self._images = ','.join(value) + ','

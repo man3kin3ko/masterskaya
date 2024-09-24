@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h1 class="fw-bold">Каталог камер</h1>
+</div>
+
+{% if cameras %}
+{% for i in cameras %}
+<section>
+    <div class="row d-flex mx-0 justify-content-center">
+        <div style="width: 80vw;" class="col-6 card m-5 p-0 shadow">
+            <div class="card-body row align-items-center d-flex justify-content-between p-4">
+                <div class="col-md-6 order-md-2 mb-4 mb-md-0">
+                  <a href="#" onclick="openSlider({{loop.index}})">
+                    <img class="img-fluid rounded" src="{{i.image_list[0]}}">
+                  </a>
+            </div>
+            <div class="col-md-6 order-md-1">
+              <h2>
+                {{i.name}}
+              </h2>
+              <h3 class="text-secondary">{{i.price | priceFormat}} ₽</h3>
+              <p>{{i.description}}</p>
+              <a href="{{i.avito_link}}" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Купить</span></a>
+            </div>
+            </div>
+        </div>
+    </div>
+<div hidden class="modal fade" id="{{loop.index}}" tabindex="-1" style="display: block; background-color: #000000ab;">
+    <div class="row mx-0">
+    <div class="modal-dialog slide shadow mt-5" role="document" style="min-width: 80%;">
+
+        <div class="d-flex align-items-center justify-content-center">
+          <img class="img-fluid rounded" src="{{i.image_list[0]}}">
+        </div>
+
+    </div>
+    </div>
+  </div>
+</section>
+{% endfor %}
+
+  <script>
+  let modal;
+
+  const closeSlider = async (e) => {
+      if (e.target.classList.contains("row") || e.target.classList.contains("modal")) {
+        modal.classList.remove("show");
+        modal.hidden = true;
+      }
+  }
+
+  const openSlider = async (id) => {
+    modal = document.getElementById(id);
+    modal.hidden = false;
+    modal.classList.add("show");
+    modal.addEventListener("click", closeSlider);
+    modal.firstElementChild.addEventListener("click", closeSlider);
+  };
+  </script>
+  {% endif %}
+{% endblock %}

@@ -1,6 +1,6 @@
 import csv
 from sqlalchemy import insert, select, update
-from .models import Brand, SpareCategory, Spare, RepairOrder, BaseEnum
+from .models import Brand, SpareCategory, Spare, RepairOrder, BaseEnum, CameraResale
 
 tables = [RepairOrder, SpareCategory, Spare, Brand]
 
@@ -159,4 +159,29 @@ def init_db(db):
                 },
             ],
         )
+    db.session.execute(
+        insert(CameraResale), [
+            {
+                "name":"Minolta Hi-matic E",
+                "avito_link":"https://www.avito.ru/sankt-peterburg/fototehnika/minolta_hi-matic_e_4523545837",
+                "description":"Дальномерный фотоаппарат с светосильным роккором 1.7. Проведено обслуживание, отснята тестовая пленка.",
+                "price":10000,
+                "_images":"https://90.img.avito.st/image/1/1.fNXzvLa40DzFFRI5h9Ul5csd0jpNHVI0hRjSPkMV2DZF.ert6Df24Ht-gz_8S-lbkkBdJMdxSTPcx-MEcX5bNoqU,https://70.img.avito.st/image/1/1.Ovgo-ra4lhEeU1QUULoSzxBblBeWWxQZXl6UE5hTnhue.Xjo7BPU8VFcBgIOBWvQnZbpaF0CPso0aHq9XetVP8sw"
+            },
+            {
+                "name":"Cosina CX-1",
+                "avito_link":"https://www.avito.ru/sankt-peterburg/fototehnika/cosina_cx-1_4332148650",
+                "description":"Редкая Cosina CX-1 в рабочем состоянии с новыми прокладками и тестами на 50(просрочка самсунга) и 400 (ilford delta 400) ISO.\nБатарейки в комплекте",
+                "price":13000,
+                "_images":"https://60.img.avito.st/image/1/1.d3QiTba4250U5BmYQERDLEHv2Zuc7FmVVOnZn5Lk05eU.duIh7tUF0bVcElZl2aw-w-lnbVPk92nO6YYqGggeltQ,https://70.img.avito.st/image/1/1.ZbgM3ba4yVE6dAtUStRR4G9_y1eyfEtZennLU7x0wVu6.jutx8dVnlnWfTDdL14IyewyB8nNQJ-tER7OXXr482mE,https://80.img.avito.st/image/1/1.Y6VfWra4z0xp8w1JFVNX_Tz4zUrh-01EKf7NTu_zx0bp.BlQ2DEzDRLOA4JPnq0OWfenUUctVI-rXMTDZHZM8vuk"
+            },
+            {
+                "name":"Canon 70 zoom",
+                "avito_link":"https://www.avito.ru/sankt-peterburg/fototehnika/canon_70_zoom_4331841907",
+                "description":"Canon sureshot 70 zoom, достойная мылка с зумом, вспышка и затвор в порядке, небольшая коцка на пластиковой морде объектива.",
+                "price":5000,
+                "_images":"https://30.img.avito.st/image/1/1.zNhsNra4YDFan6I0eHWesw-UYjfSl-I5GpJiM9yfaDva.3TrZrSxiYy3RzBs7IdWyeMnWbOG_uFEXICK0ubszJV0,"
+            }
+        ]
+    )
     db.session.commit()

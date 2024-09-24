@@ -19,9 +19,20 @@ with app.app_context():
 app.jinja_env.globals['config'] = Config
 app.jinja_env.globals['cached_categs'] = filter(lambda x: x[0].is_empty(), db_proxy.get_categories())
 
+@app.template_filter()
+def priceFormat(value):
+    rev = str(value)[::-1]
+    groups = [rev[i:i + 3] for i in range(0, len(rev), 3)]
+    return ' '.join(groups)[::-1]
+
 @app.route("/")
 async def index():
     return render_template("index.html")
+
+@app.route("/store/cameras/")
+async def cameras_dbg():
+    cameras = [i[0] for i in db_proxy.get_resale_cameras()]
+    return render_template("cameras.html", cameras=cameras)
 
 @app.errorhandler(404)
 async def page_not_found(e):

@@ -255,11 +255,11 @@ class TelegramBridge(metaclass=Singleton):
         self.app = Application.builder().token(token).build()
         self.updated_spares_id = None
         self.app.add_handler(ConversationHandler(
-            entry_points=[CallbackQueryHandler(get_ready_for_update, pattern="^\/spares\/\d+\/upload/$")],
+            entry_points=[CallbackQueryHandler(self.get_ready_for_update, pattern="^\/spares\/\d+\/upload/$")],
             states={
-                WAIT_FOR_UPDATE:[MessageHandler(filters.ATTACHMENT, wait_for_update)]
+                self.WAIT_FOR_UPDATE:[MessageHandler(filters.ATTACHMENT, self.wait_for_update)]
             },
-            fallbacks=[CallbackQueryHandler(reset_state, pattern="^reset$")]
+            fallbacks=[CallbackQueryHandler(self.reset_state, pattern="^reset$")]
         ))
         self.app.add_handler(CallbackQueryHandler(self.get_button))
         self.app.add_handler(CommandHandler("menu", self.menu))
@@ -302,7 +302,7 @@ class TelegramBridge(metaclass=Singleton):
         except Exception as e:
             self.builder.add_button("⬅️", "reset")
             await self.send_message(
-                f"Произошла ошибка\n```{e.__repr__()}```.\n Попробуйте снова"б
+                f"Произошла ошибка\n```{e.__repr__()}```.\n Попробуйте снова",
                 markup=self.builder.product
                 )
             return self.WAIT_FOR_UPDATE
