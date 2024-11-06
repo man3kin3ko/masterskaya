@@ -12,7 +12,6 @@ from app.tg import start_bot
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG
 )
-logger = logging.getLogger(__name__)
 
 async def main() -> None:
     bot = start_bot(app)

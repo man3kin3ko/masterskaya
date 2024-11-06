@@ -1,9 +1,5 @@
 import asyncio
 
-def async_to_sync(f):
-    def wrapper(*args):
-        return asyncio.get_running_loop().create_task(f(*args))
-    return wrapper
 
 class Singleton(type):
     _instances = {}
@@ -14,6 +10,12 @@ class Singleton(type):
             cls._instances[cls] = instance
         return cls._instances[cls]
 
+
+def async_to_sync(f):
+    def wrapper(*args):
+        return asyncio.get_running_loop().create_task(f(*args))
+    return wrapper
+
 def cycle_list(list_to_cycle, round=3):
 	div = len(list_to_cycle) % round
 	if div != 0:
@@ -23,3 +25,6 @@ def cycle_list(list_to_cycle, round=3):
 
 def truncate(line, length):
 	return (line[:length] + '...') if len(line) > length else line
+
+def is_class(x):
+    return type(x) == type
