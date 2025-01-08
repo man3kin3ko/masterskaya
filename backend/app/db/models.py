@@ -331,7 +331,7 @@ class RepairOrder(db_proxy.db.Model, CSVParseable):
     def __str__(self):
         return "\n".join([
             self.get_title(),
-            f"\n\n```{self.problem}```\n\n",
+            f"\n\n{self.get_description()}\n\n",
             self.get_created_time(),
             self.get_uuid()
         ])

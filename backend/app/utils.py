@@ -1,5 +1,5 @@
 import asyncio
-
+from functools import reduce
 
 class Singleton(type):
     _instances = {}
@@ -28,3 +28,6 @@ def truncate(line, length):
 
 def is_class(x):
     return type(x) == type
+
+def flatten_dicts(list_of_dicts):
+    return reduce(lambda d, src: d.update(src) or d, list_of_dicts, {})

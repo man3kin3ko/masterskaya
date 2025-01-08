@@ -1,7 +1,5 @@
 import click
 import uuid
-import logging
-from .tg import start_bot_command
 from flask import Flask, request, redirect, render_template, make_response, g
 from .config import Config
 from .utils import cycle_list
@@ -152,6 +150,5 @@ def restore_db_command():
         restore_db(db_proxy.db)
 
 app.cli.add_command(init_db_command)
-app.cli.add_command(start_bot_command)
 app.cli.add_command(dump_db_command)
 app.cli.add_command(restore_db_command)

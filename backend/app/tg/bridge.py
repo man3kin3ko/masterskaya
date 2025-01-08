@@ -2,10 +2,7 @@ import os
 import abc
 import csv
 import httpx
-import click
 import logging
-from dataclasses import dataclass
-
 import telegram
 import telegram.ext.filters as filters
 from telegram import Update
@@ -20,8 +17,9 @@ from telegram.ext import (
     CallbackContext,
     MessageHandler,
 )
+from dataclasses import dataclass
 
-from .ui import InlineKeyboardUI, InlineKeyboardUIBuilder, Routes
+from .ui import InlineKeyboardUIBuilder, Route
 from ..utils import truncate, Singleton, async_to_sync, is_class
 from ..db import db_proxy, SpareUpdate, Status
 
@@ -29,9 +27,7 @@ TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
-
 logger = logging.getLogger(__name__)
-
 
 @dataclass
 class FlaskUpdate:
@@ -57,25 +53,17 @@ class AbstractHandler:
     WAIT_FOR_UPDATE = -1
 
     @staticmethod
-    def make_route(query):
-        return query.data.strip("/").split("/")
-
-    @staticmethod
     def get_master(query):
         return query.from_user
 
-    def init_builder(self, route):
-        kb = InlineKeyboardUI([])
-        self.builder.init(kb.from_route(route))
-
-    def _get_page(self, route):
-        if len(route) > 1:
-            return route[self.PAGE_NUM]
-        return 1
+    def get_builder(self, route):
+        if not isinstance(route, Route):
+            route = Route.from_uri(route)
+        return InlineKeyboardUIBuilder(self.bridge.max_page_size, route)
 
     async def parse_update(self, update):
         query = await self.catch_update(update)
-        route = self.make_route(query)
+        route = Route.from_uri(query.data)
         return query, route
 
     async def catch_update(self, update):
@@ -90,63 +78,45 @@ class AbstractHandler:
             await self.bridge.edit_kb(query, kb)
 
 
-class AdminHandler(AbstractHandler):
-    def __init__(self, bridge):
-        self.bridge = bridge
-        self.builder = bridge.builder
-
-        # bridge.app.add_handler(
-        #     CommandHandler("trace", callback=self.send_traceback)
-        # )
-
-    def _authorize(self):
-        return True
-
-    async def send_traceback(self, update, context):
-        if self._authorize():
-            logger.debug(update)
-            os._exit(1)
-
-
 class MenuHandler(AbstractHandler):
     def __init__(self, bridge):
+        self.title = "Меню"
         self.bridge = bridge
-        self.builder = bridge.builder
-        bridge.app.add_handler(CallbackQueryHandler(self.send_menu, pattern=Routes.menu))
+        bridge.app.add_handler(CallbackQueryHandler(self.answer_menu, pattern=Route.registred["menu"]))
         bridge.app.add_handler(CommandHandler("menu", self.send_menu))
+    
+    def _make_menu(self):
+        builder = self.get_builder("/menu/")
+        builder.make_menu()
+        return builder.product
 
     async def send_menu(self, update: Update, context: CustomContext):
-        self.builder.make_menu()
-        await self.bridge.send_message(message=f"Меню", markup=self.builder.product)
+        await self.bridge.send_message(message=self.title, markup=self._make_menu())
+
+    async def answer_menu(self, update, context):
+        query, route = await self.parse_update(update)
+        await self.answer(query, self.title, self._make_menu())
+
 
 
 class OrderHandler(AbstractHandler):
-
-    UUID = 1
-    STATUS = 2
-    PAGE_NUM = 1
-    DESC_LEN = 10
-
     def __init__(self, bridge):
         self.bridge = bridge
-        self.builder = bridge.builder
         bridge.app.add_handler(
-            CallbackQueryHandler(self.handle_page, pattern=Routes.orders)
+            CallbackQueryHandler(self.handle_page, pattern=Route.registred["orders"])
         )
         bridge.app.add_handler(
-            CallbackQueryHandler(self.handle_item, pattern=Routes.order)
+            CallbackQueryHandler(self.handle_item, pattern=Route.registred["order"])
         )
         bridge.app.add_handler(
-            CallbackQueryHandler(self.change_item, pattern=Routes.order_change)
+            CallbackQueryHandler(self.change_item, pattern=Route.registred["order_change"])
         )
 
     async def change_item(self, update, context):
         query, route = await self.parse_update(update)
-        uuid = route[self.UUID]
-        status = route[self.STATUS]
-        order = db_proxy.get_repair_order(uuid)
+        order = db_proxy.get_repair_order(route.uuid)
 
-        await self.answer(query, order.update(status, self.get_master(query)))
+        await self.answer(query, order.update(route.status, self.get_master(query)))
 
     def _make_order_change_msg(self, order):
         return "\n".join(
@@ -162,54 +132,46 @@ class OrderHandler(AbstractHandler):
 
     async def handle_item(self, update, context):
         query, route = await self.parse_update(update)
-        uuid = route[self.UUID]
-        order = db_proxy.get_repair_order(uuid)
+        order = db_proxy.get_repair_order(route.uuid)
 
-        self.init_builder(route)
-        self.builder.add_status_switch(uuid, order.status)
-        self.builder.add_back_btn()
+        builder = self.get_builder(route)
+        builder.add_status_switch(route.uuid, order.status)
+        builder.add_back_btn()
 
-        await self.answer(query, self._make_order_change_msg(order), self.builder.product)
+        await self.answer(query, self._make_order_change_msg(order), builder.product)
 
 
     async def handle_page(self, update, context):
         query, route = await self.parse_update(update)
+        page = db_proxy.get_order_page(route.match, self.get_master(query).id)
 
-        page = db_proxy.get_order_page(self._get_page(route), self.get_master(query).id)
-
-        self.init_builder(route)
+        builder = self.get_builder(route)
         for i in page.items:
-            self.builder.add_button(
-                text=f"{i.model} {truncate(i.problem, self.DESC_LEN)}",
-                callback=f"/order/{i.uniq_link}/",
+            builder.add_button(
+                text=f"{i.model} {truncate(i.problem, self.bridge.desc_len)}",
+                callback=f"/order/item/{i.uniq_link}/",
             )
-        self.builder.add_pager()
+        builder.add_pager()
 
-        await self.answer(query, "Меню", self.builder.product)
+        await self.answer(query, "Меню", builder.product)
 
 
 class SpareHandler(AbstractHandler):
-
-    CATEG_ID = 1
-    PAGE_NUM = 1
-
     def __init__(self, bridge):
         self.bridge = bridge
-        self.builder = bridge.builder
         self.updated_spares_id = None
-
         bridge.app.add_handler(
-            CallbackQueryHandler(self.handle_page, pattern=Routes.spares)
+            CallbackQueryHandler(self.handle_entry, pattern=Route.registred["spares"])
         )
         bridge.app.add_handler(
-            CallbackQueryHandler(self.handle_category, pattern=Routes.spares_subtype)
+            CallbackQueryHandler(self.handle_page, pattern=Route.registred["spares_page"])
         )
-        bridge.app.add_handler(CallbackQueryHandler(self.handle_item, pattern=Routes.spare))
+        bridge.app.add_handler(CallbackQueryHandler(self.handle_item, pattern=Route.registred["spare"]))
         # bridge.app.add_handler(
         #     ConversationHandler(
         #         entry_points=[
         #             CallbackQueryHandler(
-        #                 self.get_ready_for_update, pattern=Routes.spare_upload
+        #                 self.get_ready_for_update, pattern=Route.registred["spare_upload"]
         #             )
         #         ],
         #         states={
@@ -221,7 +183,7 @@ class SpareHandler(AbstractHandler):
         #     )
         # )
         bridge.app.add_handler(
-            CallbackQueryHandler(self.download, pattern=Routes.spare_download)
+            CallbackQueryHandler(self.download, pattern=Route.registred["spare_download"])
         )
 
     async def reset_state(self, update, context):
@@ -235,6 +197,7 @@ class SpareHandler(AbstractHandler):
         return self.WAIT_FOR_UPDATE
 
     async def wait_for_update(self, update, context):
+        query, route = await self.parse_update(update)
         try:
             document_update = SpareUpdate(
                 await update.message.document.get_file(),
@@ -248,52 +211,45 @@ class SpareHandler(AbstractHandler):
             return ConversationHandler.END
 
         except Exception as e:
-
-            self.builder.add_button("⬅️", "reset")
+            builder = self.get_builder(route)
+            builder.add_button("Закрыть", "reset")
             await self.bot.send_message(
                 f"Произошла ошибка\n```{e.__repr__()}```.\n Попробуйте снова",
-                markup=self.builder.product,
+                markup=builder.product,
             )
             return self.WAIT_FOR_UPDATE
 
+    async def handle_entry(self, update, context):
+        query, route = await self.parse_update(update)
+        builder = self.get_builder(route)
+        builder.make_spares()
+        await self.answer(query, "Меню", builder.product)
+
     async def handle_item(self, update, context):
         query, route = await self.parse_update(update)
-        categ_id = route[self.CATEG_ID]
-        categ = db_proxy.get_category_by_id(categ_id)
+        categ = db_proxy.get_category_by_id(route.id)
 
-        self.init_builder(route)
-        self.builder.add_file_toggle(categ_id)
-        self.builder.add_back_btn()
+        builder = self.get_builder(route)
+        builder.add_file_toggle(route.id)
+        builder.add_back_btn()
 
-        await self.answer(query, str(categ), self.builder.product)
-
-    async def handle_category(self, update, context):
-        query, route = await self.parse_update(update)
-
-        self.init_builder(route)
-        page = db_proxy.get_categories_page(self.builder.max_per_page, page)
-        for i in page.items:
-            self.builder.add_button(text=f"{i.name}", callback=f"/spares/{i.id}/")
-        self.builder.add_pager()
-        
-        await self.answer(query, "Меню", self.builder.product)
+        await self.answer(query, str(categ), builder.product)
 
     async def handle_page(self, update, context):
         query, route = await self.parse_update(update)
-        page = db_proxy.get_categories_page(self._get_page(route))
-
-        self.init_builder(route)
+        page = db_proxy.get_categories_page(route.id)
+        builder = self.get_builder(route)
         for i in page.items:
-            self.builder.add_button(
-                text=f"{i.name}", callback=f"/spares/{i.id}/"
+            builder.add_button(
+                text=f"{i.name}", callback=f"/spare/{route.subtype}/item/{i.id}/"
             )
-        self.builder.add_pager()
+        builder.add_pager()
 
-        await self.answer(query, "Меню", self.builder.product)
+        await self.answer(query, "Меню", builder.product)
 
     async def download(self, update, context):
         query, route = await self.parse_update(update)
-        category_name, header, lines = db_proxy.export_category_to_csv(route[self.CATEG_ID])
+        category_name, header, lines = db_proxy.export_category_to_csv(route.match)
         filename = f"instance/{category_name}.csv"
 
         with open(filename, "w") as f:
@@ -306,15 +262,15 @@ class SpareHandler(AbstractHandler):
 
 
 class TelegramBridge(metaclass=Singleton):
-
-    def __init__(self, token, chat, flask, max_page_size=5):
+    def __init__(self, token, chat, flask, max_page_size=5, desc_len=10):
         self.app = Application.builder().token(token).build()
         self.chat = chat
-        self.builder = InlineKeyboardUIBuilder(max_page_size)
-
+        self.max_page_size = max_page_size
+        self.desc_len = desc_len
         self.app.add_handler(
             TypeHandler(type=FlaskUpdate, callback=self.send_new_order)
         )
+        #self.app.add_error_handler(self.error_handler)
 
     def register(self, *handlers):
         for i in handlers:
@@ -331,11 +287,15 @@ class TelegramBridge(metaclass=Singleton):
     async def add_update(self, update):
         await self.app.update_queue.put(FlaskUpdate(user_id=self.chat, payload=update))
 
+    async def error_handler(self, update, context: ContextTypes.DEFAULT_TYPE):
+        await self.send_message(f"Non\-fatal error has occured:\n```{context.error}```")
+
     async def send_new_order(self, update: FlaskUpdate, context: CustomContext):
         uniq_link = update.payload
         order = db_proxy.get_order(uniq_link)
-        self.builder.accept_order(uniq_link)
-        await self.send_message(str(order), markup=self.builder.product)
+
+        builder = InlineKeyboardUIBuilder.from_flask_update(self.max_page_size, uniq_link)
+        await self.send_message(str(order), markup=builder.product)
 
     async def send_document(self, path):
         await self.app.bot.send_document(chat_id=self.chat, document=open(path, "rb"))
@@ -352,14 +312,6 @@ class TelegramBridge(metaclass=Singleton):
 
 def start_bot(app):
     bot = TelegramBridge(TG_TOKEN, WORKING_CHAT, app)
-    bot.register(SpareHandler, OrderHandler, MenuHandler, AdminHandler)
+    bot.register(SpareHandler, OrderHandler, MenuHandler)
 
     return bot
-
-
-@click.command("start-bot")
-def start_bot_command():
-    bot = TelegramBridge(TG_TOKEN, WORKING_CHAT)
-    bot.register(SpareHandler, OrderHandler, MenuHandler, AdminHandler)
-
-    bot.poll()
