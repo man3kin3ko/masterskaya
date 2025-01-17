@@ -98,8 +98,16 @@ def init_db(session):
                     "slug": "lens",
                     "image_name":"lens.png"
                 },
-            ],
+            ]
         )
+    session.execute(
+        insert(CommonSpare),
+        [{
+            "name": "Элементы питания",
+            "description":"",
+            "slug":"battery"
+        }]
+    )
     session.execute(
             insert(Spare),
             [
@@ -123,6 +131,13 @@ def init_db(session):
                     "name": "PowerShot A2300/A2400",
                     "price": 500,
                     "quantity": 3,
+                },
+                {
+                    "category_id": 12,
+                    "name": "Элемент ртутно-цинковый рц-53",
+                    "price": 320,
+                    "quantity": 100,
+                    "availability": "available"
                 },
             ],
         )

@@ -122,6 +122,20 @@ class MechanicalSpare(SpareCategory):
         return "Механика"
 
 
+class CommonSpare(SpareCategory):
+    __mapper_args__ = {
+        "polymorphic_identity": "common"
+        }
+
+    @property
+    def icon(self):
+        return "🪛"
+
+    @property
+    def human_name(self):
+        return "Общее"
+
+
 class Spare(Base):
     __tablename__ = "spares"
 
@@ -150,7 +164,18 @@ class ResaleCamera(Base):
     price: Mapped[Optional[int]] = mapped_column(Integer)
     quantity: Mapped[int] = mapped_column(Integer, default=0)
     avito_link: Mapped[Optional[str]] = mapped_column(String(256))
-    _images: Mapped[Optional[str]] = mapped_column(String(1024))
+
+    images: Mapped[List["Image"]] = relationship(back_populates="resale_camera")
+
+
+class Image(Base):
+    __tablename__ = "resale_images"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    resale_id = Column(Integer, ForeignKey("camera_resale.id"))
+    resale_camera: Mapped[ResaleCamera] = relationship(back_populates="images")
+    image_name: Mapped[Optional[str]]
+    external_url: Mapped[Optional[str]]
 
 
 class Order(Base):
