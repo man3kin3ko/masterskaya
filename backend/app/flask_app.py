@@ -1,6 +1,4 @@
-import click
-import uuid
-from flask import Flask, request, redirect, render_template, make_response, g
+from flask import Flask, request, redirect, render_template, make_response
 from .config import Config
 from .utils import cycle_list
 
@@ -121,24 +119,3 @@ def sitemap():
     response.headers["Content-Type"] = "application/xml"
 
     return response
-
-# todo: move cli commands
-
-# @click.command("init-db")
-# def init_db_command():
-#     with app.app_context():
-#         init_db(db_proxy.db)
-
-# @click.command("dump-db")
-# def dump_db_command():
-#     with app.app_context():
-#         dump_db(db_proxy.db)
-
-# @click.command("restore-db")
-# def restore_db_command():
-#     with app.app_context():
-#         restore_db(db_proxy.db)
-
-# app.cli.add_command(init_db_command)
-# app.cli.add_command(dump_db_command)
-# app.cli.add_command(restore_db_command)

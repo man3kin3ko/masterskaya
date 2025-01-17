@@ -2,7 +2,7 @@ import asyncio
 import uvicorn
 import logging
 from app.flask_app import app
-import app.db as db
+from app.db import RepairOrder, DBProxy
 from flask import request
 from asgiref.wsgi import WsgiToAsgi
 from app.tg import start_bot
@@ -19,12 +19,12 @@ async def main() -> None:
     @app.route("/form", methods=["POST"])
     async def read_item():
         try:
-            new_repair_order = db.RepairOrder.from_request(request.json)
-            uniq_link = new_repair_order.uniq_link
+            db_proxy = DBProxy()
+            new_repair_order = RepairOrder.from_request(request.json)
+            db_proxy.add_to_transaction(new_repair_order.save)
+            db_proxy.execute_in_context()
 
-            new_repair_order.save()
-
-            await bot.add_update(uniq_link)
+            await bot.add_update(new_repair_order.uniq_link)
             return '', 200
 
         except Exception as e:
