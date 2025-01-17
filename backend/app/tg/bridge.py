@@ -20,11 +20,13 @@ from telegram.ext import (
 from dataclasses import dataclass
 
 from .ui import InlineKeyboardUIBuilder, Route
-from ..utils import truncate, Singleton, async_to_sync, is_class
-from ..db import db_proxy, SpareUpdate, Status
+from app.utils import truncate, Singleton, async_to_sync, is_class
+from app.db import DBProxy
 
+db_proxy = DBProxy()
 TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
+# ADMIN = os.environ["ADMIN_ID"]
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -199,14 +201,14 @@ class SpareHandler(AbstractHandler):
     async def wait_for_update(self, update, context):
         query, route = await self.parse_update(update)
         try:
-            document_update = SpareUpdate(
-                await update.message.document.get_file(),
-                update.message.document.file_name,
-            )
-            await document_update.download()
-            document_update.parse()
-            document_update.delete()
-            self.updated_spares_id = None
+            # document_update = SpareUpdate(
+            #     await update.message.document.get_file(),
+            #     update.message.document.file_name,
+            # )
+            # await document_update.download()
+            # document_update.parse()
+            # document_update.delete()
+            # self.updated_spares_id = None
 
             return ConversationHandler.END
 

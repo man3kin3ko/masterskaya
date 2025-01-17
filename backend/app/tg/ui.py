@@ -3,7 +3,7 @@ from telegram import (
     InlineKeyboardButton, 
     InlineKeyboardMarkup, 
     )
-from ..db import Status, SpareType
+from app.db import Status
 from ..utils import flatten_dicts
 import logging
 from dataclasses import dataclass, fields
@@ -192,7 +192,7 @@ class InlineKeyboardUIBuilder:
 
     @classmethod
     def from_flask_update(self, max_page_size, uuid):
-        builder = InlineKeyboardUIBuilder(max_page_size, Route.from_uri(f"/order/item/{uuid}/{Status.ACCEPTED.value}/"))
+        builder = InlineKeyboardUIBuilder(max_page_size, Route.from_uri(f"/order/item/{uuid}/{Status.accepted}/"))
         builder.add_row([InlineKeyboardButton(
             "Принять заказ", 
             callback_data=builder.route.uri
@@ -237,7 +237,7 @@ class InlineKeyboardUIBuilder:
             )
 
     def add_status_switch(self, uuid, current_status: Status):
-        row  = [i for i in Status if i.name != current_status.name and i.name != Status.ORDERED.name]
+        row  = [i for i in Status if i.name != current_status.name and i.name != Status.ordered]
         self.add_row(list(map(lambda i: InlineKeyboardButton(text=str(i), callback_data=f"/order/item/{uuid}/{i.value}/"), row)))
         
     def make_spares(self):
@@ -246,7 +246,7 @@ class InlineKeyboardUIBuilder:
                     [
                         InlineKeyboardButton(
                             text="Электроника",
-                            callback_data=f"/spare/{SpareType.ELECTRIC.value}/page/1",
+                            callback_data=f"/spare/electrical/page/1",
                         )
                     ]
                 )
@@ -254,7 +254,7 @@ class InlineKeyboardUIBuilder:
                     [
                         InlineKeyboardButton(
                             text="Механика",
-                            callback_data=f"/spare/{SpareType.MECHA.value}/page/1",
+                            callback_data=f"/spare/mecha/page/1",
                         )
                     ]
                 )

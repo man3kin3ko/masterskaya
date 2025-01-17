@@ -1,16 +1,93 @@
-from .cli import init_db, dump_db, restore_db
-from .models import (
-    db_proxy,
-    SpareCategory,
-    Spare,
-    Brand,
-    RepairOrder,
-    SpareUpdate,
-    CameraResale
-)
-from .enums import (
-    Status,
-    SpareType,
-    SpareAviability,
-    SocialMediaType,
-    )
+# from .cli import *
+from .models import *
+
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from app.utils import Singleton
+
+# присрать интеграцию с джанго и alembic (в принципе можно руками прост на будущее)
+# pagination
+# https://stackoverflow.com/questions/74520043/flask-pagination-without-sqlalchemy
+# https://stackoverflow.com/questions/13258934/applying-limit-and-offset-to-all-queries-in-sqlalchemy
+
+
+class DBProxy(metaclass=Singleton): #
+    def __init__(self, engine_uri='sqlite:///database.db', max_per_page=5):
+        self.max_per_page = max_per_page
+
+        self.engine = create_engine(engine_uri)
+        self._make_session = sessionmaker(bind=self.engine)
+        self._pending_operations = []
+
+    def create_tables(self, base_model=Base):
+        base_model.metadata.create_all(self.engine)
+
+    def create_session(self):
+        return self._make_session()
+
+    def add_to_transaction(self, f):
+        self._pending_operations.append(f)
+
+    def execute_in_context(self):
+        with self._make_session() as s:
+            try:
+                [f(s) for f in self._pending_operations]
+            except:
+                s.rollback()
+                raise
+            else:
+                s.commit()
+                self._pending_operations = []
+
+
+### categories queries ###
+
+def categories(session):
+    return session.query(SpareCategory).all()
+
+def categories_page(session, page):
+    return session.query(SpareCategory)#.paginate(page=int(page), max_per_page=4)
+
+def category_by_id(session, subtype, category_id):
+    subtype_class = SpareCategory.from_discriminator(subtype)
+
+    return session.query(subtype_class).where(subtype_class.id == category_id).one()
+
+def category_by_slug(session, subtype, slug):
+    subtype_class = SpareCategory.from_discriminator(subtype)
+
+    return session.query(subtype_class).where(subtype_class.slug == slug).one()
+
+### spare queries ###
+
+def spare(session, spare_id):
+    return session.query(Spare).where(Spare.id == int(spare_id)).one()
+
+def spares_by_category_and_brand(session, brand, category):
+    q = session.query(Spare).where(Spare.brand_id == brand.id)
+    q = q.where(Spare.category_id == category.id)
+
+    #q = q.where(Spare.name == spare.name) ???
+    return q.all()
+
+def spares_by_subtype_and_slug(session, subtype, slug):
+    subtype_class = SpareCategory.from_discriminator(subtype)
+    return session.query(subtype_class).where(subtype_class.slug == slug).one().Spares
+
+### repair queries ###
+
+def is_repair_order_exist(uuid):
+    return session.query(exists().where(RepairOrder.uuid == uuid)).scalar()
+
+def repair_order_by_uuid(session, uuid):
+    return session.query(RepairOrder).where(RepairOrder.uuid == uuid).one()
+
+def repair_orders_page_by_master(session, master_id, page=1):
+    return session.query(RepairOrder).where(RepairOrder.master_id == master_id)#.paginate(page=int(page), max_per_page=4)
+
+### brand queries ###
+
+def brand_by_name(session, name):
+    return session.query(Brand).where(Brand.name == name).one()
+
+# db_proxy = DBProxy()

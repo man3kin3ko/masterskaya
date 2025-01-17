@@ -7,7 +7,7 @@
             <h1 class="fw-bold my-2">Запчасти</h1>
         </div>
     </section>
-    {% set electric_items = categs | selectattr('SpareCategory.type.value', 'equalto', 'electrical') | list %}
+    {% set electric_items = categories | selectattr('subtype', 'equalto', 'electrical') | list %}
     
     {% if electric_items %}
     <section>
@@ -20,13 +20,13 @@
                     <div class="col-sm-12 col-md-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
                       <div class="row pt-0 p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
                         <div class="col-12 d-flex justify-content-center">
-                        <img src="{{ url_for('static', filename=i.SpareCategory.image_name) }}" style="width: 15em; height: 13em;" class="rounded m-3 img-fluid">
+                        <img src="{{ url_for('static', filename=i.image_name) if i.image_name else ''}}" style="width: 15em; height: 13em;" class="rounded m-3 img-fluid">
                         </div>
                         <div class="card-body">
-                          <h4 class="fw-bold">{{i.SpareCategory.name}}</h4>
-                          <p class="card-text mb-auto">{{i.SpareCategory.description}}</p>
+                          <h4 class="fw-bold">{{i.name}}</h4>
+                          <p class="card-text mb-auto">{{i.description}}</p>
                         </div>
-                        <a href="{{ i.SpareCategory.get_store_link() }}" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Перейти в каталог</span></a>
+                        <a href="{{ i.store_link }}" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Перейти в каталог</span></a>
                       </div>
                     </div>
 
@@ -36,7 +36,7 @@
         </div>
     </section>
     {% endif %}
-    {% set mecha_items = categs | selectattr('SpareCategory.type.value', 'equalto', 'mecha') | list %}
+    {% set mecha_items = categories | selectattr('subtype', 'equalto', 'mecha') | list %}
     {% if mecha_items %}
     <section>
         <div class="container-fluid px-5" id="mecha">
@@ -48,13 +48,13 @@
                     <div class="col-sm-12 col-md-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
                       <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
                         <div class="col-12 d-flex justify-content-center">
-                        <img src="{{ url_for('static', filename=i.SpareCategory.image_name) }}" style="max-width: 15em;" class="rounded m-3 img-fluid">
+                        <img src="{{ url_for('static', filename=i.image_name) if i.image_name else ''}}" style="max-width: 15em;" class="rounded m-3 img-fluid">
                         </div>
                         <div class="card-body">
-                          <h4 class="fw-bold">{{i.SpareCategory.name}}</h4>
-                          <p class="card-text mb-auto">{{i.SpareCategory.description}}</p>
+                          <h4 class="fw-bold">{{i.name}}</h4>
+                          <p class="card-text mb-auto">{{i.description}}</p>
                         </div>
-                        <a href="/store/spares/{{i.SpareCategory.type.value}}/{{i.SpareCategory.prog_name}}/" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Перейти в каталог</span></a>
+                        <a href="{{ i.store_link }}" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Перейти в каталог</span></a>
                       </div>
                     </div>
 
