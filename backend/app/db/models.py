@@ -1,5 +1,5 @@
 import enum
-from typing import Optional
+from typing import Optional, List
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -64,7 +64,7 @@ class Brand(Base):
     country: Mapped[str] = mapped_column(String(2), nullable=False)
 
     # One-to-Many relationship with Spare (one brand can have many Spares)
-    Spares = relationship("Spare", back_populates="brand")
+    spares: Mapped[List["Spare"]] = relationship(back_populates="brand")
 
 
 class SpareCategory(Base):
@@ -78,7 +78,7 @@ class SpareCategory(Base):
     image_name: Mapped[Optional[str]] = mapped_column(String(30))
 
     # One-to-Many relationship with Spare (one category can have many Spares)
-    Spares = relationship("Spare", back_populates="category")
+    spares: Mapped[List["Spare"]] = relationship(back_populates="category")
 
     __mapper_args__ = {
         "with_polymorphic": "*", 
@@ -130,8 +130,8 @@ class Spare(Base):
     category_id = Column(Integer, ForeignKey("spare_categories.id"))
 
     # Relationships
-    brand = relationship("Brand", back_populates="Spares")
-    category = relationship("SpareCategory", back_populates="Spares")
+    brand: Mapped[Brand] = relationship(back_populates="spares")
+    category: Mapped[SpareCategory] = relationship(back_populates="spares")
 
     name: Mapped[str] = mapped_column(String(256), nullable=False, index=True)
     availability: Mapped[SpareAviability] = mapped_column(

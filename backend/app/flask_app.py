@@ -92,7 +92,7 @@ async def spare_details(subtype, slug):
     session = db_proxy.create_session()
     
     spares = db.spares_by_subtype_and_slug(session, subtype, slug)
-    brands = [i.brand for i in spares]
+    brands = set([i.brand for i in spares])
 
     return render_template(
         "detail-store-page.html",

@@ -4,7 +4,7 @@
     <section>
         <div class="row flex-row m-3 fw-bold">
             <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/<a href="/store/spares/#{{ spares[0].category.subtype }}" class="no-link-underscoring">{{ spares[0].category.human_name|string }}</a>/</span>
-            <h1 class="fw-bold my-2">{{ spares[0].category|string }}</h1>
+            <h1 class="fw-bold my-2">{{ spares[0].category.human_name }}</h1>
         </div>
     </section>
     <section>
@@ -17,8 +17,8 @@
                     {% if brands %}
                     {% for i in brands %}
                     <li class="nav-item">
-                      <a class="nav-link active text-muted" href="#{{ i[0].name|lower }}">
-                        {{ i[0].name }}
+                      <a class="nav-link active text-muted" href="#{{ i.name|lower }}">
+                        {{ i.name }}
                       </a>
                     </li>
                     {% endfor %}
@@ -45,13 +45,13 @@
                     <tbody>
                       {% if spares %}
                         {% for i in spares %}
-                        {% if i[1] == j.name %}
+                        {% if i.brand.name == j.name %}
                         <tr>
-                          <td>{{ i[0].id }}</td>
-                          <td>{{ i[0].name }}</td>
-                          <td class="{{ 'text-success' if i[0].availability.name == 'AVAILABLE'}}{{ 'text-danger' if i[0].availability.name == 'UNAVAILABLE'}}{{ 'text-warning' if i[0].availability.name == 'UNKNOWN'}}">{{i[0].availability.value}}</td>
-                          <td>{{ i[0].quantity|string + ' шт' if i[0].quantity else ''}}</td>
-                          <td>{{ i[0].price|string+' руб' if i[0].price else ''}}</td>
+                          <td>{{ i.id }}</td>
+                          <td>{{ i.name }}</td>
+                          <td class="{{ 'text-success' if i.availability.name == 'AVAILABLE'}}{{ 'text-danger' if i.availability.name == 'UNAVAILABLE'}}{{ 'text-warning' if i.availability.name == 'UNKNOWN'}}">{{i.availability.value}}</td>
+                          <td>{{ i.quantity|string + ' шт' if i.quantity else ''}}</td>
+                          <td>{{ i.price|string+' руб' if i.price else ''}}</td>
                         </tr>
                         {% endif %}
                         {% endfor %}
