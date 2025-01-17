@@ -9,7 +9,7 @@ app = Flask(__name__, static_folder="dist", static_url_path="")
 db_proxy = DBProxy()
 app.config["SQLALCHEMY_DATABASE_URI"] = db_proxy.engine
 app.jinja_env.globals['config'] = Config
-# app.jinja_env.globals['cached_categs'] = filter(lambda x: x[0].is_empty(), db_proxy.get_categories())
+app.jinja_env.globals['cached_categs'] = db.categories(db_proxy.create_session())
 
 @app.template_filter()
 def priceFormat(value):
@@ -90,12 +90,13 @@ async def rest_spare_redirect(subtype):
 @app.route("/store/spares/<subtype>/<slug>/")
 async def spare_details(subtype, slug):
     session = db_proxy.create_session()
-    
-    spares = db.spares_by_subtype_and_slug(session, subtype, slug)
+    category = db.category_by_slug(session, subtype, slug)
+    spares = list(db.spares_by_subtype_and_slug(session, subtype, slug))
     brands = set([i.brand for i in spares])
 
     return render_template(
         "detail-store-page.html",
+        category=category,
         spares=spares,
         brands=brands
     )

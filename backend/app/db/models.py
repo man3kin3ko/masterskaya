@@ -75,7 +75,7 @@ class SpareCategory(Base):
     subtype = Column(String)  # discriminator
     slug = Column(String, nullable=False)
     description: Mapped[Optional[str]] = mapped_column(String(256))
-    image_name: Mapped[Optional[str]] = mapped_column(String(30))
+    image_name: Mapped[str] = mapped_column(String(30), default="lamel.png")
 
     # One-to-Many relationship with Spare (one category can have many Spares)
     spares: Mapped[List["Spare"]] = relationship(back_populates="category")
