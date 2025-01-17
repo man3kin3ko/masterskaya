@@ -24,15 +24,15 @@
                   {% if mecha_items %}
                     <li><h5 class="dropdown-header">⚙️ Механика</h5></li>
                   {% for i in mecha_items %}
-                    <li><a class="dropdown-item" href="#" onclick="redirect('{{i.store_link}}')">Затворы</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="redirect('{{i.store_link}}')">{{ i.name }}</a></li>
                   {% endfor %}
                   {% endif %}
 
-                  {% set mecha_items = cached_categs | selectattr('subtype', 'equalto', 'common') | list %}
-                  {% if mecha_items %}
+                  {% set common_items = cached_categs | selectattr('subtype', 'equalto', 'common') | list %}
+                  {% if common_items %}
                     <li><h5 class="dropdown-header">🪛 Общие запчасти</h5></li>
-                  {% for i in mecha_items %}
-                    <li><a class="dropdown-item" href="#" onclick="redirect('{{i.store_link}}')">Общие запчасти</a></li>
+                  {% for i in common_items %}
+                    <li><a class="dropdown-item" href="#" onclick="redirect('{{i.store_link}}')">{{ i.name }}</a></li>
                   {% endfor %}
                   {% endif %}
                     <script>

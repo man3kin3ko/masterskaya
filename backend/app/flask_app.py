@@ -67,7 +67,6 @@ async def store():
         categories=cycle_list(db.categories(session))
         )
 
-
 @app.route("/store/cameras/")
 async def cameras():
     return redirect("/error", code=302)
