@@ -9,7 +9,9 @@ app = Flask(__name__, static_folder="dist", static_url_path="")
 db_proxy = DBProxy()
 app.config["SQLALCHEMY_DATABASE_URI"] = db_proxy.engine
 app.jinja_env.globals['config'] = Config
-app.jinja_env.globals['cached_categs'] = db.categories(db_proxy.create_session())
+
+session = db_proxy.create_session()
+app.jinja_env.globals['cached_categs'] = [i for i in db.categories(session) if not i.is_empty(session)]
 
 @app.template_filter()
 def priceFormat(value):

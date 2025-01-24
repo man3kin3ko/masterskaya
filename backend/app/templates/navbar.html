@@ -30,11 +30,15 @@
 
                   {% set common_items = cached_categs | selectattr('subtype', 'equalto', 'common') | list %}
                   {% if common_items %}
-                    <li><h5 class="dropdown-header">🪛 Общие запчасти</h5></li>
+                    <li><h5 class="dropdown-header">🔋 Общие запчасти</h5></li>
                   {% for i in common_items %}
                     <li><a class="dropdown-item" href="#" onclick="redirect('{{i.store_link}}')">{{ i.name }}</a></li>
                   {% endfor %}
                   {% endif %}
+
+                  <li><h5 class="dropdown-header">➡️ Все запчасти</h5></li>
+                  <li><a class="dropdown-item" href="#" onclick="redirect('/store/spares/')">Каталог</a></li>
+
                     <script>
                       function redirect(url) {
                         window.location = url;

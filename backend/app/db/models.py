@@ -93,6 +93,11 @@ class SpareCategory(Base):
     def store_link(self):
         return f"/store/spares/{self.subtype}/{self.slug}/"
 
+    def is_empty(self, session):
+        table = self.__class__
+        categ = session.query(table).where(table.id == self.id).one()
+        return not bool(session.query(Spare).where(Spare.category_id == categ.id).first())
+
 
 class ElectricalSpare(SpareCategory):
     __mapper_args__ = {
