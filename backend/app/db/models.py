@@ -199,7 +199,7 @@ class Order(Base):
         
     @property
     def time_format(self):
-        return "%H:%M %d.%m.%Y"
+        return "%H:%M 🕑 %d.%m.%Y"
     
     created_time: Mapped[datetime] = mapped_column(
         DateTime,
@@ -279,11 +279,11 @@ class RepairOrder(Order):
 
     @property
     def modified_time_text(self):
-        return f"Обновлен: {escape_markdown(str(self.last_modified_time), version=2)}"
+        return f"Обновлен: {escape_markdown(self._last_modified_time, version=2)}"
 
     @property
     def created_time_text(self):
-        return f"Создан: {escape_markdown(str(self.created_time), version=2)}"
+        return f"Создан: {escape_markdown(self._created_time, version=2)}"
 
     @property
     def description(self):
