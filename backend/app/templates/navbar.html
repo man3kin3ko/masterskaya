@@ -6,10 +6,10 @@
           </a>
           <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
             <div class="navbar-nav navbar-mobile">
-              <a class="nav-link" href="/">Главная</a>
-              <a class="nav-link" href="/store/">Каталог</a>
+              <a class="nav-link {% if request.path == '/' %} active {% endif %}" href="/">Главная</a>
+              <a class="nav-link {% if request.path == '/store/' %} active {% endif %}" href="/store/">Каталог</a>
               <div class="dropdown" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                <a class="nav-link" href="#" id="navbarDropdown" role="button" aria-haspopup="true" aria-expanded="false">Запчасти</a>
+                <a class="nav-link {% if request.path.startswith('/store/spares/') %} active {% endif %}" href="#" id="navbarDropdown" role="button" aria-haspopup="true" aria-expanded="false">Запчасти</a>
                 <ul class="dropdown-menu pl-2 pr-3" aria-labelledby="navbarDropdown" data-popper-placement="bottom-end" style="position: absolute;">
                   
                   {% set electric_items = cached_categs | selectattr('subtype', 'equalto', 'electrical') | list %}
@@ -50,7 +50,7 @@
                     </script>
                   </ul>
               </div>
-              <a class="nav-link" href="/store/cameras/">Фотоаппараты</a>
+              <a class="nav-link {% if request.path.startswith('/store/cameras/') %} active {% endif %}" href="/store/cameras/">Фотоаппараты</a>
               <a class="nav-link" href="{{ url_for('index') }}#repair_order">Заказать ремонт</a>
               <a class="nav-link" href="https://t.me/masterskaya35ru">Блог</a>
             </div>
