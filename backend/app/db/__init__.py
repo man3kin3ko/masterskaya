@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from app.utils import Singleton
 
-# присрать интеграцию с джанго и alembic (в принципе можно руками прост на будущее)
+# присрать интеграцию с alembic (в принципе можно руками прост на будущее)
 # pagination
 # https://stackoverflow.com/questions/74520043/flask-pagination-without-sqlalchemy
 # https://stackoverflow.com/questions/13258934/applying-limit-and-offset-to-all-queries-in-sqlalchemy

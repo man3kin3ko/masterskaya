@@ -1,16 +1,17 @@
 import asyncio
 import uvicorn
 import logging
-from app.flask_app import app
-from app.db import RepairOrder, DBProxy
 from flask import request
 from asgiref.wsgi import WsgiToAsgi
+
+from app.flask_app import app
+from app.db import RepairOrder, DBProxy
 from app.tg import start_bot
 
 #https://docs.python-telegram-bot.org/en/stable/examples.customwebhookbot.html
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.DEBUG
+    format="[MAIN] %(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
 async def main() -> None:
@@ -18,18 +19,19 @@ async def main() -> None:
 
     @app.route("/form", methods=["POST"])
     async def read_item():
-        try:
-            db_proxy = DBProxy()
-            new_repair_order = RepairOrder.from_request(request.json)
-            db_proxy.add_to_transaction(new_repair_order.save)
-            db_proxy.execute_in_context()
+        db_proxy = DBProxy()
+        new_repair_order = RepairOrder.from_request(request.json)
+        db_proxy.add_to_transaction(new_repair_order.create)
+        db_proxy.execute_in_context()
 
-            await bot.add_update(new_repair_order.uniq_link)
-            return '', 200
+        await bot.add_update(new_repair_order)
+        return '', 200
+        # try:
 
-        except Exception as e:
-            logging.debug(e.__repr__())
-            return '', 500
+
+        # except Exception as e:
+        #     logging.warning(e.__repr__())
+        #     return '', 500
 
     webserver = uvicorn.Server(
         config=uvicorn.Config(

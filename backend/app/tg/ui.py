@@ -1,14 +1,11 @@
 import re
+from dataclasses import dataclass, fields
 from telegram import (
     InlineKeyboardButton, 
     InlineKeyboardMarkup, 
     )
 from app.db import Status
-from ..utils import flatten_dicts
-import logging
-from dataclasses import dataclass, fields
-
-logger = logging.getLogger(__name__)
+from app.utils import flatten_dicts
 
 class Route():
 
@@ -38,11 +35,7 @@ class Route():
 
     @classmethod
     def from_uri(cls, uri):
-        #logger.debug(uri)
         for i in cls.__subclasses__():
-            logger.debug(str(i.base))
-            logger.debug(type(str(i.base)))
-
             if uri.startswith(str(i.base)):
                 return i(uri).parse()
         raise Exception("No suitable subclass has found")
@@ -191,8 +184,8 @@ class InlineKeyboardUIBuilder:
         self._menu_btn = InlineKeyboardButton(text="Меню", callback_data="/menu/")
 
     @classmethod
-    def from_flask_update(self, max_page_size, uuid):
-        builder = InlineKeyboardUIBuilder(max_page_size, Route.from_uri(f"/order/item/{uuid}/{Status.accepted}/"))
+    def from_flask_update(self, max_per_page, uuid):
+        builder = InlineKeyboardUIBuilder(max_per_page, Route.from_uri(f"/order/item/{uuid}/accepted/"))
         builder.add_row([InlineKeyboardButton(
             "Принять заказ", 
             callback_data=builder.route.uri

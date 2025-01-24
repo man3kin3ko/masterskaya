@@ -1,4 +1,6 @@
 import enum
+from uuid import uuid4
+from telegram.helpers import escape_markdown # если эскейпить на уровне модуля тг, то не будет, собственно, разметки - ну или как-то через format нужно передавать хз что называется TODO
 from typing import Optional, List
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -6,7 +8,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 from datetime import datetime, timezone, timedelta
 
-from .schema import OrderFormRequestSchema
+from app.db.schema import OrderFormRequestSchema
 
 
 ### data structures ###
@@ -44,6 +46,7 @@ class SpareAviability(BaseEnum):
 
 class Base(DeclarativeBase):
     def create(self, session):
+        session.expire_on_commit = False
         session.add(self)
 
     def update(self, session):
@@ -228,9 +231,9 @@ class RepairOrder(Order):
         "polymorphic_identity": "repair"
         }
 
-    uuid: Mapped[str] = mapped_column(String(36), nullable=False, unique=True, index=True)
+    uuid: Mapped[str] = mapped_column(String(36), nullable=False, unique=True, index=True, default=str(uuid4()))
     contact: Mapped[str] = mapped_column(nullable=False)
-    # social_media_type: Mapped[SocialMediaType] = mapped_column()
+    social_media_type = mapped_column(String(16), nullable=False)
     status: Mapped[Status] = mapped_column(default=Status.ordered)
     problem = Column(String)
     model = Column(String)
@@ -240,9 +243,8 @@ class RepairOrder(Order):
     def from_request(json_data):
         schema = OrderFormRequestSchema(**json_data)
         order = RepairOrder(
-            uuid = str(uuid.uuid4()),
             contact = schema.contact,
-            social_media_type = schema.soc_type.name,
+            social_media_type = str(schema.soc_type),
             problem = schema.problem,
             model = schema.model
         )
@@ -260,40 +262,40 @@ class RepairOrder(Order):
     ### tg view methods ###
 
     @property
-    def modified_time(self):
-        return f"Обновлен: {self._last_modified_time}"
-    
-    @property
-    def created_time(self):
-        return f"Создан: {self._created_time}"
-
-    @property
     def title(self):
-        return f"Заказ от \\[{self.social_media_type.value}\\] {self.contact}\n\nМодель {self.model}"
-    
-    @property
-    def uuid(self):
-        return f"Номер заказа: `{self.uniq_link}`"
+        return (
+            f"Заказ №{self.id} от \[{self.social_media_type}\] " 
+            f"{escape_markdown(self.contact, version=2)}\n\n"
+            f"Модель {escape_markdown(self.model, version=2)}"
+        )
     
     @property
     def tracking_link(self):
-        return f"Трекинговая ссылка: `https://masterskaya35.ru/tracking/{self.uniq_link}`"
+        return f"Трекинговая ссылка: `https://masterskaya35.ru/tracking/{self.uuid}`"
 
     @property
     def status(self):
         return f"Статус: `{self.status}`"
 
     @property
-    def modified_time(self):
-        return f"Обновлен: {self._last_modified_time}"
+    def modified_time_text(self):
+        return f"Обновлен: {escape_markdown(str(self.last_modified_time), version=2)}"
 
     @property
-    def created_time(self):
-        return f"Создан: {self._created_time}"
+    def created_time_text(self):
+        return f"Создан: {escape_markdown(str(self.created_time), version=2)}"
 
     @property
     def description(self):
         return f"```Описание\n{self.problem}```\n"
+
+    def __str__(self):
+        return "\n".join([
+            self.title,
+            self.description,
+            self.created_time_text,
+            self.tracking_link
+        ])
 
     ### --- ###
     

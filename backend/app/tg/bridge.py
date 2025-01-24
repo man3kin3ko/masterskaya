@@ -3,6 +3,8 @@ import abc
 import csv
 import httpx
 import logging
+from dataclasses import dataclass
+
 import telegram
 import telegram.ext.filters as filters
 from telegram import Update
@@ -17,9 +19,8 @@ from telegram.ext import (
     CallbackContext,
     MessageHandler,
 )
-from dataclasses import dataclass
 
-from .ui import InlineKeyboardUIBuilder, Route
+from app.tg.ui import InlineKeyboardUIBuilder, Route
 from app.utils import truncate, Singleton, async_to_sync, is_class
 from app.db import DBProxy
 
@@ -61,7 +62,7 @@ class AbstractHandler:
     def get_builder(self, route):
         if not isinstance(route, Route):
             route = Route.from_uri(route)
-        return InlineKeyboardUIBuilder(self.bridge.max_page_size, route)
+        return InlineKeyboardUIBuilder(self.bridge.max_per_page, route)
 
     async def parse_update(self, update):
         query = await self.catch_update(update)
@@ -151,7 +152,7 @@ class OrderHandler(AbstractHandler):
         for i in page.items:
             builder.add_button(
                 text=f"{i.model} {truncate(i.problem, self.bridge.desc_len)}",
-                callback=f"/order/item/{i.uniq_link}/",
+                callback=f"/order/item/{i.uuid}/",
             )
         builder.add_pager()
 
@@ -264,10 +265,10 @@ class SpareHandler(AbstractHandler):
 
 
 class TelegramBridge(metaclass=Singleton):
-    def __init__(self, token, chat, flask, max_page_size=5, desc_len=10):
+    def __init__(self, token, chat, flask, max_per_page=5, desc_len=10):
         self.app = Application.builder().token(token).build()
         self.chat = chat
-        self.max_page_size = max_page_size
+        self.max_per_page = max_per_page
         self.desc_len = desc_len
         self.app.add_handler(
             TypeHandler(type=FlaskUpdate, callback=self.send_new_order)
@@ -293,10 +294,9 @@ class TelegramBridge(metaclass=Singleton):
         await self.send_message(f"Non\-fatal error has occured:\n```{context.error}```")
 
     async def send_new_order(self, update: FlaskUpdate, context: CustomContext):
-        uniq_link = update.payload
-        order = db_proxy.get_order(uniq_link)
+        order = update.payload
+        builder = InlineKeyboardUIBuilder.from_flask_update(self.max_per_page, order.uuid)
 
-        builder = InlineKeyboardUIBuilder.from_flask_update(self.max_page_size, uniq_link)
         await self.send_message(str(order), markup=builder.product)
 
     async def send_document(self, path):
