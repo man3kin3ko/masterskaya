@@ -50,6 +50,7 @@ class Base(DeclarativeBase):
         session.add(self)
 
     def update(self, session):
+        session.expire_on_commit = False
         session.merge(self)
 
     def refresh(self, session):
@@ -274,8 +275,8 @@ class RepairOrder(Order):
         return f"Трекинговая ссылка: `https://masterskaya35.ru/tracking/{self.uuid}`"
 
     @property
-    def status(self):
-        return f"Статус: `{self.status}`"
+    def status_text(self):
+        return f"Статус: `{self.status.value}`"
 
     @property
     def modified_time_text(self):
@@ -288,6 +289,23 @@ class RepairOrder(Order):
     @property
     def description(self):
         return f"```Описание\n{self.problem}```\n"
+
+    def update_msg(self, master):
+        return "\n".join([
+            f"Заказ `{self.uuid}` изменен {master.first_name} {master.last_name if master.last_name else ''}",
+            self.status_text,
+            self.modified_time_text
+            ])
+
+    def full_info(self):
+        return "\n".join([
+                self.title,
+                self.description,
+                self.status_text,
+                "\n",
+                self.tracking_link,
+                self.created_time_text,
+            ])
 
     def __str__(self):
         return "\n".join([

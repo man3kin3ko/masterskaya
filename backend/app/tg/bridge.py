@@ -23,11 +23,11 @@ from telegram.ext import (
 from app.tg.ui import InlineKeyboardUIBuilder, Route
 from app.utils import truncate, Singleton, async_to_sync, is_class
 from app.db import DBProxy
+import app.db as db
 
 db_proxy = DBProxy()
 TG_TOKEN = os.environ["TOKEN"]
 WORKING_CHAT = os.environ["CHAT"]
-# ADMIN = os.environ["ADMIN_ID"]
 
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -117,36 +117,32 @@ class OrderHandler(AbstractHandler):
 
     async def change_item(self, update, context):
         query, route = await self.parse_update(update)
-        order = db_proxy.get_repair_order(route.uuid)
+        master = self.get_master(query)
 
-        await self.answer(query, order.update(route.status, self.get_master(query)))
+        order = db.repair_order_by_uuid(db_proxy.create_session(), route.uuid)
+        order.status = route.status
+        order.master_id = master.id
 
-    def _make_order_change_msg(self, order):
-        return "\n".join(
-            [
-                order.get_title(),
-                order.get_description(),
-                order.get_status(),
-                "\n",
-                order.get_tracking_link(),
-                order.get_created_time(),
-            ]
-        )
+        db_proxy.add_to_transaction(order.update)
+        db_proxy.execute_in_context()
+
+        await self.answer(query, order.update_msg(master))
+
 
     async def handle_item(self, update, context):
         query, route = await self.parse_update(update)
-        order = db_proxy.get_repair_order(route.uuid)
+        order = db.repair_order_by_uuid(db_proxy.create_session(), route.uuid)
 
         builder = self.get_builder(route)
         builder.add_status_switch(route.uuid, order.status)
         builder.add_back_btn()
 
-        await self.answer(query, self._make_order_change_msg(order), builder.product)
+        await self.answer(query, order.full_info(), builder.product)
 
 
     async def handle_page(self, update, context):
         query, route = await self.parse_update(update)
-        page = db_proxy.get_order_page(route.match, self.get_master(query).id)
+        page = db_proxy.get_order_page(route.match, self.get_master(query).id) #!!
 
         builder = self.get_builder(route)
         for i in page.items:

@@ -1,4 +1,3 @@
-# from .cli import *
 from .models import *
 
 from sqlalchemy.orm import sessionmaker

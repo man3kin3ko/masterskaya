@@ -19,19 +19,18 @@ async def main() -> None:
 
     @app.route("/form", methods=["POST"])
     async def read_item():
-        db_proxy = DBProxy()
-        new_repair_order = RepairOrder.from_request(request.json)
-        db_proxy.add_to_transaction(new_repair_order.create)
-        db_proxy.execute_in_context()
+        try:
+            db_proxy = DBProxy()
+            new_repair_order = RepairOrder.from_request(request.json)
+            db_proxy.add_to_transaction(new_repair_order.create)
+            db_proxy.execute_in_context()
 
-        await bot.add_update(new_repair_order)
-        return '', 200
-        # try:
+            await bot.add_update(new_repair_order)
+            return '', 200
 
-
-        # except Exception as e:
-        #     logging.warning(e.__repr__())
-        #     return '', 500
+        except Exception as e:
+            logging.warning(e.__repr__())
+            return '', 500
 
     webserver = uvicorn.Server(
         config=uvicorn.Config(

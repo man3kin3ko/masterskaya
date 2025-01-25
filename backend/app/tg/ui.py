@@ -145,7 +145,7 @@ class OrdersRoutes(Route):
     @property
     def status(self):
         if self.regex.pattern == self.order_change:
-            return Status(self.groups[1])
+            return Status[self.groups[1]]
 
     @property
     def uuid(self):
