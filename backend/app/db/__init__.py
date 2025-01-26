@@ -1,5 +1,6 @@
 from .models import *
 
+import logging
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from app.utils import Singleton
@@ -44,8 +45,9 @@ class DBProxy(metaclass=Singleton): #
 def categories(session):
     return session.query(SpareCategory).all()
 
-def categories_page(session, page):
-    return session.query(SpareCategory)#.paginate(page=int(page), max_per_page=4)
+def categories_page(session, page, max_per_page=4):
+    query = session.query(SpareCategory)
+    return query.limit(max_per_page).offset((int(page) - 1) * max_per_page)
 
 def category_by_id(session, subtype, category_id):
     subtype_class = SpareCategory.from_discriminator(subtype)
@@ -81,12 +83,13 @@ def is_repair_order_exist(uuid):
 def repair_order_by_uuid(session, uuid):
     return session.query(RepairOrder).where(RepairOrder.uuid == uuid).one()
 
-def repair_orders_page_by_master(session, master_id, page=1):
-    return session.query(RepairOrder).where(RepairOrder.master_id == master_id)#.paginate(page=int(page), max_per_page=4)
+def repair_orders_page_by_master(session, master_id, page=1, max_per_page=4):
+    query = session.query(RepairOrder).where(RepairOrder.master_id == master_id)
+    query_limit = query.limit(max_per_page).offset((int(page) - 1) * max_per_page)
+
+    return query_limit.all()
 
 ### brand queries ###
 
 def brand_by_name(session, name):
     return session.query(Brand).where(Brand.name == name).one()
-
-# db_proxy = DBProxy()

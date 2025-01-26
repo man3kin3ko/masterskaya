@@ -142,12 +142,14 @@ class OrderHandler(AbstractHandler):
 
     async def handle_page(self, update, context):
         query, route = await self.parse_update(update)
-        page = db_proxy.get_order_page(route.match, self.get_master(query).id) #!!
+        master = self.get_master(query)
+        page_num = route.match
+        page = db.repair_orders_page_by_master(db_proxy.create_session(), master.id, page_num)
 
         builder = self.get_builder(route)
-        for i in page.items:
+        for i in page:
             builder.add_button(
-                text=f"{i.model} {truncate(i.problem, self.bridge.desc_len)}",
+                text=f"{i.id} {truncate(i.problem, self.bridge.desc_len)}",
                 callback=f"/order/item/{i.uuid}/",
             )
         builder.add_pager()
