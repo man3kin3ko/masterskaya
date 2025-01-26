@@ -292,7 +292,7 @@ class RepairOrder(Order):
 
     def update_msg(self, master):
         return "\n".join([
-            f"Заказ `{self.uuid}` изменен {master.first_name} {master.last_name if master.last_name else ''}",
+            f"Заказ `{self.id}` изменен {master.first_name} {master.last_name if master.last_name else ''}",
             self.status_text,
             self.modified_time_text
             ])

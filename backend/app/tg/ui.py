@@ -231,7 +231,7 @@ class InlineKeyboardUIBuilder:
 
     def add_status_switch(self, uuid, current_status: Status):
         row  = [i for i in Status if i.name != current_status.name and i.name != Status.ordered]
-        self.add_row(list(map(lambda i: InlineKeyboardButton(text=str(i), callback_data=f"/order/item/{uuid}/{i.value}/"), row)))
+        self.add_row(list(map(lambda i: InlineKeyboardButton(text=i.value, callback_data=f"/order/item/{uuid}/{i.name}/"), row)))
         
     def make_spares(self):
         self.add_route(Route.from_uri("/spare/"))
