@@ -3,31 +3,35 @@
 {% block content %}
     <section>
         <div class="row flex-row m-3 fw-bold">
-            <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/</span>
-            <h1 class="fw-bold my-2">Запчасти</h1>
+            <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/</span>
         </div>
     </section>
     {% set electric_items = categories | selectattr('subtype', 'equalto', 'electrical') | list %}
     
     {% if electric_items %}
     <section>
-        <div class="container-fluid px-5 bg-light" id="electrical">
+        <div class="container-fluid px-5" id="electrical">
             <div class="row d-flex justify-content-center">
-                <h2 class="fw-bold text-secondary my-5 text-center">Электроника</h2>
+                <h1 class="fw-bold mb-5">Электроника</h1>
                 
                 {% for i in electric_items %}
 
-                    <div class="col-sm-12 col-md-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
-                      <div class="row pt-0 p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
-                        <div class="col-12 d-flex justify-content-center">
+                    <div class="col-xs-12 col-sm-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
+                      <a href="{{ i.store_link }}" class="card-link">
+
+                      <div class="container p-4 m-4 border rounded overflow-hidden shadow-sm h-md-250 card bounce" style="height: 90%;">
+                        
+                        <div class="d-flex justify-content-center">
                         <img src="{{ url_for('static', filename=i.image_name) if i.image_name else ''}}" style="width: 15em; height: 13em;" class="rounded m-3 img-fluid">
                         </div>
-                        <div class="card-body">
+
+                        <div>
                           <h4 class="fw-bold">{{i.name}}</h4>
-                          <p class="card-text mb-auto">{{i.description}}</p>
+                          <p class="text-wrap text-dark mb-auto" style="width: 10em;">{{i.description}}</p>
                         </div>
-                        <a href="{{ i.store_link }}" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Перейти в каталог</span></a>
                       </div>
+
+                      </a>
                     </div>
 
                 {% endfor %}
@@ -39,24 +43,29 @@
     {% set mecha_items = categories | selectattr('subtype', 'equalto', 'mecha') | list %}
     {% if mecha_items %}
     <section>
-        <div class="container-fluid px-5" id="mecha">
+        <div class="container-fluid px-5 bg-light" id="mecha">
             <div class="row justify-content-center">
-                <h2 class="fw-bold my-5 text-center">Механика</h2>
+                <h1 class="fw-bold my-5 text-secondary">Механика</h1>
                 
                 {% for i in mecha_items %}
 
-                    <div class="col-sm-12 col-md-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
-                      <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
-                        <div class="col-12 d-flex justify-content-center">
-                        <img src="{{ url_for('static', filename=i.image_name) if i.image_name else ''}}" style="max-width: 15em;" class="rounded m-3 img-fluid">
-                        </div>
-                        <div class="card-body">
-                          <h4 class="fw-bold">{{i.name}}</h4>
-                          <p class="card-text mb-auto">{{i.description}}</p>
-                        </div>
-                        <a href="{{ i.store_link }}" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Перейти в каталог</span></a>
-                      </div>
+                <div class="col-xs-12 col-sm-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
+                  <a href="{{ i.store_link }}" class="card-link">
+
+                  <div class="container p-4 m-4 border rounded overflow-hidden shadow-sm h-md-250 card bounce" style="height: 90%;">
+                    
+                    <div class="d-flex justify-content-center">
+                    <img src="{{ url_for('static', filename=i.image_name) if i.image_name else ''}}" style="width: 15em; height: 13em;" class="rounded m-3 img-fluid">
                     </div>
+
+                    <div>
+                      <h4 class="fw-bold">{{i.name}}</h4>
+                      <p class="text-wrap mb-auto" style="width: 10em;">{{i.description}}</p>
+                    </div>
+                  </div>
+
+                  </a>
+                </div>
 
                 {% endfor %}
               

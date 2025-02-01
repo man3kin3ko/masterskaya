@@ -2,7 +2,6 @@ import Typewriter from 'typewriter-effect/dist/core';
 import JSConfetti from 'js-confetti';
 import './style.css';
 import Master from './master_nocolor.png';
-import Leadpic from './leadpic.png';
 
 // svistoperdelki
 
@@ -20,7 +19,6 @@ if (window.location.pathname == "/") {
   }
 
   addPic("master", Master);
-  addPic("leadpic", Leadpic);
 
   var app = document.getElementById('typewriter');
   var typewriter = new Typewriter(app, {

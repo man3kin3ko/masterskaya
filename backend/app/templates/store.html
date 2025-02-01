@@ -29,17 +29,22 @@
               <div class="carousel-item {{'active' if i == 0 else ''}}">
               <div class="row px-5 m-2 d-flex justify-content-center">
                   {% endif %}
+
+                  
                     <div class="col-sm-12 col-md-4 col-xxl-2 d-flex align-items-stretch justify-content-center">
-                      <div class="row p-4 g-0 border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative card bounce w-100">
-                        <div class="col-12 d-flex justify-content-center">
+                      <a class="card-link" href="/store/spares/{{categories[i].subtype}}/{{categories[i].slug}}/">
+                      <div class="container p-4 border rounded overflow-hidden shadow-sm h-md-250 card bounce h-100">
+                        
+                        <div class="d-flex justify-content-center">
                         <img src="{{ url_for('static', filename=categories[i].image_name) if categories[i].image_name else ''}}" style="max-width: 15em;" class="rounded m-3 img-fluid">
                         </div>
-                        <div class="card-body">
+
+                        <div>
                           <h4 class="fw-bold">{{categories[i].name}}</h4>
                           <strong class="d-inline-block text-secondary">{{ categories[i].icon }} {{ categories[i].human_name }}</strong>
-                          <p class="card-text mb-auto ml-5 mt-2">{{ categories[i].description }}</p>
+                          <p class="text-wrap text-dark mb-auto ml-5 mt-2">{{ categories[i].description }}</p>
                         </div>
-                        <a href="/store/spares/{{categories[i].subtype}}/{{categories[i].slug}}/" class="btn text-white p-3 d-flex justify-content-center m-btn-primary" style="height: 3.5em;" type="button"><span class="m-button">Перейти в каталог</span></a>
+                      </a>
                       </div>
                     </div>
                   {% if (i + 1) is divisibleby 3 %}
