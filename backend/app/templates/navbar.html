@@ -35,9 +35,9 @@
                     <li><a class="dropdown-item" href="#" onclick="redirect('{{i.store_link}}')">{{ i.name }}</a></li>
                   {% endfor %}
                   {% endif %}
+                  <hr class="my-1">
+                  <li><a class="dropdown-item" href="#" onclick="redirect('/store/spares')">Все запчасти</a></li>
 
-                  <li><h5 class="dropdown-header">➡️ Все запчасти</h5></li>
-                  <li><a class="dropdown-item" href="#" onclick="redirect('/store/spares/')">Каталог</a></li>
 
                     <script>
                       function redirect(url) {

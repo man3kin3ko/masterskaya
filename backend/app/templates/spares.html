@@ -2,7 +2,7 @@
 
 {% block content %}
     <section>
-        <div class="row flex-row m-3 fw-bold">
+        <div class="row flex-row mx-3 mt-3 fw-bold">
             <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/</span>
         </div>
     </section>
@@ -10,9 +10,9 @@
     
     {% if electric_items %}
     <section>
+      <h1 class="fw-bold px-4 mt-2">Электроника</h1>
         <div class="container-fluid px-5" id="electrical">
             <div class="row d-flex justify-content-center">
-                <h1 class="fw-bold mb-5">Электроника</h1>
                 
                 {% for i in electric_items %}
 
@@ -27,7 +27,7 @@
 
                         <div>
                           <h4 class="fw-bold">{{i.name}}</h4>
-                          <p class="text-wrap text-dark mb-auto" style="width: 10em;">{{i.description}}</p>
+                          <p class="text-wrap text-dark mb-auto" style="min-width: 10em; max-width: 15em;">{{i.description}}</p>
                         </div>
                       </div>
 
