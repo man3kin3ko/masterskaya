@@ -1,27 +1,63 @@
-{% extends 'base.html' %}
-
-{% block content %}
-<section class="section">
+<section class="section" id="route">
     <div class="container my-5 mt-2 px-5">
-        <h1 class="fw-bold m-text-primary text-center my-5">Как пройти</h1>
-        <div class="row justify-content-center mb-5">
-            <p>Мастерская находится по адресу {{ config.ADDRESS }}. Идти {{ config.TIME_TO_ARRIVE }}.</p>
-            <p>Работаем {{ config.WORK_HOURS }}.</p>
-            <div class="row justify-content-center mb-5">
-            <script type="text/javascript" charset="utf-8" async src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3A340c7eca001bc2606f794c9f61fa72045aa2b4b9a6c9ca40f4dc6e440d5ed6c8&amp;width=100%25&amp;height=347&amp;lang=ru_RU&amp;scroll=true"></script>
+        <h1 class="fw-bold text-center my-5">{{ title }}</h1>
+        <div class="row justify-content-center my-5">
+            <div class="col-sm-12 col-md-8">
+                <div class="container mb-4">
+                <script type="text/javascript" charset="utf-8" async src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3A340c7eca001bc2606f794c9f61fa72045aa2b4b9a6c9ca40f4dc6e440d5ed6c8&amp;width=100%&amp;height=720&amp;lang=ru_RU&amp;scroll=true"></script>
+                </div>
             </div>
-            <p>Идите по набережной вдоль реки, до ворот рядом с дорожными знаками "Главная дорога" и "Угловой переулок":</p>
-            <div class="row justify-content-center p-5 pt-2 pb-3">
-              <img src="../street.jpg">
+        
+            <div class="col-sm-12 col-md-4 justify-content-center">
+                <h5 class="text-secondary">Адрес</h5>
+                <p>{{ config.ADDRESS }}</p>
+                
+                <h5 class="text-secondary">График работы</h5>
+                <p>{{ config.WORK_HOURS }}.</p>
+                
+                <h4 class="mt-2">Как нас найти</h4>
+                <div id="switch" class="btn-group btn-group-sm btn-toggle"> 
+                    <button class="btn btn-lg btn-primary">Технологический институт</button>
+                    <button class="btn btn-lg btn-default btn-outline-primary">Фрунзенская</button>
+                </div>
+                <div id="descriptions">
+                <div class="container my-3 px-0">
+                    <p>Время в пути - 10 минут.</p>
+                    {% with route="Направляйтесь прямо вдоль Московского проспекта до Ново-Московского моста, после чего идите направо до знаков \"Главная дорога\" и \"Угловой переулок\", вход в арку:" %}
+                        {% include 'route-accordion.html' %}
+                    {% endwith %}
+                </div>
+                <div class="container my-3 px-0" style="display: none">
+                    <p>Время в пути - 5 минут.</p>
+                    {% with route="Направляйтесь прямо вдоль Московского проспекта до Ново-Московского моста, после чего идите налево до знаков \"Главная дорога\" и \"Угловой переулок\", вход в арку:" %}
+                        {% include 'route-accordion.html' %}
+                    {% endwith %}
+                </div>
+                </div>
+                <script>
+                    let buttons = Array.from(document.getElementById("switch").children);
+                    let descriptions = Array.from(document.getElementById("descriptions").children);
+        
+                    buttons.map((btn, i) => {
+                        btn.addEventListener('click', (e) => {
+                            buttons.map((e) =>  {
+                                if (e !== btn ) {
+                                    e.classList.add('btn-outline-primary');
+                                    e.classList.remove('btn-primary');
+                                } else {
+                                    btn.classList.add('btn-primary');
+                                    e.classList.remove('btn-outline-primary');
+                                }
+        
+                            descriptions.map((e) => {
+                                e.style.display = 'none';
+                                descriptions[i].style.display = 'block';
+                            })})
+        
+                        })
+                    })
+                </script>
             </div>
-            <p>Если калитка закрыта, наберите <code class="m-text-primary fw-bold bg-light">0135В</code> на домофоне и зайдите внутрь двора:</p>        
-            <div class="row justify-content-center p-5 pt-2 pb-3">
-              <img src="../yard.jpg">
-            </div>
-            <p>На домофоне цокольного этажа наберите <code class="m-text-primary fw-bold bg-light">11</code> офис.</p>
-            <p>Мы будем вас ждать!</p>
         </div>
-</div>
-
+    </div>
 </section>
-{% endblock %}
