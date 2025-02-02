@@ -16,6 +16,7 @@ class DBProxy(metaclass=Singleton): #
         self.max_per_page = max_per_page
 
         self.engine = create_engine(engine_uri)
+        self.filename = engine_uri.lstrip("sqlite:///") #TODO
         self._make_session = sessionmaker(bind=self.engine)
         self._pending_operations = []
 

@@ -24,6 +24,8 @@ def init_db(session):
                 {"name": "Balda", "country": "DE"},
                 {"name": "Welta", "country": "DE"},
                 {"name": "Agfa", "country": "DE"},
+                {"name": "Conica", "country": "JP"},
+                {"name": "Ricoh", "country": "JP"},
             ],
         )
     session.execute(
@@ -112,25 +114,28 @@ def init_db(session):
             insert(Spare),
             [
                 {
-                    "brand_id": 2,
+                    "brand_id": 21,
                     "category_id": 3,
-                    "name": "Digital IXUS 132/IXUS 135",
-                    "price": 600,
-                    "quantity": 3,
+                    "name": "R1s",
+                    "price": 1500,
+                    "quantity": 4,
+                    "availability": "available"
                 },
                 {
                     "brand_id": 2,
                     "category_id": 3,
-                    "name": "EOS 1D Mark III",
-                    "price": 4900,
-                    "quantity": 3,
+                    "name": "Mark II",
+                    "price": 3500,
+                    "quantity": 1,
+                    "availability": "available"
                 },
                 {
-                    "brand_id": 2,
+                    "brand_id": 20,
                     "category_id": 3,
-                    "name": "PowerShot A2300/A2400",
-                    "price": 500,
-                    "quantity": 3,
+                    "name": "Big Mini",
+                    "price": 1500,
+                    "quantity": 4,
+                    "availability": "available"
                 },
                 {
                     "category_id": 12,

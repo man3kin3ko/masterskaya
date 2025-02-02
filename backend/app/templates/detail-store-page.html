@@ -30,16 +30,17 @@
               <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
                 {% if brands %}
                 {% for j in brands %}
-                <h2 id="{{ j.name|lower }}" class="fw-bold mt-2">{{ j.name }}</h2>
+                <h2 id="{{ j.name|lower }}" class="fw-bold mt-4">{{ j.name }}</h2>
                 <div class="table-responsive">
-                  <table class="table table-striped table-sm">
+                  <table class="table table-striped table-sm align-middle">
                     <thead>
                       <tr>
                         <th>Артикул</th>
-                        <th>Наименование</th>
+                        <th class="w-50">Наименование</th>
                         <th>Наличие</th>
                         <th>Количество</th>
                         <th>Цена</th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -48,10 +49,11 @@
                         {% if i.brand.name == j.name %}
                         <tr>
                           <td>{{ i.id }}</td>
-                          <td>{{ i.name }}</td>
+                          <td>{{ j.name }} {{ i.name }}</td>
                           <td class="{{ i.availability.bootstrap_class }}">{{i.availability.human_name }}</td>
                           <td>{{ i.quantity|string + ' шт' if i.quantity else ''}}</td>
                           <td>{{ i.price|string+' руб' if i.price else ''}}</td>
+                          <td class="text-end">{% if i.availability.name != 'unavailable'%}<button type="button" class="btn m-btn-primary btn-sm text-white pr-2">В корзину</button>{% endif %}</td>
                         </tr>
                         {% endif %}
                         {% endfor %}
