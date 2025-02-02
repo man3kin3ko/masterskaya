@@ -4,7 +4,7 @@
     <section>
         <div class="row flex-row m-3 fw-bold">
             <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/<a href="/store/spares/#{{ category.subtype }}" class="no-link-underscoring">{{ category.human_name }}</a>/</span>
-            <h1 class="fw-bold my-2">{{ category.human_name }}</h1>
+            <h1 class="fw-bold my-2">{{ category.name }}</h1>
         </div>
     </section>
     <section>
@@ -49,7 +49,7 @@
                         <tr>
                           <td>{{ i.id }}</td>
                           <td>{{ i.name }}</td>
-                          <td class="{{ 'text-success' if i.availability.name == 'AVAILABLE'}}{{ 'text-danger' if i.availability.name == 'UNAVAILABLE'}}{{ 'text-warning' if i.availability.name == 'UNKNOWN'}}">{{i.availability.value}}</td>
+                          <td class="{{ i.availability.bootstrap_class }}">{{i.availability.human_name }}</td>
                           <td>{{ i.quantity|string + ' шт' if i.quantity else ''}}</td>
                           <td>{{ i.price|string+' руб' if i.price else ''}}</td>
                         </tr>

@@ -36,9 +36,17 @@ class Status(BaseEnum):
 
 
 class SpareAviability(BaseEnum):
-    unknown = "Уточняйте"
-    available = "В наличии"
-    unavailable = "Отсутствует"
+    unknown = (0, "Уточняйте", "text-warning")
+    available = (1, "В наличии", "text-success")
+    unavailable = (2, "Отсутствует", "text-danger")
+    
+    @property
+    def human_name(self):
+        return self.value[1]
+    
+    @property
+    def bootstrap_class(self):
+        return self.value[2]
 
 
 ### sqlalchemy models ###
@@ -113,7 +121,7 @@ class ElectricalSpare(SpareCategory):
         return "⚡"
 
     @property
-    def human_name(self):
+    def human_name(self): #TODO: rename
         return "Электроника"
 
 
