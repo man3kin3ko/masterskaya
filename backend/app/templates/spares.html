@@ -6,71 +6,9 @@
             <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/</span>
         </div>
     </section>
-    {% set electric_items = categories | selectattr('subtype', 'equalto', 'electrical') | list %}
-    
-    {% if electric_items %}
-    <section>
-      <h1 class="fw-bold px-4 mt-2">Электроника</h1>
-        <div class="container-fluid px-5" id="electrical">
-            <div class="row d-flex justify-content-center">
-                
-                {% for i in electric_items %}
-
-                    <div class="col-xs-12 col-sm-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
-                      <a href="{{ i.store_link }}" class="card-link">
-
-                      <div class="container p-4 m-4 border rounded overflow-hidden shadow-sm h-md-250 card bounce" style="height: 90%;">
-                        
-                        <div class="d-flex justify-content-center">
-                        <img src="{{ url_for('static', filename=i.image_name) if i.image_name else ''}}" style="width: 15em; height: 13em;" class="rounded m-3 img-fluid">
-                        </div>
-
-                        <div>
-                          <h4 class="fw-bold">{{i.name}}</h4>
-                          <p class="text-wrap text-dark mb-auto" style="min-width: 10em; max-width: 15em;">{{i.description}}</p>
-                        </div>
-                      </div>
-
-                      </a>
-                    </div>
-
-                {% endfor %}
-              
-            </div>
-        </div>
-    </section>
-    {% endif %}
-    {% set mecha_items = categories | selectattr('subtype', 'equalto', 'mecha') | list %}
-    {% if mecha_items %}
-    <section>
-        <div class="container-fluid px-5 bg-light" id="mecha">
-            <div class="row justify-content-center">
-                <h1 class="fw-bold my-5 text-secondary">Механика</h1>
-                
-                {% for i in mecha_items %}
-
-                <div class="col-xs-12 col-sm-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
-                  <a href="{{ i.store_link }}" class="card-link">
-
-                  <div class="container p-4 m-4 border rounded overflow-hidden shadow-sm h-md-250 card bounce" style="height: 90%;">
-                    
-                    <div class="d-flex justify-content-center">
-                    <img src="{{ url_for('static', filename=i.image_name) if i.image_name else ''}}" style="width: 15em; height: 13em;" class="rounded m-3 img-fluid">
-                    </div>
-
-                    <div>
-                      <h4 class="fw-bold">{{i.name}}</h4>
-                      <p class="text-wrap text-dark mb-auto" style="width: 10em;">{{i.description}}</p>
-                    </div>
-                  </div>
-
-                  </a>
-                </div>
-
-                {% endfor %}
-              
-            </div>
-        </div>
-    </section>
-    {% endif %}
+    {% for i in categories.keys() %}
+        {% with categ=i, items=categories[i], is_even=loop.index is divisibleby 2%}
+            {% include 'spare_categ.html' %}
+        {% endwith %}
+    {% endfor %}
 {% endblock %}

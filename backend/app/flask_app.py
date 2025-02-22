@@ -11,7 +11,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = db_proxy.engine
 app.jinja_env.globals['config'] = Config
 
 session = db_proxy.create_session()
-app.jinja_env.globals['cached_categs'] = [i for i in db.categories(session) if not i.is_empty(session)]
+app.jinja_env.globals['cached_categs'] = db.not_empty_categories(session)
 
 @app.template_filter()
 def priceFormat(value):
@@ -23,36 +23,38 @@ def priceFormat(value):
 async def index():
     return render_template("index.html")
 
-# @app.route("/store/cameras/")
-# async def cameras_dbg():
-#     cameras = [i[0] for i in db_proxy.get_resale_cameras()]
-#     return render_template("cameras.html", cameras=cameras)
-
 @app.errorhandler(404)
 async def page_not_found(e):
     return render_template("404.html")
 
+@app.route("/store/cameras")
+@app.route("/store/cameras/")
+async def cameras():
+    #     cameras = [i[0] for i in db_proxy.get_resale_cameras()]
+    #     return render_template("cameras.html", cameras=cameras)
+    return render_template("cameras.html")
+
 @app.route("/rules")
+@app.route("/rules/")
 async def rules():
     return render_template("rules.html")
 
 @app.route("/route")
+@app.route("/route/")
 async def route():
-    return render_template("route.html")
+    return redirect("/store/#route", 302)
 
 @app.route("/tracking/<uuid>")
+@app.route("/tracking/<uuid>/")
 async def tracking_order(uuid):
     session = db_proxy.create_session()
     order = db.repair_order_by_uuid(uuid)
     return render_template("tracking.html", order=order)
 
+@app.route("/tracking")
 @app.route("/tracking/")
 async def tracking():
     return render_template("tracking.html")
-
-@app.route("/tracking")
-async def trail():
-    return redirect("/tracking/", code=302)
 
 @app.route("/tracking/is_exist", methods=["POST"])
 async def is_exist():
@@ -61,33 +63,34 @@ async def is_exist():
         return '', 200
     return '', 404
 
+@app.route("/store")
 @app.route("/store/")
 async def store():
     session = db_proxy.create_session()
     return render_template(
         "store.html", 
-        categories=cycle_list(db.categories(session))
+        categories=cycle_list(db.not_empty_categories(session)) # ограничивать список по длине чтобы не тормозило?
         )
 
-@app.route("/store/cameras/")
-async def cameras():
-    return redirect("/error", code=302)
-
-
+@app.route("/store/spares")
 @app.route("/store/spares/")
 async def spares():
     session = db_proxy.create_session()
+    categs = db.categories(session)
+
+    print(categs)
     return render_template(
         "spares.html", 
-        categories=db.categories(session)
+        categories=categs
         )
 
-
 @app.route("/store/spares/<subtype>")
+@app.route("/store/spares/<subtype>/")
 async def rest_spare_redirect(subtype):
     return redirect(f"/store/spares#{subtype}", code=302)
 
 
+@app.route("/store/spares/<subtype>/<slug>")
 @app.route("/store/spares/<subtype>/<slug>/")
 async def spare_details(subtype, slug):
     session = db_proxy.create_session()

@@ -1,0 +1,30 @@
+<section>
+      <div class="container-fluid px-5 {% if is_even %}bg-light{% endif %}" id="{{ categ.slug }}">
+        <h1 class="fw-bold mt-2 {% if is_even %}text-secondary pt-3{% endif %}">{{ categ().human_name }}</h1>
+          <div class="row d-flex justify-content-center">
+              
+              {% for i in items %}
+
+                  <div class="col-xs-12 col-sm-4 col-lg-3 col-xxl-2 d-flex align-items-stretch justify-content-center">
+                    <a href="{{ i.store_link }}" class="card-link">
+
+                    <div class="container p-4 m-4 border rounded overflow-hidden shadow-sm h-md-250 card bounce" style="height: 90%;">
+                      
+                      <div class="d-flex justify-content-center">
+                        <img src="{{ url_for('static', filename=i.image_name) if i.image_name else ''}}" style="width: 15em; height: 13em;" class="rounded m-3 img-fluid">
+                      </div>
+
+                      <div>
+                        <h4 class="fw-bold">{{i.name}}</h4>
+                        <p class="text-wrap text-dark mb-auto" style="min-width: 10em; max-width: 15em;">{{i.description}}</p>
+                      </div>
+                    </div>
+
+                    </a>
+                  </div>
+
+              {% endfor %}
+            
+          </div>
+      </div>
+</section>

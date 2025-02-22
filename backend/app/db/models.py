@@ -7,6 +7,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from datetime import datetime, timezone, timedelta
+from abc import abstractmethod
 
 from app.db.schema import OrderFormRequestSchema
 
@@ -51,6 +52,15 @@ class SpareAviability(BaseEnum):
 
 ### sqlalchemy models ###
 
+class MasterskayaTypeMixin():
+    @classmethod
+    def get_subclasses(cls):
+        return cls.__subclasses__()
+
+    @abstractmethod
+    def is_empty(self):
+        pass
+
 
 class Base(DeclarativeBase):
     def create(self, session):
@@ -79,7 +89,7 @@ class Brand(Base):
     spares: Mapped[List["Spare"]] = relationship(back_populates="brand")
 
 
-class SpareCategory(Base):
+class SpareCategory(Base, MasterskayaTypeMixin):
     __tablename__ = "spare_categories"
 
     id = Column(Integer, primary_key=True)
@@ -235,7 +245,7 @@ class Order(Base):
         }
 
 
-class RepairOrder(Order):
+class RepairOrder(Order, MasterskayaTypeMixin):
     __mapper_args__ = {
         "polymorphic_identity": "repair"
         }

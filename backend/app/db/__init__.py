@@ -43,8 +43,20 @@ class DBProxy(metaclass=Singleton): #
 
 ### categories queries ###
 
-def categories(session):
-    return session.query(SpareCategory).all()
+def not_empty_categories(session):
+    return [i for i in session.query(SpareCategory).all() if not i.is_empty(session)]
+
+def categories(session) -> dict:
+    '''
+    Returns a dict of subclasses and it's not empty instanses
+    '''
+    keys = SpareCategory.get_subclasses()
+    items = session.query(SpareCategory).all()
+
+    categs = dict()
+    for i in keys:
+        categs[i] = list(filter(lambda x: isinstance(x, i), items))
+    return categs
 
 def categories_page(session, page, max_per_page=4):
     query = session.query(SpareCategory)
@@ -68,8 +80,6 @@ def spare(session, spare_id):
 def spares_by_category_and_brand(session, brand, category):
     q = session.query(Spare).where(Spare.brand_id == brand.id)
     q = q.where(Spare.category_id == category.id)
-
-    #q = q.where(Spare.name == spare.name) ???
     return q.all()
 
 def spares_by_subtype_and_slug(session, subtype, slug):
