@@ -1,6 +1,6 @@
 from .models import *
 
-import logging
+import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from app.utils import Singleton
@@ -106,3 +106,12 @@ def repair_orders_page_by_master(session, master_id, page=1, max_per_page=4):
 
 def brand_by_name(session, name):
     return session.query(Brand).where(Brand.name == name).one()
+
+
+### resale queries ###
+
+def camera_by_id(session, id):
+    try:
+        return session.query(ResaleCamera).where(ResaleCamera.id == id).one()
+    except sqlalchemy.exc.NoResultFound:
+        return None

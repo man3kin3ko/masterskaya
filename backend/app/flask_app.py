@@ -27,11 +27,13 @@ async def index():
 async def page_not_found(e):
     return render_template("404.html")
 
-@app.route("/store/cameras/<uuid>")
-async def camera_page(uuid):
-    #     cameras = [i[0] for i in db_proxy.get_resale_cameras()]
-    #     return render_template("cameras.html", cameras=cameras)
-    return render_template("camera-store-page.html")
+@app.route("/store/cameras/<id>")
+async def camera_page(id):
+    session = db_proxy.create_session()
+    camera = db.camera_by_id(session, id)
+    if camera:
+        return render_template("camera-store-page.html", camera=camera)
+    return redirect("/404", 301)
 
 @app.route("/rules")
 @app.route("/rules/")

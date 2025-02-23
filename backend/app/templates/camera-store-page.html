@@ -6,7 +6,7 @@
       <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/cameras" class="no-link-underscoring">Камеры</a>/</span>
   </div>
 </section>
-<script src="https://rawcdn.githack.com/nextapps-de/spotlight/0.7.8/dist/spotlight.bundle.js"></script>
+
 <section>
   <div class="row d-flex mx-0 justify-content-center">
     <style>
@@ -36,26 +36,28 @@
       }
     </style>
     <div id="grid" class="m-5 p-0">
-                <div id="img" class="spotlight-group" data-title="Konica C35 EL" data-animation="fade" data-preload="true">
-                      <a class="spotlight" href="https://00.img.avito.st/image/1/1.TfjKKba44RH8gCMU3EA5yPKI4xd0iGMZvI3jE3qA6Rt8.2Fy4mm11VO6h_8BYvpN1GTp2ceaHmBiLeGaUyz-p4BM">
-                        <img class="img-fluid rounded w-100" src="https://00.img.avito.st/image/1/1.TfjKKba44RH8gCMU3EA5yPKI4xd0iGMZvI3jE3qA6Rt8.2Fy4mm11VO6h_8BYvpN1GTp2ceaHmBiLeGaUyz-p4BM" style="max-width: 60em;" >
+              {%- if camera.images | length > 0 -%}
+              <script src="https://rawcdn.githack.com/nextapps-de/spotlight/0.7.8/dist/spotlight.bundle.js"></script>
+
+                <div id="img" class="spotlight-group" data-title="{{ camera.name }}" data-animation="fade" data-preload="true">
+                    {% for i in camera.images %}
+                      <a {% if loop.index != 1 %} hidden {% endif %} class="spotlight" href="{{ i.external_url if i.external_url else i.name }}">
+                        <img class="img-fluid rounded w-100" src="{{ i.external_url if i.external_url else i.name }}" style="max-width: 60em;" >
                       </a>
-                      <a hidden class="spotlight" href="https://00.img.avito.st/image/1/1.TfjKKba44RH8gCMU3EA5yPKI4xd0iGMZvI3jE3qA6Rt8.2Fy4mm11VO6h_8BYvpN1GTp2ceaHmBiLeGaUyz-p4BM">
-                        <img class="img-fluid rounded w-100" src="https://00.img.avito.st/image/1/1.TfjKKba44RH8gCMU3EA5yPKI4xd0iGMZvI3jE3qA6Rt8.2Fy4mm11VO6h_8BYvpN1GTp2ceaHmBiLeGaUyz-p4BM" style="max-width: 60em;">
-                      </a>
+                    {% endfor %}
                 </div>
-    
+              {%- endif -%}
                 <div class="p-4">
-                <h2 class="text-muted">Лот #1</h2>
+                <h2 class="text-muted">Лот #{{ camera.id }}</h2>
                   <h1 class="display-5">
-                    Konica C35 EL
+                    {{ camera.name }}
                   </h1>
-                  <h3 class="mx-1">6 000 ₽</h3>
-                  <p class="text-break p-4">описанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеи</p>
+                  <h3 class="mx-1">{{ camera.price | priceFormat }} ₽</h3>
+                  <p class="text-break p-4">{{ camera.description }}</p>
                 <ul>
-                <li>Гарантия</li>
-                <li>Состояние</li>
-                <li>Проведено обслуживание</li>
+                <li>Гарантия: месяц</li>
+                <li>Состояние: удовлетворительное</li>
+                <li>Проведено CLA</li>
               </ul>
         <a class="btn btn-lg m-btn-primary text-white mt-3 p-3 px-5 rounded-pill" href="#" type="button">В корзину</a>
                 </div>

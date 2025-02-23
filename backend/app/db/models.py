@@ -216,10 +216,10 @@ class ResaleCamera(Base):
     quantity: Mapped[int] = mapped_column(Integer, default=0)
     avito_link: Mapped[Optional[str]] = mapped_column(String(256))
 
-    images: Mapped[List["Image"]] = relationship(back_populates="resale_camera")
+    images: Mapped[List["ResaleImage"]] = relationship(back_populates="resale_camera")
 
 
-class Image(Base):
+class ResaleImage(Base):
     __tablename__ = "resale_images"
 
     id: Mapped[int] = mapped_column(primary_key=True)
