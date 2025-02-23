@@ -6,61 +6,61 @@
       <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/cameras" class="no-link-underscoring">Камеры</a>/</span>
   </div>
 </section>
-
+<script src="https://rawcdn.githack.com/nextapps-de/spotlight/0.7.8/dist/spotlight.bundle.js"></script>
 <section>
-    <div class="row d-flex mx-0 justify-content-center">
-        <div style="width: 80vw;" class="col-6 m-5 p-0">
-          <h2>Лот #1</h2>
+  <div class="row d-flex mx-0 justify-content-center">
+    <style>
+      @media(min-width: 575px){
+        #grid {
+          width: 80vw; 
+          display: grid; 
+          grid-template-columns: repeat(2, 1fr);
+        }
 
-            <div class="row align-items-center d-flex justify-content-center p-4">
-
-            <div class="col-sm-12 col-xxl-8 mb-4 mb-md-0">
-                  <a href="#" onclick="openSlider(1)">
-                    <img class="img-fluid rounded w-100" src="https://00.img.avito.st/image/1/1.TfjKKba44RH8gCMU3EA5yPKI4xd0iGMZvI3jE3qA6Rt8.2Fy4mm11VO6h_8BYvpN1GTp2ceaHmBiLeGaUyz-p4BM" style="max-width: 60em;">
-                  </a>
-            </div>
-
-            <div class="col-sm-12 col-md-6 col-xxl-4 p-4">
-              <h1 class="display-5">
-                Konica C35 EL
-              </h1>
-              <h3 class="text-secondary">6 000 ₽</h3>
-              <p class="text-break">описанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеи</p>
-            <ul>
-            <li>Гарантия</li>
-            <li>Состояние</li>
-            <li>Проведено обслуживание</li>
-          </ul>
-            </div>
-
-            </div>
-        </div>
-    </div>
-
-<div hidden class="modal fade text-center" id="1" tabindex="-1" style="display: block; background-color: #000000ab; align-content: center;">
-  <img class="img-fluid rounded" src="https://00.img.avito.st/image/1/1.TfjKKba44RH8gCMU3EA5yPKI4xd0iGMZvI3jE3qA6Rt8.2Fy4mm11VO6h_8BYvpN1GTp2ceaHmBiLeGaUyz-p4BM">
-</div>
-
-
-</section>
-
-
-  <script>
-  let modal;
-
-  const closeSlider = async (e) => {
-      if (e.target.classList.contains("row") || e.target.classList.contains("modal")) {
-        modal.classList.remove("show");
-        modal.hidden = true;
+        #img {
+          text-align: end;
+          margin-right: 4em;
+        }
       }
-  }
 
-  const openSlider = async (id) => {
-    modal = document.getElementById(id);
-    modal.hidden = false;
-    modal.classList.add("show");
-    modal.addEventListener("click", closeSlider);
-    modal.firstElementChild.addEventListener("click", closeSlider);
-  };
-  </script>
+      @media(max-width: 575px){
+        #grid {
+          display: grid; 
+          grid-template-rows: repeat(2, 1fr);
+        }
+
+        #img {
+          text-align: center;
+          align-content: space-evenly;
+        }
+      }
+    </style>
+    <div id="grid" class="m-5 p-0">
+                <div id="img" class="spotlight-group" data-title="Konica C35 EL" data-animation="fade" data-preload="true">
+                      <a class="spotlight" href="https://00.img.avito.st/image/1/1.TfjKKba44RH8gCMU3EA5yPKI4xd0iGMZvI3jE3qA6Rt8.2Fy4mm11VO6h_8BYvpN1GTp2ceaHmBiLeGaUyz-p4BM">
+                        <img class="img-fluid rounded w-100" src="https://00.img.avito.st/image/1/1.TfjKKba44RH8gCMU3EA5yPKI4xd0iGMZvI3jE3qA6Rt8.2Fy4mm11VO6h_8BYvpN1GTp2ceaHmBiLeGaUyz-p4BM" style="max-width: 60em;" >
+                      </a>
+                      <a hidden class="spotlight" href="https://00.img.avito.st/image/1/1.TfjKKba44RH8gCMU3EA5yPKI4xd0iGMZvI3jE3qA6Rt8.2Fy4mm11VO6h_8BYvpN1GTp2ceaHmBiLeGaUyz-p4BM">
+                        <img class="img-fluid rounded w-100" src="https://00.img.avito.st/image/1/1.TfjKKba44RH8gCMU3EA5yPKI4xd0iGMZvI3jE3qA6Rt8.2Fy4mm11VO6h_8BYvpN1GTp2ceaHmBiLeGaUyz-p4BM" style="max-width: 60em;">
+                      </a>
+                </div>
+    
+                <div class="p-4">
+                <h2 class="text-muted">Лот #1</h2>
+                  <h1 class="display-5">
+                    Konica C35 EL
+                  </h1>
+                  <h3 class="mx-1">6 000 ₽</h3>
+                  <p class="text-break p-4">описанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеиописанеи</p>
+                <ul>
+                <li>Гарантия</li>
+                <li>Состояние</li>
+                <li>Проведено обслуживание</li>
+              </ul>
+        <a class="btn btn-lg m-btn-primary text-white mt-3 p-3 px-5 rounded-pill" href="#" type="button">В корзину</a>
+                </div>
+    
+                </div>
+        </div>
+</section>
 {% endblock %}
