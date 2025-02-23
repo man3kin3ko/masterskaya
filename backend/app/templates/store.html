@@ -53,7 +53,9 @@
                 {% endfor %}
               {% endif %}
           </div>
+          {% if categories|length > 3 %}
           {% include 'slide-buttons.html' %} 
+          {% endif %}
         </div>
       </div>
       

@@ -55,7 +55,9 @@ def categories(session) -> dict:
 
     categs = dict()
     for i in keys:
-        categs[i] = list(filter(lambda x: isinstance(x, i), items))
+        items_list = list(filter(lambda x: isinstance(x, i) and not x.is_empty(session), items))
+        if len(items_list):
+            categs[i] = items_list 
     return categs
 
 def categories_page(session, page, max_per_page=4):

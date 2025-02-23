@@ -11,7 +11,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = db_proxy.engine
 app.jinja_env.globals['config'] = Config
 
 session = db_proxy.create_session()
-app.jinja_env.globals['cached_categs'] = db.not_empty_categories(session)
+app.jinja_env.globals['cached_categs'] = db.categories(session)
 
 @app.template_filter()
 def priceFormat(value):
@@ -27,12 +27,11 @@ async def index():
 async def page_not_found(e):
     return render_template("404.html")
 
-@app.route("/store/cameras")
-@app.route("/store/cameras/")
-async def cameras():
+@app.route("/store/cameras/<uuid>")
+async def camera_page(uuid):
     #     cameras = [i[0] for i in db_proxy.get_resale_cameras()]
     #     return render_template("cameras.html", cameras=cameras)
-    return render_template("cameras.html")
+    return render_template("camera-store-page.html")
 
 @app.route("/rules")
 @app.route("/rules/")

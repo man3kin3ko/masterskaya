@@ -1,0 +1,4 @@
+<li><h5 class="dropdown-header">{{ categ().icon }} {{ categ().human_name }}</h5></li>
+{%- for i in items -%}
+<li><a class="dropdown-item" href="#" onclick="redirect('{{i.store_link}}')">{{ i.name }}</a></li>
+{%- endfor -%}

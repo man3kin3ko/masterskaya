@@ -11,30 +11,13 @@
               <div class="dropdown" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                 <a class="nav-link {% if request.path.startswith('/store/spares/') %} active {% endif %}" href="#" id="navbarDropdown" role="button" aria-haspopup="true" aria-expanded="false">Запчасти</a>
                 <ul class="dropdown-menu pl-2 pr-3" aria-labelledby="navbarDropdown" data-popper-placement="bottom-end" style="position: absolute;">
-                  
-                  {% set electric_items = cached_categs | selectattr('subtype', 'equalto', 'electrical') | list %}
-                  {% if electric_items %}
-                  <li><h5 class="dropdown-header">⚡ Электроника</h5></li>
-                  {% for i in electric_items %}
-                    <li><a class="dropdown-item" href="#" onclick="redirect('{{i.store_link}}')">{{i.name}}</a></li>
-                  {% endfor %}
-                  {% endif %}
 
-                  {% set mecha_items = cached_categs | selectattr('subtype', 'equalto', 'mecha') | list %}
-                  {% if mecha_items %}
-                    <li><h5 class="dropdown-header">⚙️ Механика</h5></li>
-                  {% for i in mecha_items %}
-                    <li><a class="dropdown-item" href="#" onclick="redirect('{{i.store_link}}')">{{ i.name }}</a></li>
+                  {% for i in cached_categs.keys() %}
+                  {% with categ=i, items=cached_categs[i] %}
+                      {% include 'dropdown_items.html' %}
+                  {% endwith %}
                   {% endfor %}
-                  {% endif %}
 
-                  {% set common_items = cached_categs | selectattr('subtype', 'equalto', 'common') | list %}
-                  {% if common_items %}
-                    <li><h5 class="dropdown-header">🔋 Общие запчасти</h5></li>
-                  {% for i in common_items %}
-                    <li><a class="dropdown-item" href="#" onclick="redirect('{{i.store_link}}')">{{ i.name }}</a></li>
-                  {% endfor %}
-                  {% endif %}
                   <hr class="my-1">
                   <li><a class="dropdown-item" href="#" onclick="redirect('/store/spares')">Все запчасти</a></li>
 

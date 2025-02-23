@@ -120,12 +120,22 @@ class SpareCategory(Base, MasterskayaTypeMixin):
         categ = session.query(table).where(table.id == self.id).one()
         return not bool(session.query(Spare).where(Spare.category_id == categ.id).first())
 
+    @property
+    @abstractmethod
+    def icon(self):
+        pass
+
+    @property
+    @abstractmethod
+    def human_name(self):
+        pass
+
 
 class ElectricalSpare(SpareCategory):
     __mapper_args__ = {
         "polymorphic_identity": "electrical"
         }
-
+        
     @property
     def icon(self):
         return "⚡"
@@ -156,11 +166,25 @@ class CommonSpare(SpareCategory):
 
     @property
     def icon(self):
-        return "🪛"
+        return "🔋"
 
     @property
     def human_name(self):
-        return "Общее"
+        return "Для всего"
+
+
+class Chemical(SpareCategory):
+    __mapper_args__ = {
+        "polymorphic_identity": "chemical"
+        }
+
+    @property
+    def icon(self):
+        return "🧪"
+
+    @property
+    def human_name(self):
+        return "Проявка"
 
 
 class Spare(Base):
