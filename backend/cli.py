@@ -22,11 +22,8 @@ def init_db_command():
 
 @cli.command("dump-db")
 def dump_db_command():
-    pass
-
-@cli.command("restore-db")
-def restore_db_command():
-    pass
+    session = db_proxy.create_session()
+    dump_db(session)
 
 if __name__ == '__main__':
     cli()

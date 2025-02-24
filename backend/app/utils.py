@@ -1,3 +1,4 @@
+import enum
 import asyncio
 from functools import reduce
 
@@ -9,6 +10,18 @@ class Singleton(type):
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance
         return cls._instances[cls]
+
+class MetaEnum(enum.EnumMeta):
+    def __contains__(cls, item):
+        try:
+            cls(item)
+        except ValueError:
+            return False
+        return True
+
+
+class BaseEnum(enum.Enum, metaclass=MetaEnum):
+    pass
 
 
 def async_to_sync(f):

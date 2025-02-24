@@ -1,4 +1,3 @@
-import enum
 from uuid import uuid4
 from telegram.helpers import escape_markdown # если эскейпить на уровне модуля тг, то не будет, собственно, разметки - ну или как-то через format нужно передавать хз что называется TODO
 from typing import Optional, List
@@ -10,22 +9,10 @@ from datetime import datetime, timezone, timedelta
 from abc import abstractmethod
 
 from app.db.schema import OrderFormRequestSchema
-
+from app.db.serialization import SerializableMixin
+from app.utils import BaseEnum
 
 ### data structures ###
-
-class MetaEnum(enum.EnumMeta):
-    def __contains__(cls, item):
-        try:
-            cls(item)
-        except ValueError:
-            return False
-        return True
-
-
-class BaseEnum(enum.Enum, metaclass=MetaEnum):
-    pass
-
 
 class Status(BaseEnum):
     ordered = "Зарегистрирован"
@@ -61,6 +48,11 @@ class MasterskayaTypeMixin():
     def is_empty(self):
         pass
 
+    @property
+    @abstractmethod
+    def human_name(self):
+        pass
+
 
 class Base(DeclarativeBase):
     def create(self, session):
@@ -89,7 +81,7 @@ class Brand(Base):
     spares: Mapped[List["Spare"]] = relationship(back_populates="brand")
 
 
-class SpareCategory(Base, MasterskayaTypeMixin):
+class SpareCategory(Base, MasterskayaTypeMixin, SerializableMixin):
     __tablename__ = "spare_categories"
 
     id = Column(Integer, primary_key=True)
@@ -125,11 +117,6 @@ class SpareCategory(Base, MasterskayaTypeMixin):
     def icon(self):
         pass
 
-    @property
-    @abstractmethod
-    def human_name(self):
-        pass
-
 
 class ElectricalSpare(SpareCategory):
     __mapper_args__ = {
@@ -141,7 +128,7 @@ class ElectricalSpare(SpareCategory):
         return "⚡"
 
     @property
-    def human_name(self): #TODO: rename
+    def human_name(self):
         return "Электроника"
 
 
@@ -187,7 +174,7 @@ class Chemical(SpareCategory):
         return "Проявка"
 
 
-class Spare(Base):
+class Spare(Base, SerializableMixin):
     __tablename__ = "spares"
 
     id = Column(Integer, primary_key=True)
@@ -206,7 +193,7 @@ class Spare(Base):
     quantity: Mapped[int] = mapped_column(Integer, default=0)
 
 
-class ResaleCamera(Base):
+class ResaleCamera(Base, SerializableMixin):
     __tablename__ = "camera_resale"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -219,7 +206,7 @@ class ResaleCamera(Base):
     images: Mapped[List["ResaleImage"]] = relationship(back_populates="resale_camera")
 
 
-class ResaleImage(Base):
+class ResaleImage(Base, SerializableMixin):
     __tablename__ = "resale_images"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -229,10 +216,9 @@ class ResaleImage(Base):
     external_url: Mapped[Optional[str]]
 
 
-class Order(Base):
+class Order(Base, SerializableMixin):
     __tablename__ = "orders"
     id: Mapped[int] = mapped_column(primary_key=True)
-
     subtype = Column(String)  # discriminator
 
     @property
@@ -262,6 +248,13 @@ class Order(Base):
     @hybrid_property
     def _created_time(self):
         return (self.created_time + timedelta(hours=self.utc)).strftime(self.time_format)
+
+    @staticmethod
+    def deserialize(row):
+        db_format = '%Y-%m-%d %H:%M:%S.%f'
+        row['last_modified_time'] = datetime.strptime(row['last_modified_time'], db_format)
+        row['created_time'] = datetime.strptime(row['created_time'], db_format)
+        return row
 
     __mapper_args__ = {
         "with_polymorphic": "*", 
@@ -302,7 +295,7 @@ class RepairOrder(Order, MasterskayaTypeMixin):
         )
         return order
 
-    ### tg view methods ###
+    ### tg view methods ### TODO: утащить в тг
 
     @property
     def title(self):

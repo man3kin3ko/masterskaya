@@ -1,5 +1,11 @@
-from sqlalchemy import insert
-from .models import *
+from sqlalchemy import insert, update
+from app.db.models import *
+from app.db.serialization import SerializableMixin
+
+def dump_db(session):
+    for table in SerializableMixin.get_serializables():
+        table.dump(session)
+            
 
 def init_db(session):
     session.execute(
