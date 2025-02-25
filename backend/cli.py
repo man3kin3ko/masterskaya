@@ -1,10 +1,10 @@
 import click
-from app.db import DBProxy
-from app.db.cli import *
-
 from pwd import getpwnam
 from grp import getgrnam
 from os import chown
+
+from app.db import DBProxy
+from app.db.cli import *
 
 db_proxy = DBProxy()
 
@@ -22,8 +22,28 @@ def init_db_command():
 
 @cli.command("dump-db")
 def dump_db_command():
-    session = db_proxy.create_session()
+    session = db_proxy.create_session() # TODO utils
     dump_db(session)
+
+@cli.command("update-table")
+@click.option('--table')
+@click.option('--path', default=None)
+def update_table_command(table, path):
+    if not path:
+        path = table + ".csv"
+
+    session = db_proxy.create_session()
+    update_table(session, table, path)
+    
+@cli.command("insert-table")
+@click.option('--table')
+@click.option('--path', default=None)
+def insert_table_command(table, path):
+    if not path:
+        path = table + ".csv"
+
+    session = db_proxy.create_session()
+    insert_table(session, table, path)
 
 if __name__ == '__main__':
     cli()

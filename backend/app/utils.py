@@ -1,6 +1,7 @@
 import enum
 import asyncio
 from functools import reduce
+from itertools import chain
 
 class Singleton(type):
     _instances = {}
@@ -44,3 +45,6 @@ def is_class(x):
 
 def flatten_dicts(list_of_dicts):
     return reduce(lambda d, src: d.update(src) or d, list_of_dicts, {})
+
+def flatten_lists(list_of_lists):
+    return list(chain.from_iterable(list_of_lists))
