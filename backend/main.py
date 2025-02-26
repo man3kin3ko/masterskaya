@@ -4,7 +4,7 @@ import logging
 from flask import request
 from asgiref.wsgi import WsgiToAsgi
 
-from app.flask_app import app
+from app.frontend import app
 from app.db import RepairOrder, DBProxy
 from app.tg import start_bot
 

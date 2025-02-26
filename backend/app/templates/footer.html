@@ -1,11 +1,20 @@
-<footer class="m-bg-grey p-4">
-    <div class="row mx-0">
+<footer class="container-fluid w-100 m-bg-grey p-4">
+    <div class="mx-2">
         <a href="{{ url_for('index') }}" class="navbar-brand mb-3">
             <img class="d-inline-block align-text-top" height="32" width="32" alt="Logo" src="{{ url_for('static', filename='logo.svg') }}" style="margin-right:2rem">
         </a>
     </div>
-    <div class="row flex-row text-muted mx-0">
-        <div class="col">
+    <style>
+        .footer-grid {
+            display: grid;
+            grid-auto-flow: dense;
+            grid-template-areas: "c s w"
+                                 "i i p";
+    
+        }
+    </style>
+    <div class="footer-grid text-muted mx-0">
+        <div class="m-2" style="grid-area: c;">
             <h5 class="fw-bold">Контакты</h5>
             <ul class="list-unstyled text-small">
             <li>{{ config.ADDRESS }}</li>
@@ -14,31 +23,30 @@
             <li><a class="no-link-underscoring" href="mailto://{{ config.MAIL }}">{{ config.MAIL }}</a></li>
         </ul>
         </div>
-        <div class="col">
+        <div class="m-2" style="grid-area: s;">
             <h5 class="fw-bold">Сервис</h5>
             <ul class="list-unstyled text-small">
             <li><a class="text-muted no-link-underscoring" href="/route">Как пройти</a></li>
             <li><a class="text-muted no-link-underscoring" href="/rules">Памятка клиента</a></li>
-            <!-- <li><a class="text-muted no-link-underscoring" href="/refund">Условия возврата и гарантийного ремонта</a></li> -->
             <li><a class="text-muted no-link-underscoring" href="/tracking">Статус ремонта</a></li>
         </ul>
         </div>
-        <div class="col">
+        <div class="m-2" style="grid-area: w;">
             <h5 class="fw-bold">Кто мы</h5>
             <ul class="list-unstyled text-small">
             <li><a class="text-muted no-link-underscoring" href="/">О нас</a></li>
             <li><a class="text-muted no-link-underscoring" href="https://t.me/masterskaya35ru">Блог</a></li>
-            <li class="mt-3">
-              <a class="no-link-underscoring" href="{{ config.TG_LINK }}">
+        </ul>
+        </div>
+        <div style="grid-area: p;">
+            <a class="no-link-underscoring" href="{{ config.TG_LINK }}">
                 <img class="opacity-50" height="32" width="32" alt="tg" src="{{ url_for('static', filename='tg.svg') }}">
             </a>
             <a class="no-link-underscoring" href="{{ config.AVITO_LINK }}">
-                <img style="border-radius: 100%; background-color: white; filter: invert(1);" class="opacity-50" height="32" width="32" alt="avito" src="{{ url_for('static', filename='avito.svg') }}">
+                <img style="border-radius: 100%; background-color: white; filter: invert();" class="opacity-50" height="32" width="32" alt="avito" src="{{ url_for('static', filename='avito.svg') }}">
             </a>
-            </li>
-        </ul>
         </div>
-        <div class="col">
+        <div class="m-2" style="grid-area: i; overflow: overlay;">
             <p>Вся информация, размещенная на сайте, носит исключительно информационный характер и не является рекламой и публичной офертой.</p>
             <p>Сайт находится в разработке</p>
         </div>
