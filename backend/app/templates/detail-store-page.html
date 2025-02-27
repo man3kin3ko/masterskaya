@@ -1,14 +1,9 @@
-{% extends 'base.html' %}
-
-{% block content %}
-    <section>
-        <div class="row flex-row m-3 fw-bold">
-            <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/<a href="/store/spares/#{{ category.subtype }}" class="no-link-underscoring">{{ category.human_name }}</a>/</span>
-            <h1 class="fw-bold my-2">{{ category.name }}</h1>
-        </div>
-    </section>
-    <section>
-        <div class="container-fluid">
+{% extends 'catalog-wrapper.html' %}
+{%- set title=category.name -%}
+{%- block nav -%}
+<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/<a href="/store/spares/#{{ category.subtype }}" class="no-link-underscoring">{{ category.human_name }}</a>/</span>
+{%- endblock -%}
+{% block container %}
             <div class="row">
               <nav class="col-md-2 col-lg-2 col-xxl-1 d-none d-md-block bg-light sidebar">
                 <div class="sidebar-sticky">
@@ -73,6 +68,4 @@
                 {% endif %}
               </main>
             </div>
-          </div>
-    </section>
 {% endblock %}

@@ -1,11 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'catalog-wrapper.html' %}
 
-{% block content %}
-    <section>
-        <div class="row flex-row mx-3 mt-3 fw-bold">
-            <span>/<a href="/store/" class="no-link-underscoring">Каталог</a>/<a href="/store/spares" class="no-link-underscoring">Запчасти</a>/</span>
-        </div>
-    </section>
+{%- block nav -%}
+<a href="/store/spares" class="no-link-underscoring">Запчасти</a>
+{%- endblock -%}
+
+{% block container %}
     {% for i in categories.keys() %}
         {% with categ=i, items=categories[i], is_even=loop.index is divisibleby 2%}
             {% include 'spare_categ.html' %}
