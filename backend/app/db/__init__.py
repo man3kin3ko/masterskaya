@@ -115,3 +115,6 @@ def camera_by_id(session, id):
         return session.query(ResaleCamera).where(ResaleCamera.id == id).one()
     except sqlalchemy.exc.NoResultFound:
         return None
+
+def cameras(session):
+    return session.query(ResaleCamera).order_by(ResaleCamera.id.desc()).all()

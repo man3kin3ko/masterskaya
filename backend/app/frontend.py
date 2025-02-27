@@ -17,7 +17,7 @@ app.jinja_env.globals['cached_categs'] = db.categories(session)
 def priceFormat(value):
     rev = str(value)[::-1]
     groups = [rev[i:i + 3] for i in range(0, len(rev), 3)]
-    return ' '.join(groups)[::-1]
+    return ' '.join(groups)[::-1] + " ₽"
 
 @app.route("/")
 async def index():
@@ -26,6 +26,12 @@ async def index():
 @app.errorhandler(404)
 async def page_not_found(e):
     return render_template("404.html")
+
+@app.route("/store/cameras")
+@app.route("/store/cameras/")
+async def cameras():
+    session = db_proxy.create_session()
+    return render_template("cameras.html", cameras=db.cameras(session))
 
 @app.route("/store/cameras/<id>")
 async def camera_page(id):
@@ -79,7 +85,6 @@ async def spares():
     session = db_proxy.create_session()
     categs = db.categories(session)
 
-    print(categs)
     return render_template(
         "spares.html", 
         categories=categs
