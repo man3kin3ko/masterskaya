@@ -12,7 +12,9 @@
                     <div class="shadow card p-4 bounce" style="border-radius: 1.3em">
                         <a class="no-link-underscoring" href="/store/cameras/{{i.id}}">
                         <div class="card-body">
-                            <img class="img-fluid rounded my-4" src="https://00.img.avito.st/image/1/1.TfjKKba44RH8gCMU3EA5yPKI4xd0iGMZvI3jE3qA6Rt8.2Fy4mm11VO6h_8BYvpN1GTp2ceaHmBiLeGaUyz-p4BM">
+                            {%- if i.images | length > 0 -%}
+                            <img class="img-fluid rounded my-4" src="{{ i.images[0].external_url if i.images[0].external_url else i.images[0].name }}">
+                            {%- endif -%}
                             <h2 class="text-black">{{ i.name }}</h2>
                             <h4 class="m-text-primary">{{ i.price | priceFormat }}</h4>
                         </div>
