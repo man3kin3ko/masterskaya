@@ -4,6 +4,7 @@ from typing import Optional, List
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.exc import NoResultFound
 
 from datetime import datetime, timezone, timedelta
 from abc import abstractmethod
@@ -11,6 +12,7 @@ from abc import abstractmethod
 from app.db.schema import OrderFormRequestSchema
 from app.db.serialization import SerializableMixin
 from app.utils import BaseEnum
+from app.image_processor import Processor
 
 ### data structures ###
 
@@ -109,7 +111,10 @@ class SpareCategory(Base, MasterskayaTypeMixin, SerializableMixin):
 
     def is_empty(self, session):
         table = self.__class__
-        categ = session.query(table).where(table.id == self.id).one()
+        try:
+            categ = session.query(table).where(table.id == self.id).one()
+        except NoResultFound:
+            return True
         return not bool(session.query(Spare).where(Spare.category_id == categ.id).first())
 
     @property
@@ -118,7 +123,7 @@ class SpareCategory(Base, MasterskayaTypeMixin, SerializableMixin):
         pass
 
 
-class ElectricalSpare(SpareCategory):
+class ElectricalSpareCategory(SpareCategory):
     __mapper_args__ = {
         "polymorphic_identity": "electrical"
         }
@@ -132,7 +137,7 @@ class ElectricalSpare(SpareCategory):
         return "Электроника"
 
 
-class MechanicalSpare(SpareCategory):
+class MechanicalSpareCategory(SpareCategory):
     __mapper_args__ = {
         "polymorphic_identity": "mecha"
         }
@@ -144,34 +149,6 @@ class MechanicalSpare(SpareCategory):
     @property
     def human_name(self):
         return "Механика"
-
-
-class CommonSpare(SpareCategory):
-    __mapper_args__ = {
-        "polymorphic_identity": "common"
-        }
-
-    @property
-    def icon(self):
-        return "🔋"
-
-    @property
-    def human_name(self):
-        return "Для всего"
-
-
-class Chemical(SpareCategory):
-    __mapper_args__ = {
-        "polymorphic_identity": "chemical"
-        }
-
-    @property
-    def icon(self):
-        return "🧪"
-
-    @property
-    def human_name(self):
-        return "Проявка"
 
 
 class Spare(Base, SerializableMixin):
@@ -203,17 +180,29 @@ class ResaleCamera(Base, SerializableMixin):
     quantity: Mapped[int] = mapped_column(Integer, default=0)
     avito_link: Mapped[Optional[str]] = mapped_column(String(256))
 
-    images: Mapped[List["ResaleImage"]] = relationship(back_populates="resale_camera")
+    images: Mapped[List["Image"]] = relationship(back_populates="resale_camera")
 
 
-class ResaleImage(Base, SerializableMixin):
-    __tablename__ = "resale_images"
+class Image(Base, SerializableMixin):
+    __tablename__ = "images"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     resale_id = Column(Integer, ForeignKey("camera_resale.id"))
     resale_camera: Mapped[ResaleCamera] = relationship(back_populates="images")
-    image_name: Mapped[Optional[str]]
+    image_path: Mapped[Optional[str]]
     external_url: Mapped[Optional[str]]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        if self.image_name:
+            processor = Processor("dist/thumb/")
+            processor.generate_thumbnails(self.image_name)
+
+    @property
+    def loc(self):
+        if self.image_path:
+            return self.image_path
+        return self.external_url
 
 
 class Order(Base, SerializableMixin):

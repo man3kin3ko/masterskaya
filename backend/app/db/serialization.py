@@ -45,7 +45,7 @@ class SerializableMixin():
         def f(cls):
             if not len(cls.__subclasses__()):
                 return [cls]
-            return [cls] + flatten_lists([f(i) for i in cls.__subclasses__()])
+            return flatten_lists([f(i) for i in cls.__subclasses__()])
             
         return flatten_lists([f(i) for i in SerializableMixin.__subclasses__()])
 
