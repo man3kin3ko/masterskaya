@@ -25,6 +25,17 @@ def dump_db_command():
     session = db_proxy.create_session() # TODO utils
     dump_db(session)
 
+@cli.command("drop-table")
+@click.option('--table')
+def drop_table_command(table):
+    drop_table(db_proxy.engine, table)
+
+@cli.command("create-table")
+@click.option('--table')
+def create_table_command(table):
+    create_table(db_proxy.engine, table)
+
+
 @cli.command("update-table")
 @click.option('--table')
 @click.option('--path', default=None)

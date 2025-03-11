@@ -2,6 +2,16 @@ from sqlalchemy import insert, update
 from app.db.models import *
 from app.db.serialization import SerializableMixin, DBDeserializer
 
+def create_table(engine, table_name):
+    for table in SerializableMixin.get_serializables():
+        if table.__name__ == table_name:
+            table.__table__.create(engine)
+
+def drop_table(engine, table_name):
+     for table in SerializableMixin.get_serializables():
+        if table.__name__ == table_name:
+            table.__table__.drop(engine)
+
 def insert_table(session, table_name, path):
     for table in SerializableMixin.get_serializables():
         if table.__name__ == table_name:
