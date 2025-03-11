@@ -86,7 +86,10 @@ def spares_by_category_and_brand(session, brand, category):
 
 def spares_by_subtype_and_slug(session, subtype, slug):
     subtype_class = SpareCategory.from_discriminator(subtype)
-    return session.query(subtype_class).where(subtype_class.slug == slug).one().spares
+    categ = session.query(subtype_class).where(subtype_class.slug == slug).one()
+    return session.query(Spare).where(Spare.category_id == categ.id) \
+                               .join(Brand, Spare.brand) \
+                               .order_by(Brand.id)
 
 ### repair queries ###
 

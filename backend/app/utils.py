@@ -48,3 +48,7 @@ def flatten_dicts(list_of_dicts):
 
 def flatten_lists(list_of_lists):
     return list(chain.from_iterable(list_of_lists))
+
+def unique_everseen(items):
+    # unique_everseen('AAAABBBCCDAABBB') --> A B C D
+    return list(dict.fromkeys(items))
