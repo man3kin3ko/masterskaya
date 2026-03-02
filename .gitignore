@@ -11,3 +11,6 @@ backend/database.db
 backend/instance/
 backend/app/dist
 venv/
+backend/alembic/*
+!backend/alembic/versions/
+backend/alembic.ini

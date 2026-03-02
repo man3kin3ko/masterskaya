@@ -1,4 +1,5 @@
 from flask import Flask, request, redirect, render_template, make_response
+from app.utils import unique_everseen
 from .config import Config
 from .utils import cycle_list
 
@@ -102,7 +103,7 @@ async def spare_details(subtype, slug):
     session = db_proxy.create_session()
     category = db.category_by_slug(session, subtype, slug)
     spares = list(db.spares_by_subtype_and_slug(session, subtype, slug))
-    brands = set([i.brand for i in spares])
+    brands = unique_everseen([i.brand for i in spares])
 
     return render_template(
         "detail-store-page.html",

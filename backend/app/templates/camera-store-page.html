@@ -1,8 +1,8 @@
 {% extends 'catalog-wrapper.html' %}
 
-{% block nav %}
+{%- block nav -%}
 <a href="/store/cameras" class="no-link-underscoring">Фотоаппараты</a>/</span>
-{% endblock %}
+{%- endblock -%}
 
 {% block container %}
     <style>
@@ -56,7 +56,7 @@
                 <li>Состояние: удовлетворительное</li>
                 <li>Проведено CLA</li>
               </ul>
-        <a class="btn btn-lg m-btn-primary text-white mt-3 p-3 px-5 rounded-pill" href="#" type="button">В корзину</a>
+        <a class="btn btn-lg m-btn-primary text-white mt-3 p-3 px-5 rounded-pill" href="{{ camera.avito_link if camera.avito_link else '#'}}" type="button">В корзину</a>
                 </div>
     
     </div>
